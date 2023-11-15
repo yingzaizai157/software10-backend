@@ -24,7 +24,8 @@ gorit:
 #      path1: /home/data/WorkSpace/software10/Load/file
 #      path2: /home/data/WorkSpace/software10/Load/alg
       path1: G:/wang/projects/software10/software10_backend/src/main/resources/file
-      path2: G:/wang/projects/software10/software10_backend/src/main/resources/alg
+#      path2: G:/wang/projects/software10/software10_backend/src/main/resources/alg
+      path2: C:/Users/33125/IdeaProjects/software-software_backend/src/main/resources/alg
     py:
 #      diabetes: /home/data/WorkSpace/software10/Arithmetic/pythonProject/diabetes.py
 #      xgbc_rl: /home/data/WorkSpace/software10/Arithmetic/pythonProject/xgbc_rl.py
@@ -35,8 +36,11 @@ gorit:
       diabetes: C:/Users/pc/PycharmProjects/pythonProject/diabetes.py
       xgbc_rl: C:/Users/pc/PycharmProjects/pythonProject/xgbc_rl.py
       rlv3_2: C:/Users/pc/PycharmProjects/pythonProject/rlv3_2.py
-      dqn1: C:/Users/pc/PycharmProjects/pythonProject/dqn1.py
-      use_model: C:/Users/pc/PycharmProjects/pythonProject/use_model.py
+
+#      dqn1: C:/Users/pc/PycharmProjects/pythonProject/dqn1.py
+#      use_model: C:/Users/pc/PycharmProjects/pythonProject/use_model.py
+      dqn1: C:/Users/33125/IdeaProjects/software-software_backend/src/main/resources/alg/dqn1.py
+      use_model: C:/Users/33125/IdeaProjects/software-software_backend/src/main/resources/alg/use_model.py
 
 application:
   python:
