@@ -15,7 +15,7 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 server:
-  port: 8088
+  port: 8080
 
 gorit:
   file:
@@ -32,7 +32,7 @@ gorit:
 #      dqn1: /home/data/WorkSpace/software10/Arithmetic/pythonProject/dqn1.py
 #      use_model: /home/data/WorkSpace/software10/Arithmetic/pythonProject/use_model.py
 
-      diabetes: C:/Users/pc/PycharmProjects/pythonProject/diabetes.py
+      diabetes: D:/Code/Java/software10/software-software_backend/src/main/resources/alg/xgb.py
       xgbc_rl: C:/Users/pc/PycharmProjects/pythonProject/xgbc_rl.py
       rlv3_2: C:/Users/pc/PycharmProjects/pythonProject/rlv3_2.py
       dqn1: C:/Users/pc/PycharmProjects/pythonProject/dqn1.py
@@ -41,4 +41,4 @@ gorit:
 application:
   python:
 #    environment: /home/data/anaconda3/envs/software10/bin/python
-    environment: D:/Anaconda/envs/pytorch_learn/python.exe
+    environment: F:/Anaconda3/envs/pytorch/python.exe

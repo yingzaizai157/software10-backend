@@ -34,9 +34,9 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
     private String use_model;
 
     @Override
-    public RuntimeBusServiceResponse submitBus() throws Exception {
+    public RuntimeBusServiceResponse submitBus(String tableName) throws Exception {
         List<String> args = new ArrayList<>();
-        args.add("--pass--");
+        args.add("--table_name="+tableName);
         System.out.println("args:  " + args);
 
         RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();

@@ -37,6 +37,7 @@ public class RuntimeTaskServiceImpl implements RuntimeTaskService {
         List<String> res = JSONObject.parseArray(pythonRun.run(request.getPyPath(), request.getArgs()), String.class);
         taskResponse.setRes(res);
         System.out.println("res" + res);
+
         return taskResponse;
     }
 

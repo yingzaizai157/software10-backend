@@ -30,4 +30,9 @@
         SELECT table_name FROM data_table
     </select>
 
+    <select id="getTableInfo" resultType="com.cqupt.software_10.common.DataTable">
+        SELECT * FROM data_table where table_name=#{tableName}
+    </select>
+
+
 </mapper>

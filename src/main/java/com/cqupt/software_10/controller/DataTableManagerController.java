@@ -18,7 +18,10 @@ import javax.annotation.Resource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/DataTable")
@@ -71,6 +74,27 @@ public class DataTableManagerController {
             return true;
         }
     }
+
+    /**
+     * 获取表data_table的所有内容
+     *
+     * @return
+     */
+    @GetMapping("/getTables")
+    public R<List<DataTable>> getTables(){
+        List<DataTable> tables = dataTableManagerService.upalldata();
+        return new R<>(200,"成功",tables, tables.size());
+    }
+
+
+    // 模型训练表预览
+//    @GetMapping("/getData")
+//    public R<List<DataTable>> getData(
+//            @RequestParam("tableName") String tableName
+//    ){
+//        // 先获取此表信息
+//        DataTable tableInfo = dataTableManagerService.getTableInfo(tableName);
+//    }
 
 
 

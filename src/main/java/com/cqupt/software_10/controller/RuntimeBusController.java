@@ -1,11 +1,13 @@
 package com.cqupt.software_10.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.cqupt.software_10.entity.response.RuntimeBusServiceResponse;
 import com.cqupt.software_10.service.RuntimeBusService;
 import com.cqupt.software_10.service.RuntimeTaskService;
 import com.cqupt.software_10.service.TenKaggleDiabetesReflectService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,11 +29,12 @@ class RuntimeBusController {
     @Resource
     private RuntimeTaskService runtimeTaskService;
 
-    @PostMapping("/submit_model")
-//    @PostMapping("/xgboost")
-    public Map<String, Double> submitPredictModel() throws Exception {
-
-        RuntimeBusServiceResponse runtimeBusServiceResponse = runtimeBusService.submitBus();
+    @PostMapping("/xgboost")
+    public Map<String, Double> submitPredictModel(
+            @RequestBody String tableName
+    ) throws Exception {
+        JSONObject object = JSONObject.parseObject(tableName);
+        RuntimeBusServiceResponse runtimeBusServiceResponse = runtimeBusService.submitBus(object.getString("tableName"));
 
         System.out.println("======submit_model========");
         Map<String, Double> mapRes = new HashMap<>();

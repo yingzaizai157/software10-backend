@@ -46,6 +46,11 @@ public class DataTableManagerServiceImpl implements DataTableManagerService {
     }
 
     @Override
+    public DataTable getTableInfo(String tableName) {
+        return null;
+    }
+
+    @Override
     public void updateDataTable( String table_name,String disease, String createName, int uid) {
         // 在这里实现计算样本数和特征数的逻辑
         int featurenumber = calculateFeatureNumber(table_name);

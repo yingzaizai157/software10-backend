@@ -17,4 +17,7 @@ public interface DataTableManagerService extends IService<DataTable> {
     List<String> upname();
 
 
+    DataTable getTableInfo(String tableName);
+
+
 }

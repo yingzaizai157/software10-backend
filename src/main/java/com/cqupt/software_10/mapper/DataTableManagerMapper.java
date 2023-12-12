@@ -17,4 +17,6 @@ public interface DataTableManagerMapper extends BaseMapper<DataTable> {
 
     List<String> upname();
 
+    DataTable getTableInfo(String tableName);
+
 }
