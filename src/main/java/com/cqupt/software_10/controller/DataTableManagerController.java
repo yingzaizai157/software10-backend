@@ -74,7 +74,6 @@ public class DataTableManagerController {
             return true;
         }
     }
-
     /**
      * 获取表data_table的所有内容
      *
@@ -83,6 +82,7 @@ public class DataTableManagerController {
     @GetMapping("/getTables")
     public R<List<DataTable>> getTables(){
         List<DataTable> tables = dataTableManagerService.upalldata();
+        //
         return new R<>(200,"成功",tables, tables.size());
     }
 
@@ -96,13 +96,9 @@ public class DataTableManagerController {
 //        DataTable tableInfo = dataTableManagerService.getTableInfo(tableName);
 //    }
 
-
-
     /**
      *  从陈鹏那里拷贝来
      */
-
-
     @PostMapping("/upload")
     public UploadResult uploadFile(@RequestPart("file") MultipartFile file,
                                    @RequestParam("newName") String newName,
