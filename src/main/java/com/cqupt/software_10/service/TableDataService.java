@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 // TODO 公共模块新增类
 public interface TableDataService {
@@ -18,4 +19,10 @@ public interface TableDataService {
     void createTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser, CategoryEntity nodeData);
 
     List<LinkedHashMap<String, Object>> getFilterDataByConditions(List<CreateTableFeatureVo> characterList,CategoryEntity nodeData);
+
+    List<Map<String, Object>> getInfoByTableName(String tableName);
+
+    List<String> ParseFileCol(MultipartFile file, String tableName) throws IOException;
+
+    Integer getCountByTableName(String tableName);
 }

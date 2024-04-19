@@ -1,11 +1,19 @@
+import json
 import pandas as pd
 import numpy as np
-from sklearn.impute import KNNImputer
-import psycopg2
 from sqlalchemy import create_engine, text
 import argparse
 import warnings
 warnings.filterwarnings("ignore")
+
+
+# 读取常量
+with open(r"config.json") as json_file:
+    config = json.load(json_file)
+db_params = config["db_params"]
+modename = config["modename"]
+
+
 
 
 def getInfos(df, feature_cols):
@@ -18,22 +26,22 @@ def getInfos(df, feature_cols):
     return missing_rate_dict
 
 
-def imputeKnn(df, feature_cols, db_params):
-    # 初始化KNN插值器，设置要使用的邻居数量
-    imputer = KNNImputer(n_neighbors=5)
+# def imputeKnn(df, feature_cols, db_params):
+#     # 初始化KNN插值器，设置要使用的邻居数量
+#     imputer = KNNImputer(n_neighbors=5)
+#
+#     # 使用KNN插值填充缺失值
+#     df_imputed = imputer.fit_transform(df[feature_cols])
+#
+#     # 将填充后的数据转换回DataFrame
+#     df_imputed = pd.DataFrame(df_imputed, columns=feature_cols)
+#
+#     # 将填充后的数据合并到原始DataFrame中
+#     df[feature_cols] = df_imputed
+#     return df
 
-    # 使用KNN插值填充缺失值
-    df_imputed = imputer.fit_transform(df[feature_cols])
 
-    # 将填充后的数据转换回DataFrame
-    df_imputed = pd.DataFrame(df_imputed, columns=feature_cols)
-
-    # 将填充后的数据合并到原始DataFrame中
-    df[feature_cols] = df_imputed
-    return df
-
-
-def getDF(db_params, sql, table_name, mode):
+def getDF(db_params, sql):
     # 使用 SQLAlchemy 创建数据库连接引擎
     engine_url = f"postgresql+psycopg2://{db_params['user']}:{db_params['password']}@{db_params['host']}:{db_params['port']}/{db_params['dbname']}"
     engine = create_engine(engine_url)
@@ -66,14 +74,14 @@ def getDF(db_params, sql, table_name, mode):
     missing_rate_dict.append(labels_missing_rate)
     print(missing_rate_dict)
 
-    # 缺失填充并建立新的表
-    df = imputeKnn(data, feature_cols, db_params)
-    # 将填充后的数据写回数据库
-    if mode == "public":
-        table_name = "data_" + table_name
-    with engine.connect() as connection:
-        # 使用连接执行 SQL 查询
-        df.to_sql(table_name + "_imputed", connection, schema='software10', if_exists='replace', index=False)
+    # # 缺失填充并建立新的表
+    # df = imputeKnn(data, feature_cols, db_params)
+    # # 将填充后的数据写回数据库
+    # if mode == "public":
+    #     table_name = "data_" + table_name
+    # with engine.connect() as connection:
+    #     # 使用连接执行 SQL 查询
+    #     df.to_sql(table_name + "_imputed", connection, schema='software10', if_exists='replace', index=False)
 
     # 将填充后的数据写回数据库
     # df.to_sql("data_diabetes_imputed", engine, schema='software10', if_exists='replace', index=False)
@@ -81,27 +89,12 @@ def getDF(db_params, sql, table_name, mode):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='参数')
-    parser.add_argument("--table_name", type=str, default="diabetes10")
+    parser.add_argument("--table_name", type=str, default="heart2")
     parser.add_argument("--modename", type=str, default="public")
     args = parser.parse_args()
 
     table_name = args.table_name
-    modename = args.modename
-    if modename == "software10":
-        table_name = "data_" + table_name
-
-
-
-    # 数据库连接参数
-    db_params = {
-        "dbname": "medical",
-        "user": "pg",
-        "password": "111111",
-        "host": "10.16.48.219",
-        "port": 5432
-    }
-
 
     str = "select * from " + modename + "." + table_name
     sql = text(str)
-    getDF(db_params, sql, table_name, modename)
+    getDF(db_params, sql)

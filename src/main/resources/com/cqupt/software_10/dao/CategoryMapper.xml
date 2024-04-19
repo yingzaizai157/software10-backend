@@ -6,7 +6,11 @@
 
 
     <update id="removeNode">
-        update software10.category set is_delete=1 where id = CAST(#{id} AS VARCHAR);;
+        update software10.category set is_delete=1 where id = CAST(#{id} AS VARCHAR);
+    </update>
+
+    <update id="removeTable">
+        drop table "${label}";
     </update>
 
     <select id="getLabelByPid" resultType="java.lang.String">
@@ -33,5 +37,15 @@
 
     <update id="updateTableNameByTableId">
         update software10.category set label=#{tableName}, status=#{tableStatus} where id = CAST(#{tableid} AS VARCHAR);;
+    </update>
+
+
+    <update id="changeStatusToShare">
+        update software10.category set status=1 where id = #{id} ;
+        update software10.table_describe set table_status=1 where table_id = #{id};
+    </update>
+    <update id="changeStatusToPrivate">
+        update software10.category set status=0 where id = #{id};
+        update software10.table_describe set table_status=0 where table_id = #{id};
     </update>
 </mapper>

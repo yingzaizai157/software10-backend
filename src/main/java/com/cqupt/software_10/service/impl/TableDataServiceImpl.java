@@ -228,6 +228,32 @@ public class TableDataServiceImpl implements TableDataService {
         return res;
     }
 
+    @Override
+    public List<Map<String, Object>> getInfoByTableName(String tableName) {
+        return tableDataMapper.getInfoByTableName(tableName);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<String> ParseFileCol(MultipartFile file, String tableName) throws IOException {
+        ArrayList<String> featureList = null;
+        if (!file.isEmpty()) {
+            // 使用 OpenCSV 解析 CSV 文件
+            Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream(),"UTF-8"));
+            CSVReader csvReader = new CSVReader(reader);
+            List<String[]> csvData = csvReader.readAll();
+            csvReader.close();
+            // 获取表头信息
+            String[] headers = csvData.get(0);
+            featureList = new ArrayList<String>(Arrays.asList(headers));
+        }
+        return featureList;
+    }
+
+    @Override
+    public Integer getCountByTableName(String tableName) {
+        return tableDataMapper.getCountByTableName(tableName);
+    }
+
     private void getLeafNode(CategoryEntity nodeData,List<CategoryEntity> leafNodes){
         for (CategoryEntity child : nodeData.getChildren()) {
             if(child.getIsLeafs()==1) leafNodes.add(child);

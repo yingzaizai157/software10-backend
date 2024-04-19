@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 // TODO 公共模块新增类
 
-@TableName("table_describe")
+@TableName(value = "table_describe", schema = "software10")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -21,4 +21,8 @@ public class TableDescribeEntity {
     private String createUser;
     private String createTime;
     private String classPath;
+    private String uid;
+    private String tableStatus;
+    private Double tableSize;
+    private static final long serialVersionUID = 1L;
 }

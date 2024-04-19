@@ -18,6 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+import static com.cqupt.software_10.entity.CategoryEntity.copyShareTreeStructure;
+import static com.cqupt.software_10.entity.CategoryEntity.copyPrivareTreeStructure;
+import static com.cqupt.software_10.entity.CategoryEntity.copyCommonTreeStructure;
+
 // TODO 公共模块新增类
 
 @Service
@@ -114,6 +119,32 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
     public void addParentDisease(String diseaseName) {
         CategoryEntity categoryEntity = new CategoryEntity(null, 1, diseaseName, "0", 0, 0, "1", null, "admin", null,null,null,0,0,0);
         categoryMapper.insert(categoryEntity);
+    }
+
+    @Override
+    public void changeStatus(CategoryEntity categoryEntity) {
+        System.out.println(categoryEntity.getStatus());
+        if (categoryEntity.getStatus().equals("0")){
+            categoryMapper.changeStatusToShare(categoryEntity.getId());
+        }
+        else if(categoryEntity.getStatus().equals("1")){
+            categoryMapper.changeStatusToPrivate(categoryEntity.getId());
+        }
+    }
+
+    @Override
+    public List<CategoryEntity> getTaskCategory() {
+        // 获取所有目录行程树形结构
+        List<CategoryEntity> categoryEntities = categoryMapper.selectList(null);
+        // 获取所有级结构
+        List<CategoryEntity> treeData = categoryEntities.stream().filter((categoryEntity) -> {
+            return categoryEntity.getParentId().equals("0") && categoryEntity.getIsDelete()==0;
+        }).map((level1Cat) -> {
+            level1Cat.setChildren(getCatChildren(level1Cat, categoryEntities));
+            return level1Cat;
+        }).collect(Collectors.toList());
+
+        return treeData;
     }
 
     @Override
@@ -274,6 +305,42 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
             categoryMapper.update(null, updateWrapper);
         }
     }
+
+    @Override
+    public List<CategoryEntity> getCategory(String uid) {
+        List<CategoryEntity> categoryEntities_private = new ArrayList<CategoryEntity>();
+        List<CategoryEntity> categoryEntities_share = new ArrayList<CategoryEntity>();
+        List<CategoryEntity> categoryEntities_common = new ArrayList<CategoryEntity>();
+        // 获取所有目录行程树形结构
+        List<CategoryEntity> categoryEntities = categoryMapper.selectList(null);
+        // 获取所有级结构
+        List<CategoryEntity> treeData = categoryEntities.stream().filter((categoryEntity) -> {
+            return categoryEntity.getParentId().equals("0") && categoryEntity.getIsDelete()==0;
+        }).map((level1Cat) -> {
+            level1Cat.setChildren(getCatChildren(level1Cat, categoryEntities));
+            return level1Cat;
+        }).collect(Collectors.toList());
+
+
+        CategoryEntity copiedTree1 = copyPrivareTreeStructure(treeData.get(0),uid);
+        copiedTree1.setLabel("私有数据集");
+        CategoryEntity copiedTree2 = copyShareTreeStructure(treeData.get(0));
+        copiedTree2.setLabel("共享数据集");
+        CategoryEntity copiedTree3 = copyCommonTreeStructure(treeData.get(0));
+        copiedTree3.setLabel("公共数据集");
+        List<CategoryEntity> res = new ArrayList<CategoryEntity>();
+        res.add(copiedTree1);
+        res.add(copiedTree2);
+        res.add(copiedTree3);
+        return res;
+    }
+
+    @Override
+    public void removeNode(String id, String label) {
+        categoryMapper.removeNode(id);
+        categoryMapper.removeTable(label);
+    }
+
 
     public void updateTableNameByTableId(String tableid, String tableName, String tableStatus) {
         System.out.println("status: " + tableStatus);
