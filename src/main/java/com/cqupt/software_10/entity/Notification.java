@@ -20,8 +20,8 @@ import java.util.Date;
 public class Notification {
     @TableField(value = "info_id")
     @TableId(type = IdType.AUTO)
-    private Integer infoId;
-    private Integer uid;
+    private String infoId;
+    private String uid;
     private String username;
     private Date createTime;
     private String title;

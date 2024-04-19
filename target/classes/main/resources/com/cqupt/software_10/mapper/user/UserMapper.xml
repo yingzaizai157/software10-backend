@@ -36,13 +36,13 @@
     </insert>
     <update id="updateStatusById">
 
-        update  software10.software10user set user_status = ${status}   , role = ${role}   , upload_size = ${uploadSize} where uid = ${uid}
+        update  software10.software10user set user_status = ${status}   , role = ${role}   , upload_size = ${uploadSize} where uid = '${uid}'
 
 
     </update>
     <update id="removeUserById">
 
-        DELETE FROM software10.software10user WHERE uid= ${uid}
+        DELETE FROM software10.software10user WHERE uid= '${uid}'
     </update>
     <update id="updatePwd">
         update  software10.software10user set password = '${password}'  where username = '${username}'

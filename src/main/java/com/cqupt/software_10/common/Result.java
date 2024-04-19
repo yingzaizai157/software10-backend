@@ -1,5 +1,8 @@
 package com.cqupt.software_10.common;
 
+import lombok.Data;
+
+@Data
 public class Result<T> {
     private Object data;
     private String msg;
@@ -81,4 +84,6 @@ public class Result<T> {
     public void setCode(int code) {
         this.code = code;
     }
+
+
 }

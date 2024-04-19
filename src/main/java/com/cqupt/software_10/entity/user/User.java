@@ -14,7 +14,7 @@ public class User {
 
     @TableId(type = IdType.AUTO)
     @TableField("uid")
-    private Integer uid;
+    private String uid;
 
     private String username;
 

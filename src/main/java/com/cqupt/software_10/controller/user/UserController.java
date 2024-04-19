@@ -51,12 +51,14 @@ public class UserController {
 
 
     @GetMapping("/querUserNameExist")
-    public R querUserNameExist(@RequestParam String userName){
+    public Result querUserNameExist(@RequestParam String userName){
         User existUser = userService.getUserByName(userName);
         if (existUser != null){
-            return new R<>(500,"用户已经存在",null);
+            System.out.println(Result.fail(500,"用户已经存在",null).toString());
+            return Result.fail(500,"用户已经存在",null);
         }
-        return new R(200, "用户名可用" , null);
+        System.out.println(Result.success(200, "用户名可用" , null).toString());
+        return Result.success(200, "用户名可用" , null);
     }
 
     @PostMapping("/signUp")
@@ -64,7 +66,7 @@ public class UserController {
 
         System.out.println(user);
         // 检查用户名是否已经存在
-        user.setUid(0);
+        user.setUid("0");
         User existUser = userService.getUserByName(user.getUsername());
         if (existUser != null){
             return Result.success(500, "用户已经存在", null);
@@ -77,7 +79,7 @@ public class UserController {
         user.setCreateTime(date);
         user.setUpdateTime(null);
         user.setRole(0);
-        user.setUid(new Random().nextInt());
+        user.setUid(new Random().nextInt() + "");
         user.setUploadSize(200);
         userService.saveUser(user);
         //  操作日志记录
@@ -204,8 +206,6 @@ public class UserController {
         return Result.fail(200 , "删除失败");
     }
 
-
-
     // TODO 目前不需要
     @PostMapping("insertUser")
     public Result insertUser(@RequestBody InsertUserVo user) throws ParseException {
@@ -226,13 +226,13 @@ public class UserController {
         answers.add(answer1);
         answers.add(answer2);
         answers.add(answer3);
+
+        System.out.println(Result.success(200, "查询用户密保问题成功",answers ).toString());
         return Result.success(200, "查询用户密保问题成功",answers );
     }
 
 
     // 验证问题
-
-
     @PostMapping("/verify")
     public Result verify(@RequestBody VerifyUserQ verifyUserQ){
         // 用户名   密保问题 和 答案
