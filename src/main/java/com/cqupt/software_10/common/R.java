@@ -20,4 +20,6 @@ public class R<T> {
         this.msg = msg;
         this.data = data;
     }
+
+
 }

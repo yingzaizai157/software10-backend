@@ -21,6 +21,13 @@ spring:
 #prop:
 #  upload-folder: src/main/resources/alg/fig
 
+pagehelper:
+  helperDialect: postgresql  # 设置数据库类型为PostgreSQL
+  reasonable: true      # 分页合理化参数，默认值为 false，设置为 true 后，如果 pageNum 小于 1，则自动设置为 1，如果 pageNum 大于总页数，则自动设置为最后一页
+  supportMethodsArguments: true  # 支持通过 Mapper 方法参数来传递分页参数，默认值为 false
+
+
+
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

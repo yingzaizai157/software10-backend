@@ -1,5 +1,7 @@
 package com.cqupt.software_10.entity.user;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -10,28 +12,37 @@ import java.util.Date;
 @Data
 public class User {
 
-    @TableId
-    private String uid;
+    @TableId(type = IdType.AUTO)
+    @TableField("uid")
+    private Integer uid;
 
     private String username;
 
     private String password;
 
+    private String createTime;
+
+    private String updateTime;
+
     private Integer role;
 
-    private Date createTime;
+    // 新增字段
 
-    private Date updateTime;
+    @TableField(exist = false)
+    private String code;
 
     private String userStatus;
+    @TableField("answer_1")
+    private String answer1;
+    @TableField("answer_2")
+    private String answer2;
+    @TableField("answer_3")
+    private String answer3;
 
-    private String answer_1;
 
-    private String answer_2;
+    private double uploadSize;
 
-    private String answer_3;
 
-    private Double uploadSize;
 
     private static final long serialVersionUID = 1L;
 }
