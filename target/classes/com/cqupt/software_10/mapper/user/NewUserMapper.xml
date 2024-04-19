@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cqupt.software_10.mapper.user.NewUserMapper">
+
+<!--    <resultMap id="BaseResultMap" type="com.cqupt.software_10.entity.user.User">-->
+
+<!--            <id property="uid" column="uid" jdbcType="INTEGER"/>-->
+<!--            <result property="username" column="username" jdbcType="VARCHAR"/>-->
+<!--            <result property="password" column="password" jdbcType="VARCHAR"/>-->
+<!--            <result property="role" column="role" jdbcType="INTEGER"/>-->
+<!--            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>-->
+<!--            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>-->
+<!--    </resultMap>-->
+
+<!--    <sql id="Base_Column_List">-->
+<!--        uid,username,-->
+<!--        password,role,create_time,-->
+<!--        update_time-->
+<!--    </sql>-->
+
+<!--    <select id="queryByUername" resultType="com.cqupt.software_10.entity.user.User">-->
+<!--        SELECT * FROM software10.software10user WHERE username = #{username};-->
+<!--    </select>-->
+<!-- void updateTableSize(String uid); -->
+    <update id="addTableSize">
+        update software10.newsoftware10user  set upload_size = upload_size + ${tableSize} where uid = #{uid}
+    </update>
+
+    <update id="minusTableSize">
+        update software10.newsoftware10user  set upload_size = upload_size - ${tableSize} where uid = #{uid}
+    </update>
+
+    <!--  NewUser selectByUid(String uid); -->
+    <select id="selectByUid" resultType="com.cqupt.software_10.entity.user.NewUser">
+        select * from software10.newsoftware10user where uid = #{uid}
+    </select>
+</mapper>

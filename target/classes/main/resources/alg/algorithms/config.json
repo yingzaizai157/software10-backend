@@ -1,0 +1,21 @@
+{
+  "db_params" : {
+    "dbname": "software10",
+    "user": "pg",
+    "password": "111111",
+    "host": "10.16.48.219",
+    "port": 5432
+  },
+
+  "MODEL_SAVE_DICTORY" : "D:\\Code\\Java\\software10\\software-software_backend\\src\\main\\resources\\alg\\models",
+  "FIG_SAVE_DICTORY" : "D:\\Code\\Java\\software10\\software-software_backend\\src\\main\\resources\\alg\\fig\\model",
+
+  "INPUT_SIZE" : 8,
+  "HIDDEN_SIZE" : 64,
+  "OUTPUT_SIZE" : 2,
+
+  "SHAP_TRAINSIZE" : 50,
+
+  "modename" : "public",
+  "test_size" : 0.2
+}

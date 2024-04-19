@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.cqupt.software_10.mapper")
+@MapperScan(basePackages = {"com.cqupt.software_10.mapper", "com.cqupt.software_10.dao"})
 public class Software10Application {
 
     public static void main(String[] args) {

@@ -1,0 +1,33 @@
+{
+  "groups": [
+    {
+      "name": "application.python",
+      "type": "com.cqupt.software_10.tool.PythonRun",
+      "sourceType": "com.cqupt.software_10.config.ApplicationConfig",
+      "sourceMethod": "getPythonRunBean()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "application.python.auto-remove-cache",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cqupt.software_10.tool.PythonRun"
+    },
+    {
+      "name": "application.python.cache",
+      "type": "java.lang.String",
+      "sourceType": "com.cqupt.software_10.tool.PythonRun"
+    },
+    {
+      "name": "application.python.environment",
+      "type": "java.lang.String",
+      "sourceType": "com.cqupt.software_10.tool.PythonRun"
+    },
+    {
+      "name": "application.python.root",
+      "type": "java.lang.String",
+      "sourceType": "com.cqupt.software_10.tool.PythonRun"
+    }
+  ],
+  "hints": []
+}

@@ -31,12 +31,13 @@ public class RuntimeTaskServiceImpl implements RuntimeTaskService {
         //任务信息入库
         //提交任务
         taskResponse.setTaskFinishTime(new Date().getTime());
-        String a1 = pythonRun.run(request.getPyPath(), request.getArgs());
+        String temp = pythonRun.run(request.getPyPath(), request.getArgs());
 
-        System.out.println("a1=" + a1);
-        List<String> res = JSONObject.parseArray(pythonRun.run(request.getPyPath(), request.getArgs()), String.class);
+        System.out.println("tempres=" + temp);
+        List<String> res = JSONObject.parseArray(temp, String.class);
+//        List<String> res = JSONObject.parseArray(pythonRun.run(request.getPyPath(), request.getArgs()), String.class);
         taskResponse.setRes(res);
-        System.out.println("res" + res);
+//        System.out.println("res" + res);
 
         return taskResponse;
     }
@@ -53,7 +54,7 @@ public class RuntimeTaskServiceImpl implements RuntimeTaskService {
         String a1 = pythonRun.run(request.getPyPath(), request.getArgs());
 
         System.out.println("a1=" + a1);
-        List<String> res = JSONObject.parseArray(pythonRun.run(request.getPyPath(), request.getArgs()), String.class);
+        List<String> res = JSONObject.parseArray(a1, String.class);
         taskResponse.setRes(res);
         System.out.println("res" + res);
         return taskResponse;

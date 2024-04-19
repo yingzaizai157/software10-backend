@@ -4,15 +4,11 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.Date;
 
-/**
- * @TableName user
- */
-@TableName(value ="user")
+@TableName(value ="software10user",schema = "software10")
 @Data
-public class User implements Serializable {
+public class User {
 
     @TableId
     private Integer uid;
@@ -26,6 +22,11 @@ public class User implements Serializable {
     private Date createTime;
 
     private Date updateTime;
+    private String userStatus;
+    private String answer_1;
+    private String answer_2;
+    private String answer_3;
+    private float uploadSize;
 
     private static final long serialVersionUID = 1L;
 }

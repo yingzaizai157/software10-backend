@@ -21,4 +21,6 @@ public interface ManageDataMapper {
     void updateDatasetsInfo(@Param("manageData") ManageData manageData);
 
     void uploadData(@Param("manageData") ManageData manageData);
+
+    List<String> getAllcolumns(@Param("datasetName") String datasetName);
 }

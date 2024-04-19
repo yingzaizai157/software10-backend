@@ -7,6 +7,7 @@ import com.cqupt.software_10.entity.data.ManageData;
 import com.cqupt.software_10.entity.model.ManageModel;
 import com.cqupt.software_10.service.data.KaggleDiabetesService;
 import com.cqupt.software_10.service.data.ManageDataService;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/ten/datasets")
@@ -120,4 +120,30 @@ public class ManageDataController {
         return new R<>(4044,"上传失败",dataSet, dataSet.size());
 
     }
+
+
+    @PostMapping("/sepFeatures")
+    public R<Map<String,List<String>>> sepFeatures(
+            @RequestBody(required=false) String arg
+    ){
+        Gson gson = new Gson();
+        Map map = gson.fromJson(arg, Map.class);
+        String datasetName = map.get("datasetName").toString();
+        List<String> allCol = manageDataService.getAllcolumns(datasetName);
+        Map<String,List<String>> res = new HashMap<String,List<String>>();
+        List<String> features = new ArrayList<String>();
+        List<String> label = new ArrayList<String>();
+        for (int i = 0; i < allCol.size(); i++) {
+            if (i == allCol.size()-1){
+                label.add(allCol.get(i));
+            }else {
+                features.add(allCol.get(i));
+            }
+        }
+        res.put("features", features);
+        res.put("label", label);
+        return new R<>(200,"成功",res, res.size());
+    }
+
+
 }

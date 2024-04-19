@@ -18,8 +18,8 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
     @Resource
     private RuntimeTaskService runtimeTaskService;
 
-    @Value("${gorit.file.py.diabetes}")
-    private String diabetes;
+    @Value("${gorit.file.py.XGB}")
+    private String XGBAlg;
 
     @Value("${gorit.file.py.xgbc_rl}")
     private String xgbc_rl;
@@ -27,22 +27,69 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
     @Value("${gorit.file.py.rlv3_2}")
     private String rlv3_2;
 
-    @Value("${gorit.file.py.dqn1}")
+    @Value("${gorit.file.py.SVM}")
+    private String svm;
+
+    @Value("${gorit.file.py.KNN}")
+    private String knn;
+
+    @Value("${gorit.file.py.DQN}")
     private String dqn1;
+
+    @Value("${gorit.file.py.getLackInfos}")
+    private String getLackInfos;
+
+    @Value("${gorit.file.py.RF}")
+    private String RFAlg;
 
     @Value("${gorit.file.py.use_model}")
     private String use_model;
 
+    @Value("${gorit.file.py.RUNDQN}")
+    private String runDQN;
+
+    @Value("${gorit.file.py.RUNKNN}")
+    private String runKNN;
+
+    @Value("${gorit.file.py.RUNSVM}")
+    private String runSVM;
+
     @Override
-    public RuntimeBusServiceResponse submitBus(String tableName) throws Exception {
+    public RuntimeBusServiceResponse submitBus(String tableName, List<String> cols, List<String> labels, String alg, String mode) throws Exception {
         List<String> args = new ArrayList<>();
-        args.add("--table_name="+tableName);
+        args.add("--table_name=" + tableName);
+        args.add("--mode=" + mode);
+
+        String temp = "--cols=";
+        for (int i = 0; i < cols.size(); i++) {
+            if (i == 0) {
+                temp = temp + cols.get(i);
+            }else {
+                temp = temp + "," + cols.get(i);
+            }
+        }
+        args.add(temp);
+
+        temp = "--labels=";
+        for (int i = 0; i < labels.size(); i++) {
+            if (i == 0) {
+                temp = temp + labels.get(i);
+            }else {
+                temp = temp + "," + labels.get(i);
+            }
+        }
+        args.add(temp);
         System.out.println("args:  " + args);
 
         RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
         RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
 
-        runtimeTaskRequest.setPyPath(diabetes);
+        if (alg.equals("RF")) {
+            runtimeTaskRequest.setPyPath(RFAlg);
+        }else if (alg.equals("XGB")) {
+            runtimeTaskRequest.setPyPath(XGBAlg);
+        }
+
         runtimeTaskRequest.setArgs(args);
 
         System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());
@@ -52,6 +99,48 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
         response.setRes(taskResponse.getRes());
         return response;
     }
+
+    @Override
+    public RuntimeBusServiceResponse submitGetLackInfos(String tableName, String modename) throws Exception {
+        List<String> args = new ArrayList<>();
+        args.add("--table_name="+tableName);
+        args.add("--modename="+modename);
+        System.out.println("args:  " + args);
+
+        RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
+        RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
+
+        runtimeTaskRequest.setPyPath(getLackInfos);
+        runtimeTaskRequest.setArgs(args);
+
+        System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());
+
+        RuntimeTaskResponse taskResponse = runtimeTaskService.submitTask(runtimeTaskRequest);
+        // response.setTaskCreateTime(new Timestamp(taskResponse.getTaskFinishTime()));
+        response.setRes(taskResponse.getRes());
+        return response;
+    }
+
+    @Override
+    public RuntimeBusServiceResponse submitRFAlg(String tableName) throws Exception {
+        List<String> args = new ArrayList<>();
+        args.add("--table_name=" + tableName);
+        System.out.println("args:  " + args);
+
+        RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
+        RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
+
+        runtimeTaskRequest.setPyPath(RFAlg);
+        runtimeTaskRequest.setArgs(args);
+
+        System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());
+
+        RuntimeTaskResponse taskResponse = runtimeTaskService.submitTask(runtimeTaskRequest);
+        // response.setTaskCreateTime(new Timestamp(taskResponse.getTaskFinishTime()));
+        response.setRes(taskResponse.getRes());
+        return response;
+    }
+
 
     public RuntimeBusServiceResponse submitRLModel() throws Exception {
         List<String> args = new ArrayList<>();
@@ -92,15 +181,225 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
         return response;
     }
 
-    public RuntimeBusServiceResponse submitDQN(String rate) throws Exception {
+    @Override
+    public RuntimeBusServiceResponse submitSVM(String kernel, String random_state, String cv, String modelName, String table_name, List<String> cols, List<String> labels) throws Exception {
         List<String> args = new ArrayList<>();
-        args.add("--rate=" + rate);
+        args.add("--kernel=" + kernel);
+        args.add("--random_state=" + Integer.parseInt(random_state));
+//        args.add("--paramRange=" + Integer.parseInt(paramRange));
+        args.add("--cv=" + Integer.parseInt(cv));
+        args.add("--modelName=" + modelName);
+        args.add("--table_name=" + table_name);
+
+        String temp = "--cols=";
+        for (int i = 0; i < cols.size(); i++) {
+            if (i == 0) {
+                temp = temp + cols.get(i);
+            }else {
+                temp = temp + "," + cols.get(i);
+            }
+        }
+        args.add(temp);
+
+        temp = "--labels=";
+        for (int i = 0; i < labels.size(); i++) {
+            if (i == 0) {
+                temp = temp + labels.get(i);
+            }else {
+                temp = temp + "," + labels.get(i);
+            }
+        }
+        args.add(temp);
+        System.out.println("args:  " + args);
+
+
+
+
+        RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
+        RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
+
+        runtimeTaskRequest.setPyPath(svm);
+        runtimeTaskRequest.setArgs(args);
+
+        System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());
+
+        RuntimeTaskResponse taskResponse=runtimeTaskService.submitRLModelTask(runtimeTaskRequest);
+        // response.setTaskCreateTime(new Timestamp(taskResponse.getTaskFinishTime()));
+        response.setRes(taskResponse.getRes());
+        return response;
+    }
+
+    @Override
+    public RuntimeBusServiceResponse submitKNN(String K,String random_state, String cv, String modelName, String table_name, List<String> cols, List<String> labels) throws Exception {
+        List<String> args = new ArrayList<>();
+        args.add("--K=" + K);
+        args.add("--random_state=" + random_state);
+        args.add("--cv=" + Integer.parseInt(cv));
+        args.add("--modelName=" + modelName);
+        args.add("--table_name=" + table_name);
+
+        String temp = "--cols=";
+        for (int i = 0; i < cols.size(); i++) {
+            if (i == 0) {
+                temp = temp + cols.get(i);
+            }else {
+                temp = temp + "," + cols.get(i);
+            }
+        }
+        args.add(temp);
+
+        temp = "--labels=";
+        for (int i = 0; i < labels.size(); i++) {
+            if (i == 0) {
+                temp = temp + labels.get(i);
+            }else {
+                temp = temp + "," + labels.get(i);
+            }
+        }
+        args.add(temp);
+        System.out.println("args:  " + args);
+
+
+
+
+        RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
+        RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
+
+        runtimeTaskRequest.setPyPath(knn);
+        runtimeTaskRequest.setArgs(args);
+
+        System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());
+
+        RuntimeTaskResponse taskResponse = runtimeTaskService.submitRLModelTask(runtimeTaskRequest);
+        // response.setTaskCreateTime(new Timestamp(taskResponse.getTaskFinishTime()));
+        response.setRes(taskResponse.getRes());
+        return response;
+    }
+
+    public RuntimeBusServiceResponse submitDQN(String reward, String epoch, String gamma, String learning_rate, String modelName, String table_name, List<String> cols, List<String> labels) throws Exception {
+        List<String> args = new ArrayList<>();
+        args.add("--reward=" + Double.parseDouble(reward));
+        args.add("--epoch=" + (int) Double.parseDouble(epoch));
+        args.add("--gamma=" + Double.parseDouble(gamma));
+        args.add("--learning_rate=" + Double.parseDouble(learning_rate));
+        args.add("--modelName=" + modelName);
+        args.add("--table_name=" + table_name);
+
+        String temp = "--cols=";
+        for (int i = 0; i < cols.size(); i++) {
+            if (i == 0) {
+                temp = temp + cols.get(i);
+            }else {
+                temp = temp + "," + cols.get(i);
+            }
+        }
+        args.add(temp);
+
+        temp = "--labels=";
+        for (int i = 0; i < labels.size(); i++) {
+            if (i == 0) {
+                temp = temp + labels.get(i);
+            }else {
+                temp = temp + "," + labels.get(i);
+            }
+        }
+        args.add(temp);
         System.out.println("args:  " + args);
 
         RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
         RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
 
         runtimeTaskRequest.setPyPath(dqn1);
+        runtimeTaskRequest.setArgs(args);
+
+        System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());
+
+        RuntimeTaskResponse taskResponse=runtimeTaskService.submitRLModelTask(runtimeTaskRequest);
+        // response.setTaskCreateTime(new Timestamp(taskResponse.getTaskFinishTime()));
+        response.setRes(taskResponse.getRes());
+        return response;
+    }
+
+    @Override
+    public RuntimeBusServiceResponse rundqn(String model, List<String> onedata) throws Exception {
+        List<String> args = new ArrayList<>();
+        args.add("--model=" + model);
+
+        String temp = "--onedata=";
+        for (int i = 0; i < onedata.size(); i++) {
+            if (i == 0) {
+                temp = temp + onedata.get(i);
+            }else {
+                temp = temp + "," + onedata.get(i);
+            }
+        }
+        args.add(temp);
+        System.out.println("args:  " + args);
+
+        RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
+        RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
+
+        runtimeTaskRequest.setPyPath(runDQN);
+        runtimeTaskRequest.setArgs(args);
+
+        System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());
+
+        RuntimeTaskResponse taskResponse=runtimeTaskService.submitRLModelTask(runtimeTaskRequest);
+        // response.setTaskCreateTime(new Timestamp(taskResponse.getTaskFinishTime()));
+        response.setRes(taskResponse.getRes());
+        return response;
+    }
+
+    @Override
+    public RuntimeBusServiceResponse runknn(String model, List<String> onedata) throws Exception {
+        List<String> args = new ArrayList<>();
+        args.add("--model=" + model);
+
+        String temp = "--onedata=";
+        for (int i = 0; i < onedata.size(); i++) {
+            if (i == 0) {
+                temp = temp + onedata.get(i);
+            }else {
+                temp = temp + "," + onedata.get(i);
+            }
+        }
+        args.add(temp);
+        System.out.println("args:  " + args);
+
+        RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
+        RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
+
+        runtimeTaskRequest.setPyPath(runKNN);
+        runtimeTaskRequest.setArgs(args);
+
+        System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());
+
+        RuntimeTaskResponse taskResponse=runtimeTaskService.submitRLModelTask(runtimeTaskRequest);
+        // response.setTaskCreateTime(new Timestamp(taskResponse.getTaskFinishTime()));
+        response.setRes(taskResponse.getRes());
+        return response;
+    }
+
+    @Override
+    public RuntimeBusServiceResponse runsvm(String model, List<String> onedata) throws Exception {
+        List<String> args = new ArrayList<>();
+        args.add("--model=" + model);
+
+        String temp = "--onedata=";
+        for (int i = 0; i < onedata.size(); i++) {
+            if (i == 0) {
+                temp = temp + onedata.get(i);
+            }else {
+                temp = temp + "," + onedata.get(i);
+            }
+        }
+        args.add(temp);
+        System.out.println("args:  " + args);
+
+        RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
+        RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
+
+        runtimeTaskRequest.setPyPath(runSVM);
         runtimeTaskRequest.setArgs(args);
 
         System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());

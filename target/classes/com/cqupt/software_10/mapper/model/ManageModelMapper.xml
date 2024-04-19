@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cqupt.software_10.mapper.model.ManageModelMapper">
+    <select id="getAllModels" resultType="com.cqupt.software_10.entity.model.ManageModel">
+        select *  from ManageModel;
+    </select>
+
+    <select id="getModelsDisease" resultType="java.lang.String">
+        select distinct disease  from ManageModel;
+    </select>
+
+    <select id="searchByDiseaseName" resultType="com.cqupt.software_10.entity.model.ManageModel">
+        select *
+        from ManageModel
+        where
+            true
+            <if test="diseaseName != null and diseaseName != ''" >
+                and disease=#{diseaseName}
+            </if>
+    </select>
+
+    <delete id="deleteModelById">
+        delete from ManageModel where id=${id}
+    </delete>
+
+    <update id="updateModelInfo">
+        update ManageModel
+        SET model_name = #{manageModel.modelName},
+            disease = #{manageModel.disease},
+            table_name = #{manageModel.tableName},
+            creator = #{manageModel.creator},
+            remark = #{manageModel.remark}
+        WHERE id = ${manageModel.id}
+    </update>
+
+    <insert id="uploadModel">
+        insert into ManageModel(model_name, disease, table_name, creator, remark)
+            value (  #{manageModel.modelName}, #{manageModel.disease}, #{manageModel.tableName},
+            #{manageModel.creator}, #{manageModel.remark})
+
+    </insert>
+</mapper>

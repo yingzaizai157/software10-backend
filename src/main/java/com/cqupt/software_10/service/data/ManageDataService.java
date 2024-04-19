@@ -17,4 +17,6 @@ public interface ManageDataService {
     void updateDatasetsInfo(ManageData manageData);
 
     void uploadData(ManageData manageData);
+
+    List<String> getAllcolumns(String datasetName);
 }

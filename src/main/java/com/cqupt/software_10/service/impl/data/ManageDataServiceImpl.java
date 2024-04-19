@@ -50,4 +50,9 @@ public class ManageDataServiceImpl implements ManageDataService {
     public void uploadData(ManageData manageData) {
         manageDataMapper.uploadData(manageData);
     }
+
+    @Override
+    public List<String> getAllcolumns(String datasetName) {
+        return manageDataMapper.getAllcolumns(datasetName);
+    }
 }

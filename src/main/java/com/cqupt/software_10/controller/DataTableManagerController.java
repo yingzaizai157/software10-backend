@@ -58,7 +58,6 @@ public class DataTableManagerController {
     @GetMapping("/upall")
     public List<DataTable> upall() {
         return dataTableManagerService.upalldata();
-
     }
 
 

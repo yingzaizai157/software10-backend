@@ -1,25 +1,19 @@
 package com.cqupt.software_10.controller.user;
 
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.cqupt.software_10.util.SecurityUtil;
-import com.cqupt.software_10.common.R;
+import com.cqupt.software_10.common.Result;
 import com.cqupt.software_10.entity.user.User;
-import com.cqupt.software_10.entity.user.UserLog;
-import com.cqupt.software_10.service.user.UserLogService;
 import com.cqupt.software_10.service.user.UserService;
+import com.cqupt.software_10.tool.SecurityUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
-
 
 /**
  *
@@ -38,61 +32,34 @@ public class UserController {
     private UserService userService;
 
 
-    @Autowired
-    private UserLogService userLogService;
 
     @PostMapping("/signUp")
-    public R signUp(@RequestBody User user) {
+    public Result signUp(@RequestBody User user) {
 
         // 检查用户名是否已经存在
-        user.setUid(0);
+//        user.setUid(0);
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("username",user.getUsername());
 
         User existUser = userService.getOne(queryWrapper);
 
         if (existUser != null){
-            return new R<>(500,"用户已经存在",null);
+            return Result.fail(500,"用户名已存在");
         }
-
         String pwd = user.getPassword();
-
         // 对密码进行加密处理
-
         String password = SecurityUtil.hashDataSHA256(pwd);
-
         user.setPassword(password);
         user.setCreateTime(new Date());
         user.setUpdateTime(null);
-
+        System.out.println(user);
         userService.save(user);
-
-
-        //  操作日志记录
-
-       UserLog userLog = new UserLog();
-
-       QueryWrapper queryWrapper1  = new QueryWrapper<>();
-       queryWrapper1.eq("username",user.getUsername());
-
-        User one = userService.getOne(queryWrapper1);
-        Integer uid = one.getUid();
-
-        // userLog.setId(1);
-       userLog.setUid(uid);
-       userLog.setOpTime(new Date());
-       userLog.setOpType("用户注册");
-
-       userLogService.save(userLog);
-
-        return new R<>(200,"成功",null);
+        return Result.success(200,"注册成功");
 
     }
 
     @PostMapping("/login")
-    public R login(@RequestBody User user,
-                   HttpServletResponse response,
-                   HttpServletRequest request){
+    public Result login(@RequestBody User user, HttpServletResponse response, HttpServletRequest request){
 
         String userName = user.getUsername();
 
@@ -102,19 +69,13 @@ public class UserController {
 
         User getUser = userService.getOne(queryWrapper);
 
-        String password = getUser.getPassword();
+
         if (getUser != null){
+            String password = getUser.getPassword();
             // 进行验证密码
             String pwd = user.getPassword();
             String sha256 = SecurityUtil.hashDataSHA256(pwd);
             if (sha256.equals(password)){
-                // 验证成功
-                UserLog userLog = new UserLog();
-                userLog.setUid(getUser.getUid());
-                userLog.setOpTime(new Date());
-                userLog.setOpType("登录系统");
-                userLog.setUsername(userName);
-                userLogService.save(userLog);
                 // session认证
                 HttpSession session = request.getSession();
                 session.setAttribute("username",user.getUsername());
@@ -124,24 +85,42 @@ public class UserController {
                 Cookie cookie = new Cookie("userId",uid );
                 response.addCookie(cookie);
 
-                return new R<>(200,"登录成功",getUser);
+                //封装user对象返回
+                User user1 = new User();
+                user1.setUid(getUser.getUid());
+                user1.setUsername(getUser.getUsername());
+                user1.setRole(getUser.getRole());
+
+                return Result.success(200,"登录成功",user1);
             }else {
-                return new R<>(500,"密码错误请重新输入",null);
+                return Result.fail(500,"密码错误请重新输入",null);
             }
 
         }else {
-            return new R<>(500,"用户不存在",null);
+            return Result.fail(500,"用户不存在",null);
         }
     }
 
 
     @PostMapping("/logout")
-    public R logout(HttpServletRequest request){
+    public Result logout(HttpServletRequest request,HttpServletResponse response){
 
         HttpSession session = request.getSession();
         Integer userId = (Integer) session.getAttribute("userId");
         session.invalidate();
-        return new R<>(200,"退出成功",null);
+        Cookie cookie = new Cookie("userId", userId.toString());
+        cookie.setMaxAge(0); // 设置过期时间为0，表示立即过期
+        cookie.setPath("/"); // 设置Cookie的作用路径，保持与之前设置Cookie时的路径一致
+        response.addCookie(cookie); // 添加到HTTP响应中
+        return Result.success(200,"退出成功",null);
+    }
+
+
+    @GetMapping("/queryByUername/{username}")
+    public Result queryByUername(@PathVariable String username) throws JsonProcessingException {
+        User user = userService.queryByUername(username);
+
+        return Result.success(200, "操作成功", user);
     }
 
 }
