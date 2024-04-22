@@ -20,8 +20,9 @@ warnings.filterwarnings("ignore")
 from sklearn.metrics import f1_score, accuracy_score, confusion_matrix, precision_score, recall_score
 
 
+config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
 # 读取常量
-with open(r"config.json") as json_file:
+with open(config_file) as json_file:
     config = json.load(json_file)
 db_params = config["db_params"]
 
@@ -501,7 +502,7 @@ def get_main():
     parser.add_argument("--epoch", type=int, default=30)
     parser.add_argument("--gamma", type=float, default=0.4)
     parser.add_argument("--learning_rate", type=float, default=0.01)
-    parser.add_argument("--modelName", type=str, default="测试")
+    parser.add_argument("--modelName", type=str, default="test")
     parser.add_argument("--table_name", type=str, default="data_diabetes23")
     parser.add_argument("--cols", type=str,
                         default="pregnancies,glucose,skinthickness,insulin,bmi,diabetespedigreefunction,age")

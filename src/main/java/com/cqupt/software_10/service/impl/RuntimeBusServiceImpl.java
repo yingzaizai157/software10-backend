@@ -321,9 +321,10 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
     }
 
     @Override
-    public RuntimeBusServiceResponse rundqn(String model, List<String> onedata) throws Exception {
+    public RuntimeBusServiceResponse rundqn(String modelname, String taskname, List<String> onedata) throws Exception {
         List<String> args = new ArrayList<>();
-        args.add("--model=" + model);
+        args.add("--modelname=" + modelname);
+        args.add("--taskname=" + taskname);
 
         String temp = "--onedata=";
         for (int i = 0; i < onedata.size(); i++) {
@@ -351,9 +352,10 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
     }
 
     @Override
-    public RuntimeBusServiceResponse runknn(String model, List<String> onedata) throws Exception {
+    public RuntimeBusServiceResponse runknn(String modelname, String taskname, List<String> onedata) throws Exception {
         List<String> args = new ArrayList<>();
-        args.add("--model=" + model);
+        args.add("--modelname=" + modelname);
+        args.add("--taskname=" + taskname);
 
         String temp = "--onedata=";
         for (int i = 0; i < onedata.size(); i++) {
@@ -381,9 +383,10 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
     }
 
     @Override
-    public RuntimeBusServiceResponse runsvm(String model, List<String> onedata) throws Exception {
+    public RuntimeBusServiceResponse runsvm(String modelname, String taskname, List<String> onedata) throws Exception {
         List<String> args = new ArrayList<>();
-        args.add("--model=" + model);
+        args.add("--modelname=" + modelname);
+        args.add("--taskname=" + taskname);
 
         String temp = "--onedata=";
         for (int i = 0; i < onedata.size(); i++) {

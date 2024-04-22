@@ -16,5 +16,13 @@
         select feature from software10.software10task where  taskname = #{taskname} and modelname = #{modelname}
     </select>
 
+    <delete id="deleteTaskById">
+        DELETE from software10.software10task where id = #{id}
+    </delete>
+
+    <select id="getTaskList" resultType="com.cqupt.software_10.entity.tasks.MyTask">
+        select *  from software10.software10task
+    </select>
+
 </mapper>
 

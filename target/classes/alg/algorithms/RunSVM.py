@@ -2,23 +2,30 @@ import json
 import os
 import pickle
 import warnings
-
 import numpy as np
 import shap
 from matplotlib import pyplot as plt
-
 warnings.filterwarnings("ignore")
 
 
-MODEL_SAVE_DICTORY = r'D:\Code\Java\software10\software-software_backend\src\main\resources\alg\models'
-N = 5  # shap中你希望显示的特征数量
+
+config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
+# 读取常量
+with open(config_file) as json_file:
+    config = json.load(json_file)
+db_params = config["db_params"]
+
+MODEL_SAVE_DICTORY = config["MODEL_SAVE_DICTORY"]
+SHAP_SAVE_PATH = config["SHAP_SAVE_PATH"]
+N = config["N"]  # 你希望显示的特征数量
+modename = config["modename"]
 
 
-def get_one_result(onedata, model):
+def get_one_result(onedata, modelname, taskname):
     # 从文件加载模型
-    file_path1 = os.path.join(MODEL_SAVE_DICTORY, f"SVM_{model}.pkl")
-    file_path2 = os.path.join(MODEL_SAVE_DICTORY, 'explainer', f"SVM_{model}.pkl")
-    file_path3 = os.path.join(MODEL_SAVE_DICTORY, 'scaler', f"SVM_{model}.pkl")
+    file_path1 = os.path.join(MODEL_SAVE_DICTORY, "trained", f"SVM_{taskname}.pkl")
+    file_path2 = os.path.join(MODEL_SAVE_DICTORY, 'explainer', f"SVM_{taskname}.pkl")
+    file_path3 = os.path.join(MODEL_SAVE_DICTORY, 'scaler', f"SVM_{taskname}.pkl")
     with open(file_path1, 'rb') as file:
         SVM = pickle.load(file)
     with open(file_path2, 'rb') as file:
@@ -44,10 +51,7 @@ def get_one_result(onedata, model):
     shap_values = explainer(onedata_reshaped)
     shap_values.base_values = np.round(shap_values.base_values, decimals=2)
     shap_values.values = np.round(shap_values.values, decimals=2)
-    # shap.force_plot(explainer.expected_value, shap_values, show=False, matplotlib=True)
 
-    # 假设 shap_values 是已经计算好的 SHAP 值
-    # shap_values = explainer(X_test)
 
     # 计算每个特征的平均绝对SHAP值（作为特征重要性的估计）
     feature_importances = np.abs(shap_values.values).mean(axis=0)
@@ -71,43 +75,31 @@ def get_one_result(onedata, model):
         matplotlib=True
     )
     # 保存图像到文件。这里可以指定不同的格式，比如PNG, PDF, SVG等。
-    plt.savefig(r'D:\Code\Java\software10\software-software_backend\src\main\resources\alg\fig\shap1.png',
-                bbox_inches='tight')
+    file_path4 = os.path.join(SHAP_SAVE_PATH, f"{taskname}_{modelname}_shap1.png")
+    plt.savefig(file_path4, bbox_inches='tight')
     # 清除当前的figure，避免在后续的plot中出现重叠
     plt.clf()
 
 
     shap.plots.waterfall(shap_values[0], max_display=N, show=False)
     # 保存图像到文件。这里可以指定不同的格式，比如PNG, PDF, SVG等。
-    plt.savefig(r'D:\Code\Java\software10\software-software_backend\src\main\resources\alg\fig\shap2.png',
-                bbox_inches='tight')
+    file_path5 = os.path.join(SHAP_SAVE_PATH, f"{taskname}_{modelname}_shap2.png")
+    plt.savefig(file_path5, bbox_inches='tight')
     # 清除当前的figure，避免在后续的plot中出现重叠
     plt.clf()
 
-
-
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
-
-    # 病人向量
-
-    # 解析传递的参数，调用相应算法
     import argparse
     parser = argparse.ArgumentParser(description='参数')
-    parser.add_argument("--model", type=str, default="test1")
+    parser.add_argument("--modelname", type=str, default="svm")
+    parser.add_argument("--taskname", type=str, default="test")
     parser.add_argument("--onedata", type=str, default="3,100,40,100.8,37,1,20")
 
     args = parser.parse_args()
-    model = args.model
+    modelname = args.modelname
+    taskname = args.taskname
     onedata = args.onedata
     onedata = onedata.split(",")
     onedata = [int(x) if x.isdigit() else float(x) for x in onedata]
 
-    get_one_result(onedata, model)
+    get_one_result(onedata, modelname, taskname)

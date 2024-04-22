@@ -55,15 +55,20 @@ gorit:
       diabetes: D:/Code/Java/software10/software-software_backend/src/main/resources/alg/xgb.py
       xgbc_rl: C:/Users/pc/PycharmProjects/pythonProject/xgbc_rl.py
       rlv3_2: C:/Users/pc/PycharmProjects/pythonProject/rlv3_2.py
-      getLackInfos: src/main/resources/alg/getLackInfos.py
-      RF: src/main/resources/alg/RF.py
-      XGB: src/main/resources/alg/xgb.py
-      SVM: src/main/resources/alg/svm_classify.py
-      DQN: src/main/resources/alg/dqn.py
-      KNN: src/main/resources/alg/KNN.py
-      RUNDQN: src/main/resources/alg/RunDQN.py
-      RUNSVM: src/main/resources/alg/RunSVM.py
-      RUNKNN: src/main/resources/alg/RunKNN.py
+      getLackInfos: src/main/resources/alg/algorithms/getLackInfos.py
+      RF: src/main/resources/alg/algorithms/RF.py
+      XGB: src/main/resources/alg/algorithms/xgb.py
+      SVM: src/main/resources/alg/algorithms/SVM.py
+      DQN: src/main/resources/alg/algorithms/dqn.py
+      KNN: src/main/resources/alg/algorithms/KNN.py
+      RUNDQN: src/main/resources/alg/algorithms/RunDQN.py
+      RUNSVM: src/main/resources/alg/algorithms/RunSVM.py
+      RUNKNN: src/main/resources/alg/algorithms/RunKNN.py
+      explainerPath: src/main/resources/alg/models/explainer/
+      explanationPath: src/main/resources/alg/models/explanation/
+      scalerPath: src/main/resources/alg/models/scaler/
+      trainedPath: src/main/resources/alg/models/trained/
+      shapPath: src/main/resources/alg/fig/
 
 
 #      dqn1: C:/Users/pc/PycharmProjects/pythonProject/dqn1.py

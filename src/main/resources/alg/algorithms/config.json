@@ -17,5 +17,11 @@
   "SHAP_TRAINSIZE" : 50,
 
   "modename" : "public",
-  "test_size" : 0.2
+  "test_size" : 0.2,
+
+  "core" : 0,
+
+  "SHAP_SAVE_PATH" : "D:\\Code\\Java\\software10\\software-software_backend\\src\\main\\resources\\alg\\fig",
+
+  "N" : 5
 }

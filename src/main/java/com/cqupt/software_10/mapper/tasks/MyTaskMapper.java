@@ -4,9 +4,15 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.cqupt.software_10.entity.tasks.MyTask;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface MyTaskMapper extends BaseMapper<MyTask> {
     MyTask getlistbyId(Integer id);
 
     String getFeatureByTasknameAndModelname(String taskname, String modelname);
+
+    void deleteTaskById(Integer id);
+
+    List<MyTask> getTaskList();
 }

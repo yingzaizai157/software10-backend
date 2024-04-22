@@ -74,11 +74,19 @@ public class TaskController {
 
     }
 
+//    @GetMapping("/delete/{id}")
+//    public Result deleteById(@PathVariable int id){
+//        taskService.deleteTask(id);
+//        return Result.success(taskService.getTaskList());
+//    }
+
+
     @GetMapping("/delete/{id}")
     public Result deleteById(@PathVariable int id){
-        taskService.deleteTask(id);
-        return Result.success(taskService.getTaskList());
+        myTaskService.deleteTaskById(id);
+        return Result.success(myTaskService.getTaskList());
     }
+
 
     // TODO Auto-generated method 统计任务频次
     @GetMapping("/GetAllTaskFrequency")

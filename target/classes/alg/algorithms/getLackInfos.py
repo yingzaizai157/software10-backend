@@ -6,9 +6,10 @@ import argparse
 import warnings
 warnings.filterwarnings("ignore")
 
+config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
 
 # 读取常量
-with open(r"config.json") as json_file:
+with open(config_file) as json_file:
     config = json.load(json_file)
 db_params = config["db_params"]
 modename = config["modename"]
@@ -67,8 +68,8 @@ def getDF(db_params, sql):
     # feature_cols = [col for col in data.columns if col not in labels_col]
     missing_rate_dict = getInfos(data, feature_cols)
     # missing_rate_dict = [{key: value} for key, value in missing_rate_dict.items()]
-    feature_missing_rate = [{key: value} for key, value in missing_rate_dict.items() if key in feature_cols]
-    labels_missing_rate = [{key: value} for key, value in missing_rate_dict.items() if key not in feature_cols]
+    feature_missing_rate = [{key: 1-value} for key, value in missing_rate_dict.items() if key in feature_cols]
+    labels_missing_rate = [{key: 1-value} for key, value in missing_rate_dict.items() if key not in feature_cols]
     missing_rate_dict = []
     missing_rate_dict.append(feature_missing_rate)
     missing_rate_dict.append(labels_missing_rate)

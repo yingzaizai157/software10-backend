@@ -9,14 +9,14 @@ import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.kotlin.KtQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.kotlin.KtUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.cqupt.software_10.dao.TaskMapper;
-import com.cqupt.software_10.entity.Task;
 import com.cqupt.software_10.entity.tasks.MyTask;
 import com.cqupt.software_10.mapper.tasks.MyTaskMapper;
 import com.cqupt.software_10.service.tasks.MyTaskService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -28,6 +28,21 @@ import java.util.function.Function;
 public class MyTaskServiceImpl extends ServiceImpl<MyTaskMapper, MyTask> implements MyTaskService {
     @Resource
     MyTaskMapper myTaskMapper;
+
+    @Value("${gorit.file.py.explainerPath}")
+    private String explainerPath;
+
+    @Value("${gorit.file.py.explanationPath}")
+    private String explanationPath;
+
+    @Value("${gorit.file.py.scalerPath}")
+    private String scalerPath;
+
+    @Value("${gorit.file.py.trainedPath}")
+    private String trainedPath;
+
+    @Value("${gorit.file.py.shapPath}")
+    private String shapPath;
 
     @Override
     public boolean save(MyTask entity) {
@@ -222,6 +237,43 @@ public class MyTaskServiceImpl extends ServiceImpl<MyTaskMapper, MyTask> impleme
     @Override
     public String getFeatureByTasknameAndModelname(String taskname, String modelname) {
         return myTaskMapper.getFeatureByTasknameAndModelname(taskname, modelname);
+    }
+
+    @Override
+    public void deleteTaskById(Integer id) {
+        // 删除对应的模型文件
+        MyTask task = myTaskMapper.getlistbyId(id);
+        String taskname = task.getTaskname();
+        String modelname = task.getModelname();
+        File explainer = new File(explainerPath + modelname.toUpperCase() + "_" + taskname + ".pkl");
+        File explanation = new File(explanationPath + modelname.toUpperCase() + "_" + taskname + ".pkl");
+        File scaler = new File(scalerPath + modelname.toUpperCase() + "_" + taskname + ".pkl");
+        File shap1 = new File(shapPath + taskname + "_" + modelname + "_shap1.png");
+        File shap2 = new File(shapPath + taskname + "_" + modelname + "_shap2.png");
+
+        File trained = null;
+        if (modelname.equals("dqn")) {
+            trained = new File(trainedPath + modelname.toUpperCase() + "_" + taskname + ".pt");
+        }else {
+            trained = new File(trainedPath + modelname.toUpperCase() + "_" + taskname + ".pkl");
+        }
+
+        explainer.delete();
+        explanation.delete();
+        scaler.delete();
+        trained.delete();
+        shap1.delete();
+        shap2.delete();
+
+
+        myTaskMapper.deleteTaskById(id);
+
+
+    }
+
+    @Override
+    public List<MyTask> getTaskList() {
+        return myTaskMapper.getTaskList();
     }
 
 }

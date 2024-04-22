@@ -15,8 +15,10 @@ from sqlalchemy import create_engine
 warnings.filterwarnings("ignore")
 
 
+
+config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
 # 读取常量
-with open(r"config.json") as json_file:
+with open(config_file) as json_file:
     config = json.load(json_file)
 db_params = config["db_params"]
 
@@ -124,7 +126,7 @@ if __name__ == '__main__':
     parser.add_argument("--K", type=int, default=10)
     parser.add_argument("--random_state", type=int, default=42)
     parser.add_argument("--cv", type=int, default=5)
-    parser.add_argument("--modelName", type=str, default="test1")
+    parser.add_argument("--modelName", type=str, default="test")
     parser.add_argument("--table_name", type=str, default="data_diabetes23")
     parser.add_argument("--cols", type=str,
                         default="pregnancies,glucose,skinthickness,insulin,bmi,diabetespedigreefunction,age")

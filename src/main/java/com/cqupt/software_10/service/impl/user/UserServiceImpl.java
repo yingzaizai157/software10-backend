@@ -38,7 +38,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public User getUserById(Integer id) {
+    public User getUserById(String id) {
         return userMapper.getUserById(id);
     }
 

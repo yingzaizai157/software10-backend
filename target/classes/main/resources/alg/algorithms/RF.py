@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+from sklearn.impute import KNNImputer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score  # 精度值
 from sklearn.ensemble import RandomForestClassifier
@@ -9,16 +9,30 @@ import psycopg2
 import warnings
 warnings.filterwarnings("ignore")
 
-# 设置数据库连接参数
-dbname = 'medical'
-user = 'pg'
-password = '111111'
-host = '10.16.48.219'
-port = '5432'
+
+
+config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
+# 读取常量
+with open(config_file) as json_file:
+    config = json.load(json_file)
+db_params = config["db_params"]
+
+modename = config["modename"]
+test_size = config["test_size"]
+
+dbname = db_params["dbname"]
+user = db_params["user"]
+password = db_params["password"]
+host = db_params["host"]
+port = db_params["port"]
+
+seed = 42
+
+
+
 
 # 连接到数据库
 db = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
-
 # 创建游标对象
 cur = db.cursor()
 
@@ -45,6 +59,23 @@ cur = db.cursor()
 #     except psycopg2.Error as error:
 #         # print("数据插入失败：" + str(error))
 #         db.rollback()
+
+
+
+def imputeKnn(df, feature_cols):
+    # 初始化KNN插值器，设置要使用的邻居数量
+    imputer = KNNImputer(n_neighbors=5)
+
+    # 使用KNN插值填充缺失值
+    df_imputed = imputer.fit_transform(df[feature_cols])
+
+    # 将填充后的数据转换回DataFrame
+    df_imputed = pd.DataFrame(df_imputed, columns=feature_cols)
+
+    # 将填充后的数据合并到原始DataFrame中
+    # df[feature_cols] = df_imputed
+    return df_imputed
+
 
 
 def Find(sqlQuery):
@@ -88,15 +119,17 @@ def getColumnNames(tablename):
 #     return data, labels, columns
 
 
-def getAllData(tablename, cols, labels, mode):
+def getAllData(tablename, cols, labels):
 
     columns = '","'.join(cols)
-    sql = f'SELECT "{columns}" FROM {mode}.{tablename}'
+    sql = f'SELECT "{columns}" FROM {modename}.{tablename}'
     tableData = Find(sql)
     cols_data = pd.DataFrame(data=tableData, columns=cols)
+    cols_data = imputeKnn(cols_data, cols)
+
 
     tlabels = '","'.join(labels)
-    sql = f'SELECT "{tlabels}" FROM {mode}.{tablename}'
+    sql = f'SELECT "{tlabels}" FROM {modename}.{tablename}'
     tableData = Find(sql)
     labels_data = pd.DataFrame(data=tableData, columns=labels)
 
@@ -106,15 +139,13 @@ def getAllData(tablename, cols, labels, mode):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='参数')
-    parser.add_argument("--table_name", type=str, default="diabetes10")
+    parser.add_argument("--table_name", type=str, default="data_diabetes23")
     parser.add_argument("--cols", type=str,
                         default="pregnancies,glucose,skinthickness,insulin,bmi,diabetespedigreefunction,age")
     parser.add_argument("--labels", type=str, default="outcome")
     parser.add_argument("--mode", type=str, default="public")
     args = parser.parse_args()
-    mode = "software10"
     table_name = args.table_name
-    table_name = "data_" + table_name + "_imputed"
 
     cols = args.cols
     labels = args.labels
@@ -123,29 +154,28 @@ if __name__ == '__main__':
     labels = labels.split(",")
 
     # columns = getColumnNames(table_name)
-    data, labels, columns = getAllData(table_name, cols, labels, mode)
-    seed = 42
-    test_size = 0.33
+    data, labels, columns = getAllData(table_name, cols, labels)
     X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=test_size, random_state=seed)
+
+    # 确保y_train和y_test是整数类型
+    y_train = y_train.astype(int)
+    y_test = y_test.astype(int)
+
 
     # 随机森林训练
     model = RandomForestClassifier()
-    # print(y_train, type(y_train))
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
     predictions = [value for value in y_pred]  # round() 返回浮点数x的四舍五入
     # 比较得到精度值
     accuracy = accuracy_score(y_test, predictions)
-    # print(float(accuracy))
-    # print(', Accuracy: %.f%%' % (accuracy * 100.0))
 
     # 获取特征重要性值
     importances = model.feature_importances_
 
     # 创建特征重要性和特征名称的元组列表
     feature_importances = [{key: round(value, 3)} for key, value in zip(columns, importances)]
-    # feature_importances = list(zip(columns, importances))
     print(feature_importances)
 
     # for col_name, val in feature_importances:

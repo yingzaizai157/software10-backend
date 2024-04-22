@@ -705,13 +705,13 @@ class RuntimeBusController {
         RuntimeBusServiceResponse runtimeBusServiceResponse = null;
         //根据modelname运行不同的模型
         if (modelname.equals("dqn")) {
-            runtimeBusServiceResponse = runtimeBusService.rundqn(taskname, onedata);
+            runtimeBusServiceResponse = runtimeBusService.rundqn(modelname, taskname, onedata);
             System.out.println("======onepre_dqn========");
         }else if (modelname.equals("knn")) {
-            runtimeBusServiceResponse = runtimeBusService.runknn(taskname, onedata);
+            runtimeBusServiceResponse = runtimeBusService.runknn(modelname, taskname, onedata);
             System.out.println("======onepre_knn========");
         }else if (modelname.equals("svm")) {
-            runtimeBusServiceResponse = runtimeBusService.runsvm(taskname, onedata);
+            runtimeBusServiceResponse = runtimeBusService.runsvm(modelname, taskname, onedata);
             System.out.println("======onepre_svm========");
         }
 

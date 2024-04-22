@@ -1,17 +1,6 @@
 import os
 import pickle
-
-import torch
-import numpy as np
-import psycopg2
-from shap import Explanation
-
-from dqn1 import Q_Network
-import pymysql
-import json
-import random
-import time
-import copy
+from dqn import Q_Network
 import warnings
 import numpy as np
 import pandas as pd
@@ -19,35 +8,30 @@ import shap
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.model_selection import train_test_split
 from sqlalchemy import create_engine
 import json
-import psycopg2
 warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt
 
 
 
+config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
+# 读取常量
+with open(config_file) as json_file:
+    config = json.load(json_file)
+db_params = config["db_params"]
 
-# 设置数据库连接参数
-db_params = {
-    "dbname": "medical",
-    "user": "pg",
-    "password": "111111",
-    "host": "10.16.48.219",
-    "port": 5432
-}
+MODEL_SAVE_DICTORY = config["MODEL_SAVE_DICTORY"]
+SHAP_SAVE_PATH = config["SHAP_SAVE_PATH"]
+
+INPUT_SIZE = config["INPUT_SIZE"]
+HIDDEN_SIZE = config["HIDDEN_SIZE"]
+OUTPUT_SIZE = config["OUTPUT_SIZE"]
+
+modename = config["modename"]
+core = config["core"] # 解释哪一类？0，1
 
 
-
-# 模型保存目录
-# MODEL_SAVE_DICTORY = "/home/data/WorkSpace/software10/Arithmetic/trainedModel/"
-MODEL_SAVE_DICTORY = r'D:\Code\Java\software10\software-software_backend\src\main\resources\alg\models'
-
-# DQN_NET 强化学习DQN网络输入参数
-INPUT_SIZE = 8
-HIDDEN_SIZE = 64
-OUTPUT_SIZE = 2
 
 
 def Find():
@@ -72,56 +56,6 @@ def Find():
 
 lst = Find()
 
-
-def getDF(db_params, sql):
-    # 使用 SQLAlchemy 创建数据库连接引擎
-    engine_url = f"postgresql+psycopg2://{db_params['user']}:{db_params['password']}@{db_params['host']}:{db_params['port']}/{db_params['dbname']}"
-    engine = create_engine(engine_url)
-
-    # 使用 SQLAlchemy 引擎执行 SQL 查询，获取 DataFrame
-    data = pd.read_sql(sql, engine)
-    return data
-
-
-def get_torch_data(table_name, cols, labels):
-    """
-    将数据转换为torch可以处理的tensor格式
-    :param filePath:
-    :return:
-    """
-    modename = "software10"
-    sql = f"select * from {modename}.{table_name}"
-    pd_data = getDF(db_params, sql)
-
-    # X = pd_data.iloc[:, 0:8]
-    # Y = pd_data.iloc[:, 8]
-    X = pd_data[cols]
-    Y = pd_data[labels]
-    test_size = 0.2
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size,
-                                                        random_state=42)  # 添加random_state以保持可复现性
-
-    y_train = np.array(y_train)
-    # y_train.reshape((len(X_train), 1))
-
-    X_train = np.array(X_train)
-    # X_train.reshape((len(X_train), 8))
-
-    y_test = np.array(y_test)
-    # y_test.reshape((len(X_test), 1))
-
-    X_test = np.array(X_test)
-    # X_test.reshape((len(X_test), 8))
-
-    feature_names = X.columns.tolist()
-
-    X_train = torch.tensor(X_train, dtype=torch.float32)
-    y_train = torch.tensor(y_train, dtype=torch.int)
-
-    X_test = torch.tensor(X_test, dtype=torch.float32)
-    y_test =torch.tensor(y_test, dtype=torch.int)
-
-    return X_train, X_test, y_train, y_test, feature_names
 
 
 class Environment1:
@@ -232,7 +166,7 @@ def get_one_pred(Q, pobs):
     print([res])
 
 
-def get_one_result(pobs, model):
+def get_one_result(pobs, modelname, taskname):
     """
     读取Q网络，调用预测动作函数
     :param pobs:
@@ -241,13 +175,12 @@ def get_one_result(pobs, model):
     """
     # Q = Q_Network()
     # Q.load_state_dict(torch.load(MODEL_SAVE_DICTORY + model +".pt"))
-    MODEL_SAVE_DICTORY = r'D:\Code\Java\software10\software-software_backend\src\main\resources\alg\models'
-    Q = torch.load(os.path.join(MODEL_SAVE_DICTORY, f"DQN_{model}.pt"))
+    Q = torch.load(os.path.join(MODEL_SAVE_DICTORY, "trained", f"DQN_{taskname}.pt"))
     get_one_pred(Q, pobs)
 
     # shap部分
-    file_path1 = os.path.join(MODEL_SAVE_DICTORY, "explainer", f"DQN_{model}.pkl")
-    file_path2 = os.path.join(MODEL_SAVE_DICTORY, "explanation", f"DQN_{model}.pkl")
+    file_path1 = os.path.join(MODEL_SAVE_DICTORY, "explainer", f"DQN_{taskname}.pkl")
+    file_path2 = os.path.join(MODEL_SAVE_DICTORY, "explanation", f"DQN_{taskname}.pkl")
     # 使用with语句和'rb'模式打开文件
     with open(file_path1, 'rb') as f:
         # 从文件中加载（反序列化）对象
@@ -260,7 +193,6 @@ def get_one_result(pobs, model):
     # shap_values = explainer(new_sample_tensor)
     shap_values = explainer.shap_values(new_sample_tensor)
 
-    core = 0 # 解释那一类？
     # shap.initjs()
     # 可视化解释结果
 
@@ -280,8 +212,10 @@ def get_one_result(pobs, model):
     shap.force_plot(explainer.expected_value[core], shap_values[..., selected_indices, core], show=False, matplotlib=True,
                                 feature_names=filtered_feature_names)
     # 保存图像到文件。这里可以指定不同的格式，比如PNG, PDF, SVG等。
-    plt.savefig(r'D:\Code\Java\software10\software-software_backend\src\main\resources\alg\fig\shap1.png',
-                bbox_inches='tight')
+
+    file_path3 = os.path.join(SHAP_SAVE_PATH, f"{taskname}_{modelname}_shap1.png")
+
+    plt.savefig(file_path3, bbox_inches='tight')
 
     # 清除当前的figure，避免在后续的plot中出现重叠
     plt.clf()
@@ -292,20 +226,12 @@ def get_one_result(pobs, model):
     explanation.data = np.array(pobs).reshape((1, len(pobs)))
     shap.plots.waterfall(explanation[0], show=False, max_display=N)
 
+    file_path4 = os.path.join(SHAP_SAVE_PATH, f"{taskname}_{modelname}_shap2.png")
     # 保存图像到文件。这里可以指定不同的格式，比如PNG, PDF, SVG等。
-    plt.savefig(r'D:\Code\Java\software10\software-software_backend\src\main\resources\alg\fig\shap2.png',
-                bbox_inches='tight')
+    plt.savefig(file_path4, bbox_inches='tight')
 
     # 清除当前的figure，避免在后续的plot中出现重叠
     plt.clf()
-
-    # plt.show()
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
@@ -315,14 +241,16 @@ if __name__ == '__main__':
     # 解析传递的参数，调用相应算法
     import argparse
     parser = argparse.ArgumentParser(description='参数')
-    parser.add_argument("--model", type=str, default="test1")
+    parser.add_argument("--modelname", type=str, default="dqn")
+    parser.add_argument("--taskname", type=str, default="test")
     parser.add_argument("--onedata", type=str, default="3,100,40,100.8,37,1,20")
 
     args = parser.parse_args()
-    model = args.model
+    modelname = args.modelname
+    taskname = args.taskname
     onedata = args.onedata
     onedata = onedata.split(",")
     onedata = [int(x) if x.isdigit() else float(x) for x in onedata]
 
-    get_one_result(onedata, model)
+    get_one_result(onedata, modelname, taskname)
 

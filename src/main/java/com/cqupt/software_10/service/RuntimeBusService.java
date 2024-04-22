@@ -25,11 +25,11 @@ public interface RuntimeBusService {
 
     RuntimeBusServiceResponse submitDQN(String reward, String epoch, String gamma, String learning_rate, String modelName, String table_name, List<String> cols, List<String> labels) throws Exception;
 
-    RuntimeBusServiceResponse rundqn(String model, List<String> onedata) throws Exception;
+    RuntimeBusServiceResponse rundqn(String modelname, String taskname, List<String> onedata) throws Exception;
 
-    RuntimeBusServiceResponse runknn(String model, List<String> onedata) throws Exception;
+    RuntimeBusServiceResponse runknn(String modelname, String taskname, List<String> onedata) throws Exception;
 
-    RuntimeBusServiceResponse runsvm(String model, List<String> onedata) throws Exception;
+    RuntimeBusServiceResponse runsvm(String modelname, String taskname, List<String> onedata) throws Exception;
 
     RuntimeBusServiceResponse submitDQNPred(String model) throws Exception;
 }

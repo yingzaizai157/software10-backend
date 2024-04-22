@@ -3,6 +3,7 @@ package com.cqupt.software_10.controller.user;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import com.cqupt.software_10.common.R;
@@ -13,13 +14,16 @@ import com.cqupt.software_10.entity.UserPwd;
 import com.cqupt.software_10.entity.VerifyUserQ;
 import com.cqupt.software_10.entity.user.User;
 import com.cqupt.software_10.entity.user.UserLog;
+import com.cqupt.software_10.service.LogService;
 import com.cqupt.software_10.service.user.UserLogService;
 import com.cqupt.software_10.service.user.UserService;
 import com.cqupt.software_10.util.SecurityUtil;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -43,6 +47,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    LogService logService;
 
 
     @Autowired
@@ -139,8 +146,11 @@ public class UserController {
 //                userLogService.save(userLog);
                 // session认证
                 HttpSession session = request.getSession();
+//                request.setR
                 session.setAttribute("username",user.getUsername());
                 session.setAttribute("userId",getUser.getUid());
+
+                logService.insertLog(getUser.getUid(), user.getRole(), "用户登录");
                 return Result.success(200, "登录成功", getUser);
             }else {
                 return Result.success("500","密码错误请重新输入");
@@ -152,11 +162,18 @@ public class UserController {
 
 
     @PostMapping("/logout")
-    public Result logout(HttpServletRequest request){
+    public Result logout(HttpServletRequest request,HttpServletResponse response){
 
         HttpSession session = request.getSession();
-        Integer userId = (Integer) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("userId");
+        User user = userService.getUserById(userId);
+        logService.insertLog(user.getUid(), user.getRole(), "用户退出");
+
         session.invalidate();
+        Cookie cookie = new Cookie("userId", userId.toString());
+        cookie.setMaxAge(0); // 设置过期时间为0，表示立即过期
+        cookie.setPath("/"); // 设置Cookie的作用路径，保持与之前设置Cookie时的路径一致
+        response.addCookie(cookie); // 添加到HTTP响应中
         return Result.success(200,"退出成功",null);
     }
 
@@ -168,17 +185,22 @@ public class UserController {
      */
     @GetMapping("/allUser")
     public Map<String, Object> allUser(@RequestParam(defaultValue = "1") int pageNum,
-                                       @RequestParam(defaultValue = "10") int pageSize){
+                                       @RequestParam(defaultValue = "10") int pageSize,
+                                       @RequestParam String uid){
 
-        return userService.getUserPage(pageNum, pageSize);
+        User user = userService.getUserById(uid);
+        Map<String, Object> allUsers = userService.getUserPage(pageNum, pageSize);
+        logService.insertLog(user.getUid(), user.getRole(), "查看用户信息，第 " + pageNum + " 页, 每页 " + pageSize + " 个");
+        return allUsers;
 
     }
 
 
 
     @GetMapping("/querUser")
-    public List<User> querUser(){
-
+    public List<User> querUser(@RequestParam String uid){
+        User user = userService.getUserById(uid);
+        logService.insertLog(user.getUid(), user.getRole(), "查看所有用户信息");
         return userService.querUser();
 
     }
@@ -257,6 +279,78 @@ public class UserController {
         System.out.println(user);
         userService.updatePwd(user);
         return Result.success(200 , "修改密码成功");
+    }
+
+
+
+
+    @GetMapping("/getUserList")
+    public Result getUserList() {
+        return Result.success(200,"注册成功",userService.list());
+    }
+
+    @GetMapping("/selectByPage")
+    public Result selectByPage(@RequestParam Integer pageNum,
+                               @RequestParam Integer pageSize,
+                               @RequestParam String searchUser
+    ){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<User>();
+        queryWrapper.like(StringUtils.isNotBlank(searchUser),"username",searchUser);
+        PageInfo<User> pageInfo = userService.findByPageService(pageNum, pageSize,queryWrapper);
+        return Result.success(pageInfo);
+    }
+
+    @PostMapping("/addUser")
+    public Result addUser(@RequestBody Map<String,String> user) {
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        String username = user.get("username");
+        queryWrapper.eq("username",username);
+
+        User existUser = userService.getOne(queryWrapper);
+
+        if (existUser != null){
+            return Result.fail(500,"用户名已存在");
+        }
+        String pwd = user.get("password");
+        // 对密码进行加密处理
+        String password = SecurityUtil.hashDataSHA256(pwd);
+        Date tempDate= new Date();
+        User tempUser = new User();
+        tempUser.setUsername(username);
+        tempUser.setPassword(password);
+        tempUser.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tempDate));
+        tempUser.setUpdateTime(null);
+        tempUser.setRole(1);
+        userService.save(tempUser);
+        return Result.success(200,"新增用户成功！");
+
+    }
+
+    @GetMapping("/delete/{uid}")
+    public Result deleteUser(@PathVariable int uid) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("uid",uid);
+        userService.remove(queryWrapper);
+        return Result.success(200,"删除用户成功！");
+    }
+
+    @GetMapping("/getInfo/{uid}")
+    public Result getUserInfo(@PathVariable int uid) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("uid",uid);
+        User tempuser =  userService.getOne(queryWrapper);
+
+        return Result.success(200,"获取用户信息成功！",tempuser);
+    }
+
+    @PostMapping("/edit")
+    public Result getUserInfo(@RequestBody User user) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("uid",user.getUid());
+        user.setPassword(SecurityUtil.hashDataSHA256(user.getPassword()));
+        userService.update(user,queryWrapper);
+        return Result.success(200,"更新用户信息成功！");
     }
 
 }

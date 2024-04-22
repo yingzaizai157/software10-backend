@@ -11,4 +11,8 @@ public interface MyTaskService extends IService<MyTask> {
 
     String getFeatureByTasknameAndModelname(String taskname, String modelname);
 
+    void deleteTaskById(Integer id);
+
+    List<MyTask> getTaskList();
+
 }
