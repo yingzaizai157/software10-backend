@@ -161,6 +161,9 @@ public class UserController {
     }
 
 
+
+
+
     @PostMapping("/logout")
     public Result logout(HttpServletRequest request,HttpServletResponse response){
 
@@ -202,7 +205,6 @@ public class UserController {
         User user = userService.getUserById(uid);
         logService.insertLog(user.getUid(), user.getRole(), "查看所有用户信息");
         return userService.querUser();
-
     }
 
     /**
@@ -211,24 +213,34 @@ public class UserController {
      * @return
      */
     @PostMapping("updateStatus")
-    public Result  updateStatus(@RequestBody UpdateStatusVo updateStatusVo){
+    public Result  updateStatus(@RequestBody UpdateStatusVo updateStatusVo, @RequestParam String curUid){
         // 根据 id  修改用户状态   角色
         boolean b = userService.updateStatusById(updateStatusVo.getUid() ,updateStatusVo.getRole(),updateStatusVo.getUploadSize(), updateStatusVo.getStatus());
-        if (b) return  Result.success(200 , "修改用户状态成功");
+        User user = userService.getUserById(curUid);
+        if (b) {
+            logService.insertLog(user.getUid(), user.getRole(), "成功，修改用户状态");
+            return  Result.success(200 , "修改用户状态成功");
+        }
+        logService.insertLog(user.getUid(), user.getRole(), "失败，修改用户状态");
         return  Result.fail("修改失败");
     }
 
 
     @PostMapping("delUser")
-    public Result delUser(@RequestBody UpdateStatusVo updateStatusVo){
-
+    public Result delUser(@RequestBody UpdateStatusVo updateStatusVo, @RequestParam String curUid){
         Integer uid = updateStatusVo.getUid();
+        User removedUser = userService.getUserById(uid.toString());
         boolean b = userService.removeUserById(uid);
-        if (b) return Result.success(200 , "删除成功");
+        User user = userService.getUserById(curUid);
+        if (b) {
+            logService.insertLog(user.getUid(), user.getRole(), "成功，删除用户：" + removedUser.getUsername() + "，被删用户id：" + removedUser.getUid());
+            return Result.success(200 , "删除成功");
+        }
+        logService.insertLog(user.getUid(), user.getRole(), "失败，删除用户：" + removedUser.getUsername() + "，被删用户id：" + removedUser.getUid());
         return Result.fail(200 , "删除失败");
     }
 
-    // TODO 目前不需要
+    // TODO 目前不需要，还未加入日志
     @PostMapping("insertUser")
     public Result insertUser(@RequestBody InsertUserVo user) throws ParseException {
         boolean b = userService.insertUser(user);
@@ -239,8 +251,9 @@ public class UserController {
 
     // 忘记密码功能
     @GetMapping("/queryQuestions")
-    public Result  forgotPwd(@RequestParam String username){
+    public Result  forgotPwd(@RequestParam String username, @RequestParam String curUid){
         User user = userService.getUserByName(username);
+        User curUser = userService.getUserById(curUid);
         String answer1 = user.getAnswer1().split(":")[0];
         String answer2 = user.getAnswer2().split(":")[0];
         String answer3 = user.getAnswer3().split(":")[0];
@@ -248,7 +261,7 @@ public class UserController {
         answers.add(answer1);
         answers.add(answer2);
         answers.add(answer3);
-
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，查询用户密保问题。被查询用户的用户名：" + user.getUsername() + "，用户id：" + user.getUid());
         System.out.println(Result.success(200, "查询用户密保问题成功",answers ).toString());
         return Result.success(200, "查询用户密保问题成功",answers );
     }
@@ -256,28 +269,34 @@ public class UserController {
 
     // 验证问题
     @PostMapping("/verify")
-    public Result verify(@RequestBody VerifyUserQ verifyUserQ){
+    public Result verify(@RequestBody VerifyUserQ verifyUserQ, @RequestParam String curUid){
         // 用户名   密保问题 和 答案
         QueryWrapper queryWrapper = new QueryWrapper<>()
                 .eq("username",verifyUserQ.getUsername())
                 .eq("answer_1" , verifyUserQ.getQ1()).eq("answer_2" , verifyUserQ.getQ2()).eq("answer_3" , verifyUserQ.getQ3());
         User user = userService.getOne(queryWrapper);
+        User curUser = userService.getUserById(curUid);
 
         if (user == null){
+            logService.insertLog(curUser.getUid(), curUser.getRole(), "失败，验证用户密保问题。被验证用户的用户名：" + user.getUsername() + "，用户id：" + user.getUid());
             return Result.fail("验证失败");
         }else {
+            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，验证用户密保问题。被验证用户的用户名：" + user.getUsername() + "，用户id：" + user.getUid());
             return Result.success(200 ," 验证成功，请重置密码");
         }
 
     }
 
     @PostMapping("updatePwd")
-    public Result  updatePwd(@RequestBody UserPwd user){
+    public Result  updatePwd(@RequestBody UserPwd user, @RequestParam String curUid){
+        User curUser = userService.getUserById(curUid);
+        User updatedUser = userService.getUserByName(user.getUsername());
         String password = user.getPassword();
         String sha256 = SecurityUtil.hashDataSHA256(password);
         user.setPassword(sha256);
         System.out.println(user);
         userService.updatePwd(user);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改用户密码。被修改用户的用户名：" + updatedUser.getUsername() + "，用户id：" + updatedUser.getUid());
         return Result.success(200 , "修改密码成功");
     }
 
@@ -285,18 +304,24 @@ public class UserController {
 
 
     @GetMapping("/getUserList")
-    public Result getUserList() {
-        return Result.success(200,"注册成功",userService.list());
+    public Result getUserList(@RequestParam String curUid) {
+        User curUser = userService.getUserById(curUid);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，查询所有用户信息");
+        return Result.success(200,"读取成功",userService.list());
     }
 
     @GetMapping("/selectByPage")
     public Result selectByPage(@RequestParam Integer pageNum,
                                @RequestParam Integer pageSize,
-                               @RequestParam String searchUser
+                               @RequestParam String searchUser,
+                               @RequestParam String curUid
     ){
         QueryWrapper<User> queryWrapper = new QueryWrapper<User>();
         queryWrapper.like(StringUtils.isNotBlank(searchUser),"username",searchUser);
         PageInfo<User> pageInfo = userService.findByPageService(pageNum, pageSize,queryWrapper);
+
+        User curUser = userService.getUserById(curUid);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，查询所有用户信息");
         return Result.success(pageInfo);
     }
 

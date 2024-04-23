@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,39 @@ public class AdminDataManageController {
             logService.insertLog(current_uid, 0, e.getMessage());
             return Result.success(500,"文件上传异常");
         }
+    }
+
+    @GetMapping("/selectDataDiseases")
+    public Result<AdminDataManage> selectDataDiseases(
+//            @RequestParam("current_uid") String current_uid
+    ){ // 参数表的Id
+        List<CategoryEntity> res = categoryService.getLevel2Label();
+
+        List<Object> retList = new ArrayList<>();
+        for (CategoryEntity category : res) {
+            Map<String, Object> ret =  new HashMap<>();
+            ret.put("label", category.getLabel());
+            ret.put("value", category.getId());
+            ret.put("children", selectCategoryDataDiseases(category.getId()));
+            retList.add(ret);
+        }
+        System.out.println(retList);
+
+
+        return Result.success("200",retList);
+//        return Result.success("200",adminDataManages);
+    }
+    public List<Map<String, Object>> selectCategoryDataDiseases(String pid){
+        List<Map<String, Object>> retList = new ArrayList<>();
+        List<CategoryEntity> res = categoryService.getLabelsByPid(pid);
+        for (CategoryEntity category : res) {
+            Map<String, Object> ret =  new HashMap<>();
+            ret.put("label", category.getLabel());
+            ret.put("value", category.getId());
+            ret.put("children", selectCategoryDataDiseases(category.getId()));
+            retList.add(ret);
+        }
+        return retList;
     }
 
     @GetMapping("/selectAdminDataManage")

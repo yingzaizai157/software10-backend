@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 // TODO 公共模块新增类
 
@@ -27,4 +28,7 @@ public interface TableDescribeMapper extends BaseMapper<TableDescribeEntity> {
     void deleteByTableName(String tableName);
     void deleteByTableId(String tableId);
 
+
+    Integer getTableColumnNum(String tableName);
+    Integer getTableRowNum(String tableName);
 }

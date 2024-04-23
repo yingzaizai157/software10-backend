@@ -21,10 +21,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 // TODO 公共模块新增类
 
@@ -155,4 +152,16 @@ public class TableDescribeServiceImpl extends ServiceImpl<TableDescribeMapper, T
         categoryMapper.updateTableNameByTableId(tableid, tableName, tableStatus);
         updateDataBaseTableName(oldTableName, tableName);
     }
+
+    @Override
+    public Integer getTableColumnNum(String tableName) {
+        return tableDescribeMapper.getTableColumnNum(tableName);
+    }
+
+    @Override
+    public Integer getTableRowNum(String tableName) {
+        return tableDescribeMapper.getTableRowNum(tableName);
+    }
+
+
 }
