@@ -149,6 +149,35 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
         return treeData;
     }
 
+    /**
+     * 新增
+     */
+    private Pair<List<CategoryEntity>,int[]> getDiseaseChildren(CategoryEntity level1Cat, List<CategoryEntity> categoryEntities) {
+        List<CategoryEntity> children = categoryEntities.stream().filter((categoryEntity) -> {
+            return categoryEntity.getParentId().equals(level1Cat.getId()) && categoryEntity.getIsDelete()==0 && categoryEntity.getStatus()==null; // 获取当前分类的所有子分类
+        }).map((child) -> {
+            // 递归设置子分类的所有子分类
+//            child.setChildren(getCatChildren(child, categoryEntities));
+            Pair<List<CategoryEntity>,int[]> pair = getDiseaseChildren(child, categoryEntities);
+            child.setChildren(pair.getKey());
+            //计算第三层目录下表数量和加上第三层表数量作为第二层的num
+            int[] numsCat = pair.getValue();
+            int[] numsTab = getFileNums(child.getId());
+            child.setTableNum0(numsCat[0]+numsTab[0]);
+            child.setTableNum1(numsCat[1]+numsTab[1]);
+            child.setTableNum2(numsCat[2]+numsTab[2]);
+
+            return child;
+        }).collect(Collectors.toList());
+        int[] nums = new int[3];
+        for(CategoryEntity category:children){
+            nums[0] += category.getTableNum0();
+            nums[1] += category.getTableNum1();
+            nums[2] += category.getTableNum2();
+        }
+        return new Pair<>(children,nums);
+    }
+
     @Override
     public List<CategoryEntity> getAllDisease(){
         // 获取所有目录行程树形结构
@@ -157,7 +186,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
         List<CategoryEntity> treeData = categoryEntities.stream().filter((categoryEntity) -> {
             return categoryEntity.getParentId().equals("1") && categoryEntity.getIsDelete()==0 && categoryEntity.getStatus()==null;
         }).map((level1Cat) -> {
-            Pair<List<CategoryEntity>,int[]> pair = getSecondLevelChildren((level1Cat.getId()));
+            Pair<List<CategoryEntity>,int[]> pair = getDiseaseChildren(level1Cat,categoryEntities);
             level1Cat.setChildren(pair.getKey());
             //计算第二层目录下表数量和加上第二层表数量作为第一层的num
             int[] numsCat = pair.getValue();
@@ -167,7 +196,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
             level1Cat.setTableNum2(numsCat[2]+numsTab[2]);
             return level1Cat;
         }).collect(Collectors.toList());
-        //由
 
         return treeData;
     }

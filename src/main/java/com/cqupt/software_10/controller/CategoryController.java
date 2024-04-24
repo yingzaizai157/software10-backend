@@ -104,7 +104,8 @@ public class CategoryController {
     public Result checkDiseaseName(@PathVariable String diseaseName){
         QueryWrapper<CategoryEntity> queryWrapper = Wrappers.query();
         queryWrapper.eq("label", diseaseName)
-                .eq("is_delete", 0);
+                .eq("is_delete", 0)
+                .isNull("status");
         CategoryEntity category = categoryMapper.selectOne(queryWrapper);
         return category==null?Result.success("200","病种名可用"):Result.fail("400","病种名已存在");
     }
@@ -134,17 +135,17 @@ public class CategoryController {
 
 
 
-    @PostMapping("/category/deleteCategory")
-    public Result deleteCategory(@RequestBody DeleteDiseaseVo deleteDiseaseVo){
-        StringJoiner joiner = new StringJoiner(",");
-        for (String str : deleteDiseaseVo.getDeleteNames()) {
-            joiner.add(str);
-        }
-//        UserLog userLog = new UserLog(null,Integer.parseInt(deleteDiseaseVo.getUid()),new Date(),"删除病种："+joiner.toString(),deleteDiseaseVo.getUsername());
-//        userLogService.save(userLog);
-        categoryService.removeCategorys(deleteDiseaseVo.getDeleteIds());
-        return Result.success("删除成功");
-    }
+//    @PostMapping("/category/deleteCategory")
+//    public Result deleteCategory(@RequestBody DeleteDiseaseVo deleteDiseaseVo){
+//        StringJoiner joiner = new StringJoiner(",");
+//        for (String str : deleteDiseaseVo.getDeleteNames()) {
+//            joiner.add(str);
+//        }
+////        UserLog userLog = new UserLog(null,Integer.parseInt(deleteDiseaseVo.getUid()),new Date(),"删除病种："+joiner.toString(),deleteDiseaseVo.getUsername());
+////        userLogService.save(userLog);
+//        categoryService.removeCategorys(deleteDiseaseVo.getDeleteIds());
+//        return Result.success("删除成功");
+//    }
 
 
 
