@@ -13,6 +13,7 @@ import com.cqupt.software_10.service.LogService;
 import com.cqupt.software_10.service.TaskService;
 import com.cqupt.software_10.service.tasks.MyTaskService;
 import com.cqupt.software_10.service.user.UserService;
+import com.cqupt.software_10.util.SecurityUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -91,11 +93,14 @@ public class TaskController {
 
 
     @GetMapping("/delete/{id}")
-    public Result deleteById(@PathVariable int id, @RequestParam String curUid){
+    public Result deleteById(@PathVariable int id, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
         MyTask task = myTaskService.getlistbyId(id);
         myTaskService.deleteTaskById(id);
 
-        User curUser = userService.getUserById(curUid);
         logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除一个任务。被删除任务的任务名和模型名：：" + task.getTaskname() + ", " + task.getModelname());
         return Result.success(myTaskService.getTaskList());
     }
@@ -123,8 +128,13 @@ public class TaskController {
     @PostMapping("/save")
     public Result insert(
             @RequestBody(required=false)  String arg,
-            @RequestParam String curUid
+            HttpServletRequest request
     ){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
+
         JSONObject object = JSONObject.parseObject(arg);
 
         String taskname = object.getString("taskName");
@@ -152,7 +162,6 @@ public class TaskController {
         JsonNode taskmodel = (JsonNode) rootNode;
 
 
-        User curUser = userService.getUserById(curUid);
 
         // 有几个算法就添加几条任务
         for (int i = 0; i < taskmodel.size(); i++) {

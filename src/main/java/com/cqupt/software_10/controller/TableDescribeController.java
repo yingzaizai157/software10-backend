@@ -7,14 +7,18 @@ import com.cqupt.software_10.common.Result;
 import com.cqupt.software_10.dao.TableDescribeMapper;
 import com.cqupt.software_10.entity.CategoryEntity;
 import com.cqupt.software_10.entity.TableDescribeEntity;
+import com.cqupt.software_10.entity.user.User;
 import com.cqupt.software_10.mapper.user.UserMapper;
 import com.cqupt.software_10.service.CategoryService;
+import com.cqupt.software_10.service.LogService;
 import com.cqupt.software_10.service.TableDescribeService;
 import com.cqupt.software_10.service.user.UserService;
+import com.cqupt.software_10.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +38,8 @@ public class TableDescribeController {
     CategoryService categoryService;
     @Autowired
     UserService userService;
+    @Autowired
+    LogService logService;
 
     @GetMapping("/tableDescribe")
     public Result<TableDescribeEntity> getTableDescribe(@RequestParam("id") String id){ // 参数表的Id
@@ -66,15 +72,21 @@ public class TableDescribeController {
                                   @RequestParam("classPath") String classPath,
                                   @RequestParam("uid") String uid,
                                   @RequestParam("tableStatus") String tableStatus,
-                                  @RequestParam("tableSize") Double tableSize
+                                  @RequestParam("tableSize") Double tableSize,
+                                  HttpServletRequest request
     ){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
         // 保存表数据信息
         try {
-
             List<String> featureList = tableDescribeService.uploadDataTable(file, pid, tableName, userName, classPath, uid, tableStatus, tableSize);
+            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，上传文件：" + tableName);
             return Result.success("200",featureList); // 返回表头信息
         }catch (Exception e){
             e.printStackTrace();
+            logService.insertLog(curUser.getUid(), curUser.getRole(), "失败，上传文件：" + tableName);
             return Result.success(500,"文件上传异常");
         }
     }
@@ -121,10 +133,18 @@ public class TableDescribeController {
             @RequestParam("tableid") String tableid,
             @RequestParam("oldTableName") String oldTableName,
             @RequestParam("tableName") String tableName,
-            @RequestParam("tableStatus") String tableStatus
+            @RequestParam("tableStatus") String tableStatus,
+            HttpServletRequest request
     ){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
+
         tableDescribeService.updateInfo(id, tableid, oldTableName, tableName, tableStatus);
 
+
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，更新数据信息：" + tableName);
         return Result.success("200","已经更改到数据库");
     }
 
@@ -151,8 +171,14 @@ public class TableDescribeController {
             @RequestParam("uid") String uid,
             @RequestParam("tableSize") Double tableSize,
             @RequestParam("tableId") String tableId,
-            @RequestParam("tableName") String tableName
+            @RequestParam("tableName") String tableName,
+            HttpServletRequest request
     ){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
+
 //        System.out.println();
         tableDescribeService.deleteByTableName(tableName);// 【因为数据库中表名是不能重名的】
         tableDescribeService.deleteByTableId(tableId);// 在table_describe中删除记录
@@ -160,6 +186,9 @@ public class TableDescribeController {
 
 //        float tableSize = adminDataManage.getTableSize();
         userMapper.recoveryUpdateUserColumnById(uid, tableSize);
+
+
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除数据表：" + tableName);
         return Result.success("200","已在数据库中删除了"+tableName+"表");
     }
 }

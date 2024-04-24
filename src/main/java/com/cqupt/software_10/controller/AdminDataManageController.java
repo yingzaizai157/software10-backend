@@ -74,11 +74,6 @@ public class AdminDataManageController {
             HttpServletResponse response, HttpServletRequest request
 //            @RequestParam("current_uid") String current_uid
     ){ // 参数表的Id
-        String token = request.getHeader("Authorization");
-        // 读取名为 "Authorization" 的请求头中的值（这里假设是 Token）
-        System.out.println("Token from header: " + token);
-        String uid = SecurityUtil.getUserIdFromToken(token);
-        System.out.println("uid from token" + uid);
 
         List<CategoryEntity> res = categoryService.getLevel2Label();
 
