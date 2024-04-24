@@ -160,7 +160,11 @@ public class UserController {
 //                logService.insertLog(getUser.getUid(), user.getRole(), "用户登录");
                 logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录成功");
 
-                return Result.success(200, "登录成功", getUser);
+                String token = SecurityUtil.generateToken(getUser.getUid());
+                String uid = SecurityUtil.getUserIdFromToken(token);
+                System.out.println("user.getUid()=" + user.getUid() + "uid=" + uid);
+
+                return Result.success(200, token, getUser);
             }else {
                 logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录成功");
                 return Result.success("500","密码错误请重新输入");
@@ -189,7 +193,6 @@ public class UserController {
 
     /**
      * 管理员中心查看得所有用户信息
-     *
      * @return
      */
     @GetMapping("/allUser")

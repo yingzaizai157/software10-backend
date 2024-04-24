@@ -8,10 +8,13 @@ import com.cqupt.software_10.entity.AdminDataManage;
 import com.cqupt.software_10.entity.CategoryEntity;
 import com.cqupt.software_10.service.*;
 import com.cqupt.software_10.service.user.UserService;
+import com.cqupt.software_10.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,8 +71,15 @@ public class AdminDataManageController {
     // 管理员端-数据管理新更改
     @GetMapping("/selectDataDiseases")
     public Result<AdminDataManage> selectDataDiseases(
+            HttpServletResponse response, HttpServletRequest request
 //            @RequestParam("current_uid") String current_uid
     ){ // 参数表的Id
+        String token = request.getHeader("Authorization");
+        // 读取名为 "Authorization" 的请求头中的值（这里假设是 Token）
+        System.out.println("Token from header: " + token);
+        String uid = SecurityUtil.getUserIdFromToken(token);
+        System.out.println("uid from token" + uid);
+
         List<CategoryEntity> res = categoryService.getLevel2Label();
 
         List<Object> retList = new ArrayList<>();
@@ -107,8 +117,14 @@ public class AdminDataManageController {
 
     @GetMapping("/selectAdminDataManage")
     public Result<AdminDataManage> selectAdminDataManage(
+            HttpServletRequest request
 //            @RequestParam("current_uid") String current_uid
     ){ // 参数表的Id
+        String token = request.getHeader("Authorization");
+        // 读取名为 "Authorization" 的请求头中的值（这里假设是 Token）
+        System.out.println("Token from header: " + token);
+        String uid = SecurityUtil.getUserIdFromToken(token);
+        System.out.println("uid from token" + uid);
         List<AdminDataManage> adminDataManages = adminDataManageService.selectAllDataInfo();
 //        System.out.println("数据为："+ JSON.toJSONString(tableDescribeEntity));
         Map<String, Object> ret =  new HashMap<>();
