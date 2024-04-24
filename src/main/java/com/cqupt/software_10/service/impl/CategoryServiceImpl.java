@@ -104,16 +104,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
         return children;
     }
 
-    //    下面方法是管理员端-数据管理新增
-    @Override
-    public List<CategoryEntity> getLevel2Label() {
-        return categoryMapper.getLevel2Label();
-    }
-
-    @Override
-    public List<CategoryEntity> getLabelsByPid(String pid) {
-        return categoryMapper.getLabelsByPid(pid);
-    }
+//    //    下面方法是管理员端-数据管理新增
+//    @Override
+//    public List<CategoryEntity> getLevel2Label() {
+//        return categoryMapper.getLevel2Label();
+//    }
+//
+//    @Override
+//    public List<CategoryEntity> getLabelsByPid(String pid) {
+//        return categoryMapper.getLabelsByPid(pid);
+//    }
 
     @Override
     public void addParentDisease(String diseaseName) {
@@ -155,33 +155,37 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
         List<CategoryEntity> categoryEntities = dataManagerMapper.selectList(null);
         // 获取所有级结构
         List<CategoryEntity> treeData = categoryEntities.stream().filter((categoryEntity) -> {
-            return categoryEntity.getParentId().equals("0") && categoryEntity.getIsDelete()==0;
+            return categoryEntity.getParentId().equals("1") && categoryEntity.getIsDelete()==0 && categoryEntity.getStatus()==null;
         }).map((level1Cat) -> {
             Pair<List<CategoryEntity>,int[]> pair = getSecondLevelChildren((level1Cat.getId()));
             level1Cat.setChildren(pair.getKey());
-            //计算第二层的num和作为第一层的num
-            int[] nums = pair.getValue();
-            level1Cat.setTableNum0(nums[0]);
-            level1Cat.setTableNum1(nums[1]);
-            level1Cat.setTableNum2(nums[2]);
+            //计算第二层目录下表数量和加上第二层表数量作为第一层的num
+            int[] numsCat = pair.getValue();
+            int[] numsTab = getFileNums(level1Cat.getId());
+            level1Cat.setTableNum0(numsCat[0]+numsTab[0]);
+            level1Cat.setTableNum1(numsCat[1]+numsTab[1]);
+            level1Cat.setTableNum2(numsCat[2]+numsTab[2]);
             return level1Cat;
         }).collect(Collectors.toList());
         //由
 
         return treeData;
     }
-
+    // 获取第二层目录
     private Pair<List<CategoryEntity>,int[]> getSecondLevelChildren(String parentId) {
         // 获取所有第二层目录
         List<CategoryEntity> secondLevelCategories = dataManagerMapper.selectList(null).stream()
-                .filter(categoryEntity -> categoryEntity.getParentId().equals(parentId) && categoryEntity.getIsDelete() == 0)
+                .filter(categoryEntity -> categoryEntity.getParentId().equals(parentId) && categoryEntity.getIsDelete() == 0 && categoryEntity.getStatus()==null)
                 .map(level2Cat -> {
-                    int[] nums = getFileNums(level2Cat.getId());
-                    level2Cat.setTableNum0(nums[0]);
-                    level2Cat.setTableNum1(nums[1]);
-                    level2Cat.setTableNum2(nums[2]);
+                    Pair<List<CategoryEntity>,int[]> pair = getThirdLevelChildren((level2Cat.getId()));
+                    level2Cat.setChildren(pair.getKey());
+                    //计算第三层目录下表数量和加上第三层表数量作为第二层的num
+                    int[] numsCat = pair.getValue();
+                    int[] numsTab = getFileNums(level2Cat.getId());
+                    level2Cat.setTableNum0(numsCat[0]+numsTab[0]);
+                    level2Cat.setTableNum1(numsCat[1]+numsTab[1]);
+                    level2Cat.setTableNum2(numsCat[2]+numsTab[2]);
 
-                    level2Cat.setChildren(new ArrayList<>()); // 第二层目录没有子目录
                     return level2Cat;
                 })
                 .collect(Collectors.toList());
@@ -194,11 +198,35 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
         }
         return new Pair<>(secondLevelCategories,nums);
     }
+    //获取第三层目录
+    private Pair<List<CategoryEntity>,int[]> getThirdLevelChildren(String parentId){
+        List<CategoryEntity> thirdLevelCategories = dataManagerMapper.selectList(null).stream()
+                .filter(categoryEntity -> categoryEntity.getParentId().equals(parentId) && categoryEntity.getIsDelete() == 0 && categoryEntity.getStatus()==null)
+                .map(level3Cat -> {
+                    //计算第四层表数量作为第三层的num
+                    int[] numsTab = getFileNums(level3Cat.getId());
+                    level3Cat.setTableNum0(numsTab[0]);
+                    level3Cat.setTableNum1(numsTab[1]);
+                    level3Cat.setTableNum2(numsTab[2]);
+
+                    level3Cat.setChildren(new ArrayList<>()); // 第二层目录没有子目录
+                    return level3Cat;
+                })
+                .collect(Collectors.toList());
+        //遍历该父节点下所有目录，获取该节点下表的总和
+        int[] nums = new int[3];
+        for(CategoryEntity category:thirdLevelCategories){
+            nums[0] += category.getTableNum0();
+            nums[1] += category.getTableNum1();
+            nums[2] += category.getTableNum2();
+        }
+        return new Pair<>(thirdLevelCategories,nums);
+    }
     private int[] getFileNums(String id){
         int[] nums = new int[3];
         List<CategoryEntity> secondLevelCategories = dataManagerMapper.selectList(null);
         for(CategoryEntity category:secondLevelCategories){
-            if(category.getParentId().equals(id) && category.getIsDelete() == 0) {
+            if(category.getParentId().equals(id) && category.getIsDelete() == 0 && category.getStatus()!=null) {
                 if (category.getStatus().equals("0"))
                     nums[0]++;
                 else if (category.getStatus().equals("1"))
@@ -210,17 +238,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
         return nums;
     }
 
+    //添加一级病种
     @Override
-    public Result addCategory(AddDiseaseVo addDiseaseVo){
-        Result result;
-        System.out.println(addDiseaseVo);
-        System.out.println(addDiseaseVo.getSecondDisease());
-        if(addDiseaseVo.getSecondDisease().equals("")){
-            result = addFirstDisease(addDiseaseVo);
-        }else{
-            result = addSecondDisease(addDiseaseVo);
-        }
-        return result;
+    public int addCategory(AddDiseaseVo addDiseaseVo){
+        CategoryEntity category = new CategoryEntity(null,1,addDiseaseVo.getFirstDisease(),addDiseaseVo.getParentId(),0,0,addDiseaseVo.getUid(),null,addDiseaseVo.getUsername(),null,null,addDiseaseVo.getIcdCode(),null,0,0,0);
+        return categoryMapper.insert(category);
     }
 
     private Result addFirstDisease(AddDiseaseVo addDiseaseVo){
@@ -282,25 +304,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
 
     @Override
     public Result updateCategory(UpdateDiseaseVo updateDiseaseVo){
-        //如果修改的是一级疾病目录
-        if(updateDiseaseVo.getParentId().equals("0")){
-            UpdateWrapper<CategoryEntity> updateWrapper = new UpdateWrapper<>();
-            updateWrapper.eq("id", updateDiseaseVo.getCategoryId())
-                    .set("label", updateDiseaseVo.getFirstDisease())
-                    .set("uid", updateDiseaseVo.getUid())
-                    .set("username", updateDiseaseVo.getUsername());
-            return categoryMapper.update(null, updateWrapper)>0?Result.success("插入成功"):Result.fail("插入失败");
-        }else{
-            UpdateWrapper<CategoryEntity> updateWrapper = new UpdateWrapper<>();
-            updateWrapper.eq("id", updateDiseaseVo.getCategoryId())
-                    .set("label", updateDiseaseVo.getSecondDisease())
-                    .set("parent_id", updateDiseaseVo.getParentId())
-                    .set("uid", updateDiseaseVo.getUid())
-                    .set("username", updateDiseaseVo.getUsername());
-            return categoryMapper.update(null, updateWrapper)>0?Result.success("插入成功"):Result.fail("插入失败");
-        }
+        UpdateWrapper<CategoryEntity> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", updateDiseaseVo.getCategoryId())
+                .set("label", updateDiseaseVo.getDiseaseName())
+                .set("parent_id", updateDiseaseVo.getParentId())
+                .set("uid", updateDiseaseVo.getUid())
+                .set("username", updateDiseaseVo.getUsername())
+                .set("icd_code",updateDiseaseVo.getIcdCode());
+        return categoryMapper.update(null, updateWrapper)>0?Result.success("插入成功"):Result.fail("插入失败");
     }
-
     @Override
     public void removeCategorys(List<String> deleteIds){
         for(String id:deleteIds){
@@ -347,6 +359,24 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
     }
 
 
+//    public void updateTableNameByTableId(String tableid, String tableName, String tableStatus) {
+//        System.out.println("status: " + tableStatus);
+//        categoryMapper.updateTableNameByTableId(tableid, tableName, tableStatus);
+//
+//    }
+
+
+
+    //    下面方法是管理员端-数据管理新增
+    @Override
+    public List<CategoryEntity> getLevel2Label() {
+        return categoryMapper.getLevel2Label();
+    }
+
+    @Override
+    public List<CategoryEntity> getLabelsByPid(String pid) {
+        return categoryMapper.getLabelsByPid(pid);
+    }
     public void updateTableNameByTableId(String tableid, String tableName, String tableStatus) {
         System.out.println("status: " + tableStatus);
         categoryMapper.updateTableNameByTableId(tableid, tableName, tableStatus);

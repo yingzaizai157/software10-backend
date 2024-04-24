@@ -17,6 +17,30 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class CategoryEntity {
+//    @TableId
+//    private String id;
+//    private Integer catLevel;
+//    private String label;
+//    private String parentId;
+//    private Integer isLeafs;
+//    private Integer isDelete;
+//    private String uid;
+//    private String status;
+//    private String username;
+//    private String isFilter;
+//    private String isUpload;
+//    private String icdCode;
+//    @TableField(exist = false)
+//    private List<CategoryEntity> children;
+////    疾病管理新增
+//    @TableField(exist = false)
+//    private int tableNum0;
+//    @TableField(exist = false)
+//    private int tableNum1;
+//    @TableField(exist = false)
+//    private int tableNum2;
+
+
     @TableId
     private String id;
     private Integer catLevel;
@@ -30,9 +54,11 @@ public class CategoryEntity {
     private String isFilter;
     private String isUpload;
     private String icdCode;
+
     @TableField(exist = false)
     private List<CategoryEntity> children;
-//    疾病管理新增
+
+    //    疾病管理新增
     @TableField(exist = false)
     private int tableNum0;
     @TableField(exist = false)

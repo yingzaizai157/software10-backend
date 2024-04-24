@@ -18,7 +18,7 @@ public interface CategoryService extends IService<CategoryEntity> {
 
     //    新增疾病管理模块
     List<CategoryEntity> getAllDisease();
-    Result addCategory(AddDiseaseVo addDiseaseVo);
+    int addCategory(AddDiseaseVo addDiseaseVo);
     Result updateCategory(UpdateDiseaseVo updateDiseaseVo);
     void removeCategorys(List<String> deleteIds);
 
