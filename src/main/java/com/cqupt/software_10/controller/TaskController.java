@@ -8,8 +8,11 @@ import com.cqupt.software_10.entity.Task;
 import com.cqupt.software_10.entity.tasks.AnalysisTask;
 import com.cqupt.software_10.entity.tasks.Model;
 import com.cqupt.software_10.entity.tasks.MyTask;
+import com.cqupt.software_10.entity.user.User;
+import com.cqupt.software_10.service.LogService;
 import com.cqupt.software_10.service.TaskService;
 import com.cqupt.software_10.service.tasks.MyTaskService;
+import com.cqupt.software_10.service.user.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -32,6 +35,12 @@ public class TaskController {
     @Autowired
     private MyTaskService myTaskService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private LogService logService;
+
 
     @GetMapping("/all")
     public Result GetAll() {
@@ -39,7 +48,7 @@ public class TaskController {
         return Result.success(allTasks);
     }
 
-    // TODO 查询任务个数
+    // 查询任务个数
     @GetMapping("/taskNumb")
     public Result GetTaskNumb() {
         List<MyTask> allTasks = myTaskService.list();
@@ -82,13 +91,17 @@ public class TaskController {
 
 
     @GetMapping("/delete/{id}")
-    public Result deleteById(@PathVariable int id){
+    public Result deleteById(@PathVariable int id, @RequestParam String curUid){
+        MyTask task = myTaskService.getlistbyId(id);
         myTaskService.deleteTaskById(id);
+
+        User curUser = userService.getUserById(curUid);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除一个任务。被删除任务的任务名和模型名：：" + task.getTaskname() + ", " + task.getModelname());
         return Result.success(myTaskService.getTaskList());
     }
 
 
-    // TODO Auto-generated method 统计任务频次
+    // 统计任务频次
     @GetMapping("/GetAllTaskFrequency")
     public Map<String, Integer> getAllTaskFrequency() {
         List<MyTask> allTasks = myTaskService.list();
@@ -109,7 +122,8 @@ public class TaskController {
 
     @PostMapping("/save")
     public Result insert(
-            @RequestBody(required=false)  String arg
+            @RequestBody(required=false)  String arg,
+            @RequestParam String curUid
     ){
         JSONObject object = JSONObject.parseObject(arg);
 
@@ -136,6 +150,9 @@ public class TaskController {
             e.printStackTrace();
         }
         JsonNode taskmodel = (JsonNode) rootNode;
+
+
+        User curUser = userService.getUserById(curUid);
 
         // 有几个算法就添加几条任务
         for (int i = 0; i < taskmodel.size(); i++) {
@@ -243,53 +260,8 @@ public class TaskController {
             task.setTp(TP);
             task.setAvgshapvalue(avgshapvalue);
             myTaskService.save(task);
+            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，添加一个任务。添加任务的任务名和模型名：：" + task.getTaskname() + ", " + task.getModelname());
         }
-
-//        MyTask task = new MyTask();
-//        task.setTaskname(taskname);
-//        task.setLeader(leader);
-//        task.setParticipant(participant);
-//        task.setDisease(disease);
-//        task.setDataset(dataset);
-//        task.setFeature(feature);
-//        task.setTargetcolumn(targetcolumn);
-//        task.setModel(model);
-//        task.setUid(uid);
-//        task.setCreatetime(createtime);
-//        task.setTips(tips);
-//        myTaskService.save(task);
-
-//        String dataset = object.getString("dataset");
-//        String disease = object.getString("disease");
-//        String leader = object.getString("leader");
-//        String model = object.getString("model");
-//        String participant = object.getString("participant");
-//        String ratio = object.getString("ratio");
-//        String result = object.getString("res");
-//        String targetcolumn = object.getString("targetcolumn");
-//        String taskname = object.getString("taskName");
-//        Integer uid = object.getInteger("uid");
-//        String feature = object.getString("feature");
-//        String parameters = object.getString("para");
-//        String parametersvalues = object.getString("paraValue");
-//
-//        Task task = new Task();
-//        task.setCi(ci);
-//        task.setDataset(dataset);
-//        task.setDisease(disease);
-//        task.setLeader(leader);
-//        task.setModel(model);
-//        task.setParticipant(participant);
-//        task.setRatio(Double.parseDouble(ratio));
-//        task.setResult(result);
-//        task.setTargetcolumn(targetcolumn);
-//        task.setTaskname(taskname);
-//        task.setUserid(uid);
-//        task.setFeature(feature);
-//        task.setParameters(parameters);
-//        task.setParametersvalues(parametersvalues);
-//        task.setCreatetime(new Timestamp(new Date().getTime()));
-//        taskService.save(task);
         return Result.success(200,"创建任务成功");
     }
 

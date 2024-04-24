@@ -102,9 +102,10 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
 
     @Override
     public RuntimeBusServiceResponse submitGetLackInfos(String tableName, String modename) throws Exception {
+
         List<String> args = new ArrayList<>();
         args.add("--table_name="+tableName);
-        args.add("--modename="+modename);
+        //args.add("--modename="+modename);
         System.out.println("args:  " + args);
 
         RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();

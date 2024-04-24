@@ -45,7 +45,7 @@ public class NoticeController {
 
 
     @PostMapping("/updateNotice")
-    public Result updateNotice(@RequestBody Notification notification){
+    public Result updateNotice(@RequestBody Notification notification, @RequestParam String curUid){
 
         notification.setUpdateTime(new Date());
         noticeService.saveOrUpdate(notification);
@@ -55,13 +55,13 @@ public class NoticeController {
 
 
     @PostMapping("delNotice")
-    public Result delNotice(@RequestBody Notification notification){
+    public Result delNotice(@RequestBody Notification notification, @RequestParam String curUid){
         noticeService.removeById(notification.getInfoId());
         return Result.success(200, "成功", null);
     }
 
     @PostMapping("insertNotice")
-    public Result insertNotice(@RequestBody InsertNoticeVo notification){
+    public Result insertNotice(@RequestBody InsertNoticeVo notification, @RequestParam String curUid){
 //        private String infoId;
 //        private String uid;
 //        private String username;

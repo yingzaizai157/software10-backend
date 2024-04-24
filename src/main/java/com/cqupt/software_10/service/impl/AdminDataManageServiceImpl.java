@@ -73,7 +73,7 @@ public class AdminDataManageServiceImpl extends ServiceImpl<AdminDataManageMappe
         // 封住表描述信息
         AdminDataManage adminDataManageEntity = new AdminDataManage();
         CategoryEntity  categoryEntity = new CategoryEntity();
-//        管理员端-数据管理修改
+// 管理员端-数据管理新更改
         String[] paths = classPath.split("/");
         categoryEntity.setCatLevel(paths.length);
         categoryEntity.setLabel(tableName);

@@ -69,7 +69,7 @@ public class UserController {
     }
 
     @PostMapping("/signUp")
-    public Result signUp(@RequestBody User user) throws ParseException {
+    public Result signUp(@RequestBody User user, @RequestParam String curUid) throws ParseException {
 
         System.out.println(user);
         // 检查用户名是否已经存在
@@ -89,6 +89,9 @@ public class UserController {
         user.setUid(new Random().nextInt() + "");
         user.setUploadSize(200);
         userService.saveUser(user);
+        User user_log = userService.getUserById(curUid);
+        logService.insertLog(user_log.getUid(), user_log.getRole(), user_log.getUsername() + "账户注册成功");
+
         //  操作日志记录
 //       UserLog userLog = new UserLog();
 //       User one = userService.getUserByName(user.getUsername());
@@ -114,14 +117,18 @@ public class UserController {
         String userName = user.getUsername();
         User getUser = userService.getUserByName(userName);
         String password = getUser.getPassword();
+
+
         if (getUser != null){
             // 用户状态校验
             // 判断用户是否激活
             System.out.println("getUser:"+  getUser+ "\n" + getUser.getUserStatus() );
             if (getUser.getUserStatus().equals("0")){
+                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "账户未激活");
                 return Result.fail("该账户未激活");
             }
             if (getUser.getUserStatus().equals("2")){
+                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "该账户已经被禁用");
                 return Result.fail("该账户已经被禁用");
             }
 
@@ -150,19 +157,18 @@ public class UserController {
                 session.setAttribute("username",user.getUsername());
                 session.setAttribute("userId",getUser.getUid());
 
-                logService.insertLog(getUser.getUid(), user.getRole(), "用户登录");
+//                logService.insertLog(getUser.getUid(), user.getRole(), "用户登录");
+                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录成功");
+
                 return Result.success(200, "登录成功", getUser);
             }else {
+                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录成功");
                 return Result.success("500","密码错误请重新输入");
             }
         }else {
             return Result.success(500,"用户不存在",null);
         }
     }
-
-
-
-
 
     @PostMapping("/logout")
     public Result logout(HttpServletRequest request,HttpServletResponse response){
@@ -188,22 +194,18 @@ public class UserController {
      */
     @GetMapping("/allUser")
     public Map<String, Object> allUser(@RequestParam(defaultValue = "1") int pageNum,
-                                       @RequestParam(defaultValue = "10") int pageSize,
-                                       @RequestParam String uid){
+                                       @RequestParam(defaultValue = "10") int pageSize
+                                       ){
 
-        User user = userService.getUserById(uid);
         Map<String, Object> allUsers = userService.getUserPage(pageNum, pageSize);
-        logService.insertLog(user.getUid(), user.getRole(), "查看用户信息，第 " + pageNum + " 页, 每页 " + pageSize + " 个");
-        return allUsers;
+         return allUsers;
 
     }
 
 
 
     @GetMapping("/querUser")
-    public List<User> querUser(@RequestParam String uid){
-        User user = userService.getUserById(uid);
-        logService.insertLog(user.getUid(), user.getRole(), "查看所有用户信息");
+    public List<User> querUser(){
         return userService.querUser();
     }
 
@@ -251,9 +253,8 @@ public class UserController {
 
     // 忘记密码功能
     @GetMapping("/queryQuestions")
-    public Result  forgotPwd(@RequestParam String username, @RequestParam String curUid){
+    public Result  forgotPwd(@RequestParam String username){
         User user = userService.getUserByName(username);
-        User curUser = userService.getUserById(curUid);
         String answer1 = user.getAnswer1().split(":")[0];
         String answer2 = user.getAnswer2().split(":")[0];
         String answer3 = user.getAnswer3().split(":")[0];
@@ -261,7 +262,6 @@ public class UserController {
         answers.add(answer1);
         answers.add(answer2);
         answers.add(answer3);
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，查询用户密保问题。被查询用户的用户名：" + user.getUsername() + "，用户id：" + user.getUid());
         System.out.println(Result.success(200, "查询用户密保问题成功",answers ).toString());
         return Result.success(200, "查询用户密保问题成功",answers );
     }
@@ -269,34 +269,30 @@ public class UserController {
 
     // 验证问题
     @PostMapping("/verify")
-    public Result verify(@RequestBody VerifyUserQ verifyUserQ, @RequestParam String curUid){
+    public Result verify(@RequestBody VerifyUserQ verifyUserQ){
         // 用户名   密保问题 和 答案
         QueryWrapper queryWrapper = new QueryWrapper<>()
                 .eq("username",verifyUserQ.getUsername())
                 .eq("answer_1" , verifyUserQ.getQ1()).eq("answer_2" , verifyUserQ.getQ2()).eq("answer_3" , verifyUserQ.getQ3());
         User user = userService.getOne(queryWrapper);
-        User curUser = userService.getUserById(curUid);
+
 
         if (user == null){
-            logService.insertLog(curUser.getUid(), curUser.getRole(), "失败，验证用户密保问题。被验证用户的用户名：" + user.getUsername() + "，用户id：" + user.getUid());
             return Result.fail("验证失败");
         }else {
-            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，验证用户密保问题。被验证用户的用户名：" + user.getUsername() + "，用户id：" + user.getUid());
-            return Result.success(200 ," 验证成功，请重置密码");
+             return Result.success(200 ," 验证成功，请重置密码");
         }
 
     }
 
     @PostMapping("updatePwd")
-    public Result  updatePwd(@RequestBody UserPwd user, @RequestParam String curUid){
-        User curUser = userService.getUserById(curUid);
+    public Result  updatePwd(@RequestBody UserPwd user){
         User updatedUser = userService.getUserByName(user.getUsername());
         String password = user.getPassword();
         String sha256 = SecurityUtil.hashDataSHA256(password);
         user.setPassword(sha256);
         System.out.println(user);
         userService.updatePwd(user);
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改用户密码。被修改用户的用户名：" + updatedUser.getUsername() + "，用户id：" + updatedUser.getUid());
         return Result.success(200 , "修改密码成功");
     }
 
@@ -304,29 +300,24 @@ public class UserController {
 
 
     @GetMapping("/getUserList")
-    public Result getUserList(@RequestParam String curUid) {
-        User curUser = userService.getUserById(curUid);
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，查询所有用户信息");
+    public Result getUserList() {
         return Result.success(200,"读取成功",userService.list());
     }
 
     @GetMapping("/selectByPage")
     public Result selectByPage(@RequestParam Integer pageNum,
                                @RequestParam Integer pageSize,
-                               @RequestParam String searchUser,
-                               @RequestParam String curUid
+                               @RequestParam String searchUser
     ){
         QueryWrapper<User> queryWrapper = new QueryWrapper<User>();
         queryWrapper.like(StringUtils.isNotBlank(searchUser),"username",searchUser);
         PageInfo<User> pageInfo = userService.findByPageService(pageNum, pageSize,queryWrapper);
 
-        User curUser = userService.getUserById(curUid);
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，查询所有用户信息");
         return Result.success(pageInfo);
     }
 
     @PostMapping("/addUser")
-    public Result addUser(@RequestBody Map<String,String> user) {
+    public Result addUser(@RequestBody Map<String,String> user, @RequestParam String curUid) {
 
         QueryWrapper queryWrapper = new QueryWrapper();
         String username = user.get("username");
@@ -348,33 +339,48 @@ public class UserController {
         tempUser.setUpdateTime(null);
         tempUser.setRole(1);
         userService.save(tempUser);
+
+        User curUser = userService.getUserById(curUid);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，添加一个用户。添加用户的用户名：" + username);
         return Result.success(200,"新增用户成功！");
 
     }
 
     @GetMapping("/delete/{uid}")
-    public Result deleteUser(@PathVariable int uid) {
+    public Result deleteUser(@PathVariable int uid, @RequestParam String curUid) {
+        User user = userService.getUserById(String.valueOf(uid));
+
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("uid",uid);
         userService.remove(queryWrapper);
+
+        User curUser = userService.getUserById(curUid);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除一个用户。被删用户的用户名：" + user.getUsername());
         return Result.success(200,"删除用户成功！");
     }
 
     @GetMapping("/getInfo/{uid}")
-    public Result getUserInfo(@PathVariable int uid) {
+    public Result getUserInfo(@PathVariable int uid, @RequestParam String curUid) {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("uid",uid);
         User tempuser =  userService.getOne(queryWrapper);
 
+
+        User curUser = userService.getUserById(curUid);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，查询一个用户。被查询用户的用户名：" + tempuser.getUsername());
         return Result.success(200,"获取用户信息成功！",tempuser);
     }
 
     @PostMapping("/edit")
-    public Result getUserInfo(@RequestBody User user) {
+    public Result getUserInfo(@RequestBody User user, @RequestParam String curUid) {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("uid",user.getUid());
         user.setPassword(SecurityUtil.hashDataSHA256(user.getPassword()));
         userService.update(user,queryWrapper);
+
+
+        User curUser = userService.getUserById(curUid);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改密码。被修改用户的用户名：" + user.getUsername());
         return Result.success(200,"更新用户信息成功！");
     }
 

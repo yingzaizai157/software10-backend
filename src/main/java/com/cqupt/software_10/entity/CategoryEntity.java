@@ -29,6 +29,7 @@ public class CategoryEntity {
     private String username;
     private String isFilter;
     private String isUpload;
+    private String icdCode;
     @TableField(exist = false)
     private List<CategoryEntity> children;
 //    疾病管理新增

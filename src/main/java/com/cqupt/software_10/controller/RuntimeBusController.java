@@ -4,10 +4,13 @@ package com.cqupt.software_10.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.cqupt.software_10.entity.AlgorithmParameter;
 import com.cqupt.software_10.entity.response.RuntimeBusServiceResponse;
+import com.cqupt.software_10.entity.user.User;
+import com.cqupt.software_10.service.LogService;
 import com.cqupt.software_10.service.RuntimeBusService;
 import com.cqupt.software_10.service.RuntimeTaskService;
 import com.cqupt.software_10.service.TenKaggleDiabetesReflectService;
 import com.cqupt.software_10.service.tasks.MyTaskService;
+import com.cqupt.software_10.service.user.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,12 @@ class RuntimeBusController {
 
     @Autowired
     private MyTaskService myTaskService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private LogService logService;
 
 //    @PostMapping("/xgboost")
 //    public Map<String, Double> submitPredictModel(
@@ -70,9 +79,12 @@ class RuntimeBusController {
 //        return mapRes;
 //    }
 
+
+    // 此方法用以获取特征初始权重
     @PostMapping("/submitBus")
     public List<Map<String, String>> submitPredictModel(
-            @RequestBody String parameters
+            @RequestBody String parameters,
+            @RequestParam String curUid
     ) throws Exception {
         JSONObject object = JSONObject.parseObject(parameters);
 
@@ -128,6 +140,8 @@ class RuntimeBusController {
 
         System.out.println(listMap);
 
+        User curUser = userService.getUserById(curUid);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，使用算法" + alg + "，应用的数据表名：" + tableName);
         return listMap;
     }
 
@@ -135,14 +149,14 @@ class RuntimeBusController {
 
     @PostMapping("/getLackinfos_features")
     public List<Map<String, String>> getLackinfos_features(
-            @RequestBody(required=false)  String arg
+            @RequestBody(required=false)  String arg,
+            @RequestParam String curUid
     ) throws Exception {
-
         Gson gson = new Gson();
         Map map = gson.fromJson(arg, Map.class);
 
         String tableName = map.get("tableName").toString();
-        String modename = map.get("modename").toString();
+        String modename = map.get("modename").toString(); // 注：这里的modename是模式名称
         RuntimeBusServiceResponse runtimeBusServiceResponse = runtimeBusService.submitGetLackInfos(tableName, modename);
 
         System.out.println("======submit_model========");
@@ -189,6 +203,8 @@ class RuntimeBusController {
 
         System.out.println(listMap);
 
+        User curUser = userService.getUserById(curUid);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，获得数据表各特征列的缺失信息。数据表的表名：" + tableName);
         return listMap;
     }
 
@@ -196,14 +212,15 @@ class RuntimeBusController {
 
     @PostMapping("/getLackinfos_labels")
     public List<Map<String, String>> getLackinfos_labels(
-            @RequestBody(required=false)  String arg
+            @RequestBody(required=false)  String arg,
+            @RequestParam String curUid
     ) throws Exception {
 
         Gson gson = new Gson();
         Map map = gson.fromJson(arg, Map.class);
 
         String tableName = map.get("tableName").toString();
-        String modename = map.get("modename").toString();
+        String modename = map.get("modename").toString(); // 注：这里的modename是模式名称
         RuntimeBusServiceResponse runtimeBusServiceResponse = runtimeBusService.submitGetLackInfos(tableName, modename);
         System.out.println("======submit_model========");
 
@@ -249,6 +266,8 @@ class RuntimeBusController {
 
         System.out.println(listMap);
 
+        User curUser = userService.getUserById(curUid);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，获得数据表各标签列的缺失信息。数据表的表名：" + tableName);
         return listMap;
     }
 
@@ -467,7 +486,7 @@ class RuntimeBusController {
 
     @PostMapping("/submitAlg")
     public Map<String,Map<String, String>> submitAlg(
-            @RequestBody(required=false)  List<AlgorithmParameter> parameters
+            @RequestBody(required=false)  List<AlgorithmParameter> parameters, @RequestParam String curUid
     ) throws Exception {
         Map<String,Map<String, String>> result = new HashMap<String,Map<String, String>>();
         for (AlgorithmParameter parameter : parameters) {
@@ -622,6 +641,10 @@ class RuntimeBusController {
                 }
             }
             result.put(name, mapRes);
+
+            User curUser = userService.getUserById(curUid);
+            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，运行算法" + name + "，应用的数据表名：" + params.get("table_name") + "，任务名：" + params.get("taskname"));
+
         }
         return result;
     }
@@ -684,7 +707,7 @@ class RuntimeBusController {
 
     @PostMapping("/runmodel")
     public Map<String, String> runDQN(
-            @RequestBody(required=false)  String parameters
+            @RequestBody(required=false)  String parameters, @RequestParam String curUid
     ) throws Exception {
         JSONObject object = JSONObject.parseObject(parameters);
 
@@ -726,6 +749,10 @@ class RuntimeBusController {
                 mapRes.put(sp[0].substring(1, sp[0].length() - 1), sp[1].substring(1, sp[1].length()));
             }
         }
+
+
+        User curUser = userService.getUserById(curUid);
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，运行任务，任务名称：" + taskname + "，算法名称：" + modelname);
         return mapRes;
     }
 

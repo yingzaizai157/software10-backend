@@ -28,7 +28,7 @@
 
 <!--    下面方法是管理员端-数据管理新增-->
     <select id="getLevel2Label" resultType="com.cqupt.software_10.entity.CategoryEntity">
--- 管理员端-数据管理修改
+--         管理员端-数据管理新更改
 -- 在默认根节点parent_id=1下面的二级目录（即一级病种）下
         SELECT * FROM software10.category WHERE cat_level=2 and parent_id='1';
     </select>

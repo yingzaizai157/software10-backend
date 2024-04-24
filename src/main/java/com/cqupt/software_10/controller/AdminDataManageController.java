@@ -3,6 +3,7 @@ package com.cqupt.software_10.controller;
 
 
 import com.cqupt.software_10.common.Result;
+import com.cqupt.software_10.dao.CategoryMapper;
 import com.cqupt.software_10.entity.AdminDataManage;
 import com.cqupt.software_10.entity.CategoryEntity;
 import com.cqupt.software_10.service.*;
@@ -26,6 +27,8 @@ public class AdminDataManageController {
     @Autowired
     CategoryService categoryService;
     @Autowired
+    CategoryMapper categoryMapper;
+    @Autowired
     UserService userService;
     @Autowired
     private LogService logService;
@@ -36,7 +39,7 @@ public class AdminDataManageController {
                              @RequestParam("pid") String pid,
                              @RequestParam("tableName") String tableName,
                              @RequestParam("userName") String userName,
-                             @RequestParam("classPath") String classPath,
+                             @RequestParam("ids") String[] ids,
                              @RequestParam("uid") String uid,   // 传表中涉及到的用户的uid
                              @RequestParam("tableStatus") String tableStatus,
                              @RequestParam("tableSize") float tableSize,
@@ -45,6 +48,14 @@ public class AdminDataManageController {
         // 保存表数据信息
         try {
 //            String tableId="";
+            // 管理员端-数据管理新更改
+//            传入的是category的id集合，根据id获取labels拼接成classpath
+            String classPath = "公共数据集";
+            for (String id : ids){
+                CategoryEntity categoryEntity = categoryMapper.selectById(id);
+                classPath += "/" + categoryEntity.getLabel();
+            }
+            classPath += "/" + tableName;
             List<String> featureList = adminDataManageService.uploadDataTable(file, pid, tableName, userName, classPath, uid, tableStatus, tableSize, current_uid);
             return Result.success("200",featureList); // 返回表头信息
         }catch (Exception e){
@@ -54,6 +65,7 @@ public class AdminDataManageController {
         }
     }
 
+    // 管理员端-数据管理新更改
     @GetMapping("/selectDataDiseases")
     public Result<AdminDataManage> selectDataDiseases(
 //            @RequestParam("current_uid") String current_uid
@@ -65,7 +77,10 @@ public class AdminDataManageController {
             Map<String, Object> ret =  new HashMap<>();
             ret.put("label", category.getLabel());
             ret.put("value", category.getId());
-            ret.put("children", selectCategoryDataDiseases(category.getId()));
+            if (selectCategoryDataDiseases(category.getId()).size() > 0) {
+                ret.put("children", selectCategoryDataDiseases(category.getId()));
+            }
+
             retList.add(ret);
         }
         System.out.println(retList);
@@ -74,6 +89,7 @@ public class AdminDataManageController {
         return Result.success("200",retList);
 //        return Result.success("200",adminDataManages);
     }
+    // 管理员端-数据管理新更改
     public List<Map<String, Object>> selectCategoryDataDiseases(String pid){
         List<Map<String, Object>> retList = new ArrayList<>();
         List<CategoryEntity> res = categoryService.getLabelsByPid(pid);
@@ -81,7 +97,9 @@ public class AdminDataManageController {
             Map<String, Object> ret =  new HashMap<>();
             ret.put("label", category.getLabel());
             ret.put("value", category.getId());
-            ret.put("children", selectCategoryDataDiseases(category.getId()));
+            if (selectCategoryDataDiseases(category.getId()).size() > 0) {
+                ret.put("children", selectCategoryDataDiseases(category.getId()));
+            }
             retList.add(ret);
         }
         return retList;

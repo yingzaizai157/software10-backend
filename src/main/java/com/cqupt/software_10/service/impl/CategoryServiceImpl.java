@@ -117,7 +117,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
 
     @Override
     public void addParentDisease(String diseaseName) {
-        CategoryEntity categoryEntity = new CategoryEntity(null, 1, diseaseName, "0", 0, 0, "1", null, "admin", null,null,null,0,0,0);
+        CategoryEntity categoryEntity = new CategoryEntity(null, 1, diseaseName, "0",
+                0, 0, "1", null, "admin", null,null,
+                null,null,0,0, 0);
         categoryMapper.insert(categoryEntity);
     }
 
@@ -229,7 +231,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
                 .eq("is_delete",0);
         CategoryEntity category = categoryMapper.selectOne(queryWrapper);
         if(category==null){
-            CategoryEntity categoryEntity = new CategoryEntity(null, 1, addDiseaseVo.getFirstDisease(), "0", 0, 0, addDiseaseVo.getUid(), null, addDiseaseVo.getUsername(), null,null,null,0,0,0);
+            CategoryEntity categoryEntity = new CategoryEntity(null, 1, addDiseaseVo.getFirstDisease(), "0", 0, 0
+                    , addDiseaseVo.getUid(), null, addDiseaseVo.getUsername()
+
+                    , null,null,null,null,0,0,0);
             categoryMapper.insert(categoryEntity);
             return Result.success("添加成功");
         }else{
@@ -246,7 +251,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
         String categoryId;
         if(category==null){
             System.out.println("该一级目录不存在，已添加");
-            CategoryEntity categoryEntity = new CategoryEntity(null, 1, addDiseaseVo.getFirstDisease(), "0", 0, 0, addDiseaseVo.getUid(), null, addDiseaseVo.getUsername(),null,null, null,0,0,0);
+            CategoryEntity categoryEntity = new CategoryEntity(null, 1, addDiseaseVo.getFirstDisease(), "0", 0, 0, addDiseaseVo.getUid(), null, addDiseaseVo.getUsername(),null,null,null, null,0,0,0);
             categoryMapper.insert(categoryEntity);
             QueryWrapper<CategoryEntity> queryWrapper1 = new QueryWrapper<>();
             queryWrapper.eq("parent_id", "0")
@@ -266,7 +271,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
         CategoryEntity category2 = categoryMapper.selectOne(queryWrapper2);
         System.out.println(category2);
         if(category2==null){
-            CategoryEntity categoryEntity2 = new CategoryEntity(null, 2, addDiseaseVo.getSecondDisease(), categoryId, 0, 0, addDiseaseVo.getUid(), null, addDiseaseVo.getUsername(), null,null,null,0,0,0);
+            CategoryEntity categoryEntity2 = new CategoryEntity(null, 2, addDiseaseVo.getSecondDisease(), categoryId, 0, 0, addDiseaseVo.getUid(), null, addDiseaseVo.getUsername(), null,null,null,null,0,0,0);
             categoryMapper.insert(categoryEntity2);
             System.out.println("Chenggong");
             return Result.success("添加成功");
