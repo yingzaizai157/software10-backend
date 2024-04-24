@@ -14,6 +14,7 @@ import com.cqupt.software_10.entity.UserPwd;
 import com.cqupt.software_10.entity.VerifyUserQ;
 import com.cqupt.software_10.entity.user.User;
 import com.cqupt.software_10.entity.user.UserLog;
+import com.cqupt.software_10.mapper.user.UserMapper;
 import com.cqupt.software_10.service.LogService;
 import com.cqupt.software_10.service.user.UserLogService;
 import com.cqupt.software_10.service.user.UserService;
@@ -43,19 +44,136 @@ import java.util.*;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-
-
     @Autowired
     private UserService userService;
-
     @Autowired
     LogService logService;
-
-
     @Autowired
     private UserLogService userLogService;
+    @Autowired
+    private UserMapper userMapper;
+
+    /**
+     * 获取用户所有信息
+     */
+    //个人中心开始
+    @GetMapping("/getmessage/{uid}")
+    public Result<List<User>> getall(@PathVariable("uid") String uid){
+        User user = userMapper.selectById(uid);
+        user.setPassword(null);
+        System.out.println("user info"+user);
+        return Result.success(200,"获取成功",user);
+    }
+
+    //修改密码，根据用户名匹配密码是否正确
+    @PostMapping("/VerifyPas")
+    public Result VerifyPas(@RequestBody Map<String, String> request){
+        String username = request.get("username");
+        String password = request.get("password");
+        String pwd = SecurityUtil.hashDataSHA256(password);
+        System.out.println(username);
+        User user = userMapper.getUerByUserName(username);
 
 
+        if(!pwd.equals(user.getPassword())){
+            return Result.success(200,"密码不匹配",false);
+        }
+        return Result.success(200,"密码匹配",true);
+    }
+
+
+    //修改密码
+    @PostMapping("/updatePas")
+    public Result updatePas(@RequestBody Map<String, String> requests) {
+        try {
+            // 假设 userMapper 是 MyBatis 的一个 Mapper 接口
+            String username = requests.get("username");
+            String password = requests.get("password");
+            String pwd = SecurityUtil.hashDataSHA256(password);
+            UserPwd user = new UserPwd(username, pwd);
+            int updatedRows =  userMapper.updatePwd(user);
+
+            //  操作日志记录
+            QueryWrapper queryWrapper1  = new QueryWrapper<>();
+            queryWrapper1.eq("username",username);
+
+            User one = userService.getOne(queryWrapper1);
+            String uid = one.getUid();
+            User user_log = userService.getUserById(uid);
+            if (updatedRows > 0) {
+                logService.insertLog(user_log.getUid(), user_log.getRole(), user_log.getUsername() + "更新成功");
+                // 更新成功，返回成功结果
+                return Result.success(200, "更新成功");
+            } else {
+                logService.insertLog(user_log.getUid(), user_log.getRole(), user_log.getUsername() + "更新失败，用户不存在或密码未更改");
+                // 更新失败，没有记录被更新
+                return Result.success(404, "更新失败，用户不存在或密码未更改");
+            }
+        } catch (Exception e) {
+            String username = requests.get("username");
+            QueryWrapper queryWrapper1  = new QueryWrapper<>();
+            queryWrapper1.eq("username",username);
+            User one = userService.getOne(queryWrapper1);
+
+            String uid = one.getUid();
+            User user_log = userService.getUserById(uid);
+            logService.insertLog(user_log.getUid(), user_log.getRole(), user_log.getUsername() + "用户修改个人信息成功");
+
+            // 处理可能出现的任何异常，例如数据库连接失败等
+            // 记录异常信息，根据实际情况决定是否需要发送错误日志
+            // 这里返回一个通用的错误信息
+            return Result.success(500, "更新失败，发生未知错误");
+        }
+    }
+
+    //修改个人信息
+    @PostMapping("/updateUser")
+    public Result updateUser(@RequestBody User user) {
+        try {
+            // 假设 userMapper 是 MyBatis 的一个 Mapper 接口
+
+            QueryWrapper<User> wrapper = new QueryWrapper<>();
+            wrapper.eq("uid",user.getUid());
+
+            int updatedRows = userMapper.update(user, wrapper);
+            //  操作日志记录
+            User user_log = userService.getUserById(user.getUid());
+
+
+            if (updatedRows > 0) {
+                // 更新成功，返回成功结果
+                logService.insertLog(user_log.getUid(), user_log.getRole(), user_log.getUsername() + "用户修改个人信息成功");
+                return Result.success("200", "更新成功");
+            } else {
+                logService.insertLog(user_log.getUid(), user_log.getRole(), user_log.getUsername() + "用户修改个人信息失败");
+                // 更新失败，没有记录被更新
+                return Result.success("404", "更新失败，用户不存在");
+            }
+        } catch (Exception e) {
+            // 处理可能出现的任何异常，例如数据库连接失败等
+            // 记录异常信息，根据实际情况决定是否需要发送错误日志
+            // 这里返回一个通用的错误信息
+            return Result.success("500", "更新失败，发生未知错误");
+        }
+    }
+
+    /**
+     *  检查用户名是否重复
+     * @param username
+     * @return
+     */
+    @GetMapping("/checkRepetition/{username}")
+    public Result checkRepetition(@PathVariable("username") String username) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("username", username);
+        User user = userMapper.selectOne(wrapper);
+        if(user != null){
+            return Result.success(200, "用户名已存在");
+        }else {
+            return Result.success(200, "用户名可用");
+        }
+    }
+    //个人中心结束
 
     @GetMapping("/querUserNameExist")
     public Result querUserNameExist(@RequestParam String userName){

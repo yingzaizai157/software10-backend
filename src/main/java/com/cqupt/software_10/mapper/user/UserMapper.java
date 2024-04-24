@@ -24,6 +24,8 @@ public interface UserMapper extends BaseMapper<User> {
 
     boolean updateStatusById(Integer uid,Integer role , double uploadSize, String status);
 
+    int updateByname(String pwd, String username);
+
     void removeUserById(Integer uid);
 
     void insertUser(InsertUserVo user);
@@ -32,7 +34,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     int countUsers();
 
-    void updatePwd(UserPwd user);
+    int updatePwd(UserPwd user);
 
     @Update("UPDATE software10.software10user SET upload_size = upload_size-#{size} WHERE uid = #{id}")
     int decUpdateUserColumnById(@Param("id") String id, @Param("size") Double size);
