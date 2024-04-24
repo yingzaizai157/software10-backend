@@ -111,7 +111,7 @@ public class CategoryController {
             categoryService.removeNode(categoryEntity.getId(),categoryEntity.getLabel());
             TableDescribeEntity tableDescribeEntity = tableDescribeMapper.selectOne(new QueryWrapper<TableDescribeEntity>().eq("table_id",categoryEntity.getId()));
             if(tableDescribeEntity.getTableSize()!=0){
-                userMapper.recoveryUpdateUserColumnById(tableDescribeEntity.getUid(),tableDescribeEntity.getTableSize());
+                userMapper.recoveryUpdateUserColumnById(tableDescribeEntity.getUid(),new Double(tableDescribeEntity.getTableSize()));
             }
             tableDescribeMapper.delete(new QueryWrapper<TableDescribeEntity>().eq("table_id",categoryEntity.getId()));
 //            tTableMapper.delete(new QueryWrapper<tTable>().eq("table_name",categoryEntity.getLabel()));
@@ -289,17 +289,36 @@ public class CategoryController {
         return result;
 
     }
+//    @PostMapping("/category/deleteCategory")
+//    public Result deleteCategory(@RequestBody List<String> deleteIds, HttpServletRequest request){
+//        String token = request.getHeader("Authorization");
+//        String curId = SecurityUtil.getUserIdFromToken(token);
+//        User curUser = userService.getUserById(curId);
+//
+//        System.out.println("删除");
+//        System.out.println(deleteIds);
+//        categoryService.removeCategorys(deleteIds);
+//
+//        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除树枝：" + deleteIds);
+//        return Result.success("删除成功");
+//    }
+
+
     @PostMapping("/category/deleteCategory")
-    public Result deleteCategory(@RequestBody List<String> deleteIds, HttpServletRequest request){
+    public Result deleteCategory(@RequestBody DeleteDiseaseVo deleteDiseaseVo, HttpServletRequest request){
         String token = request.getHeader("Authorization");
         String curId = SecurityUtil.getUserIdFromToken(token);
         User curUser = userService.getUserById(curId);
 
-        System.out.println("删除");
-        System.out.println(deleteIds);
-        categoryService.removeCategorys(deleteIds);
 
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除树枝：" + deleteIds);
+        StringJoiner joiner = new StringJoiner(",");
+        for (String str : deleteDiseaseVo.getDeleteNames()) {
+            joiner.add(str);
+        }
+        categoryService.removeCategorys(deleteDiseaseVo.getDeleteIds());
+
+
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除树枝：" + deleteDiseaseVo);
         return Result.success("删除成功");
     }
 

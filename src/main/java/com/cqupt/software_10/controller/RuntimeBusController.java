@@ -211,7 +211,7 @@ class RuntimeBusController {
 
         System.out.println(listMap);
 
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，获得数据表各特征列的缺失信息。数据表的表名：" + tableName);
+//        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，获得数据表各特征列的缺失信息。数据表的表名：" + tableName);
         return listMap;
     }
 
@@ -275,7 +275,7 @@ class RuntimeBusController {
 
         System.out.println(listMap);
 
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，获得数据表各标签列的缺失信息。数据表的表名：" + tableName);
+//        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，获得数据表各标签列的缺失信息。数据表的表名：" + tableName);
         return listMap;
     }
 

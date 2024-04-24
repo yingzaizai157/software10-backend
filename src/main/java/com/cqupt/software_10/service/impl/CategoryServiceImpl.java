@@ -132,10 +132,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
         else if(categoryEntity.getStatus().equals("1")){
             categoryMapper.changeStatusToPrivate(categoryEntity.getId());
         }
+
     }
 
     @Override
     public List<CategoryEntity> getTaskCategory() {
+
         // 获取所有目录行程树形结构
         List<CategoryEntity> categoryEntities = categoryMapper.selectList(null);
         // 获取所有级结构
@@ -269,66 +271,66 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
     //添加一级病种
     @Override
     public int addCategory(AddDiseaseVo addDiseaseVo){
-        CategoryEntity category = new CategoryEntity(null,1,addDiseaseVo.getFirstDisease(),addDiseaseVo.getParentId(),0,0,addDiseaseVo.getUid(),null,addDiseaseVo.getUsername(),null,null,addDiseaseVo.getIcdCode(),null,0,0,0);
+        CategoryEntity category = new CategoryEntity(null,addDiseaseVo.getCatLevel(),addDiseaseVo.getFirstDisease(),addDiseaseVo.getParentId(),0,0,addDiseaseVo.getUid(),null,addDiseaseVo.getUsername(),null,null,addDiseaseVo.getIcdCode(),null,0,0,0);
         return categoryMapper.insert(category);
     }
 
-    private Result addFirstDisease(AddDiseaseVo addDiseaseVo){
-        //判断该病种是否已经存在
-        QueryWrapper<CategoryEntity> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("parent_id", "0")
-                .eq("label", addDiseaseVo.getFirstDisease())
-                .eq("is_delete",0);
-        CategoryEntity category = categoryMapper.selectOne(queryWrapper);
-        if(category==null){
-            CategoryEntity categoryEntity = new CategoryEntity(null, 1, addDiseaseVo.getFirstDisease(), "0", 0, 0
-                    , addDiseaseVo.getUid(), null, addDiseaseVo.getUsername()
-
-                    , null,null,null,null,0,0,0);
-            categoryMapper.insert(categoryEntity);
-            return Result.success("添加成功");
-        }else{
-            return Result.fail("该一级病种已经存在");
-        }
-    }
-    private Result addSecondDisease(AddDiseaseVo addDiseaseVo){
-        //获取一级病种，若不存在则插入,并取得一级病种id
-        QueryWrapper<CategoryEntity> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("parent_id", "0")
-                .eq("label", addDiseaseVo.getFirstDisease())
-                .eq("is_delete",0);
-        CategoryEntity category = categoryMapper.selectOne(queryWrapper);
-        String categoryId;
-        if(category==null){
-            System.out.println("该一级目录不存在，已添加");
-            CategoryEntity categoryEntity = new CategoryEntity(null, 1, addDiseaseVo.getFirstDisease(), "0", 0, 0, addDiseaseVo.getUid(), null, addDiseaseVo.getUsername(),null,null,null, null,0,0,0);
-            categoryMapper.insert(categoryEntity);
-            QueryWrapper<CategoryEntity> queryWrapper1 = new QueryWrapper<>();
-            queryWrapper.eq("parent_id", "0")
-                    .eq("label", addDiseaseVo.getFirstDisease())
-                    .eq("is_delete",0);
-            CategoryEntity category1 = categoryMapper.selectOne(queryWrapper);
-            categoryId = category1.getId();
-        }else{
-            System.out.println("该一级目录存在");
-            categoryId = category.getId();
-        }
-        //获取二级病种，若不存在则插入
-        QueryWrapper<CategoryEntity> queryWrapper2 = new QueryWrapper<>();
-        queryWrapper2.eq("parent_id", categoryId)
-                .eq("label", addDiseaseVo.getSecondDisease())
-                .eq("is_delete",0);
-        CategoryEntity category2 = categoryMapper.selectOne(queryWrapper2);
-        System.out.println(category2);
-        if(category2==null){
-            CategoryEntity categoryEntity2 = new CategoryEntity(null, 2, addDiseaseVo.getSecondDisease(), categoryId, 0, 0, addDiseaseVo.getUid(), null, addDiseaseVo.getUsername(), null,null,null,null,0,0,0);
-            categoryMapper.insert(categoryEntity2);
-            System.out.println("Chenggong");
-            return Result.success("添加成功");
-        }else{
-            return Result.fail("该二级病种已经存在");
-        }
-    }
+//    private Result addFirstDisease(AddDiseaseVo addDiseaseVo){
+//        //判断该病种是否已经存在
+//        QueryWrapper<CategoryEntity> queryWrapper = new QueryWrapper<>();
+//        queryWrapper.eq("parent_id", "0")
+//                .eq("label", addDiseaseVo.getFirstDisease())
+//                .eq("is_delete",0);
+//        CategoryEntity category = categoryMapper.selectOne(queryWrapper);
+//        if(category==null){
+//            CategoryEntity categoryEntity = new CategoryEntity(null, 1, addDiseaseVo.getFirstDisease(), "0", 0, 0
+//                    , addDiseaseVo.getUid(), null, addDiseaseVo.getUsername()
+//
+//                    , null,null,null,null,0,0,0);
+//            categoryMapper.insert(categoryEntity);
+//            return Result.success("添加成功");
+//        }else{
+//            return Result.fail("该一级病种已经存在");
+//        }
+//    }
+//    private Result addSecondDisease(AddDiseaseVo addDiseaseVo){
+//        //获取一级病种，若不存在则插入,并取得一级病种id
+//        QueryWrapper<CategoryEntity> queryWrapper = new QueryWrapper<>();
+//        queryWrapper.eq("parent_id", "0")
+//                .eq("label", addDiseaseVo.getFirstDisease())
+//                .eq("is_delete",0);
+//        CategoryEntity category = categoryMapper.selectOne(queryWrapper);
+//        String categoryId;
+//        if(category==null){
+//            System.out.println("该一级目录不存在，已添加");
+//            CategoryEntity categoryEntity = new CategoryEntity(null, 1, addDiseaseVo.getFirstDisease(), "0", 0, 0, addDiseaseVo.getUid(), null, addDiseaseVo.getUsername(),null,null,null, null,0,0,0);
+//            categoryMapper.insert(categoryEntity);
+//            QueryWrapper<CategoryEntity> queryWrapper1 = new QueryWrapper<>();
+//            queryWrapper.eq("parent_id", "0")
+//                    .eq("label", addDiseaseVo.getFirstDisease())
+//                    .eq("is_delete",0);
+//            CategoryEntity category1 = categoryMapper.selectOne(queryWrapper);
+//            categoryId = category1.getId();
+//        }else{
+//            System.out.println("该一级目录存在");
+//            categoryId = category.getId();
+//        }
+//        //获取二级病种，若不存在则插入
+//        QueryWrapper<CategoryEntity> queryWrapper2 = new QueryWrapper<>();
+//        queryWrapper2.eq("parent_id", categoryId)
+//                .eq("label", addDiseaseVo.getSecondDisease())
+//                .eq("is_delete",0);
+//        CategoryEntity category2 = categoryMapper.selectOne(queryWrapper2);
+//        System.out.println(category2);
+//        if(category2==null){
+//            CategoryEntity categoryEntity2 = new CategoryEntity(null, 2, addDiseaseVo.getSecondDisease(), categoryId, 0, 0, addDiseaseVo.getUid(), null, addDiseaseVo.getUsername(), null,null,null,null,0,0,0);
+//            categoryMapper.insert(categoryEntity2);
+//            System.out.println("Chenggong");
+//            return Result.success("添加成功");
+//        }else{
+//            return Result.fail("该二级病种已经存在");
+//        }
+//    }
 
     @Override
     public Result updateCategory(UpdateDiseaseVo updateDiseaseVo){

@@ -93,16 +93,19 @@ public class TaskController {
 
 
     @GetMapping("/delete/{id}")
-    public Result deleteById(@PathVariable int id, HttpServletRequest request){
+    public Result deleteById(HttpServletRequest request, @PathVariable int id){
         String token = request.getHeader("Authorization");
         String curId = SecurityUtil.getUserIdFromToken(token);
         User curUser = userService.getUserById(curId);
+        System.out.println("token:" + token);
+        System.out.println("curId:" + curId);
+        System.out.println("curUser:" + curUser);
 
         MyTask task = myTaskService.getlistbyId(id);
         myTaskService.deleteTaskById(id);
 
         logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除一个任务。被删除任务的任务名和模型名：：" + task.getTaskname() + ", " + task.getModelname());
-        return Result.success(myTaskService.getTaskList());
+        return Result.success(200, "删除给", myTaskService.getTaskList());
     }
 
 
