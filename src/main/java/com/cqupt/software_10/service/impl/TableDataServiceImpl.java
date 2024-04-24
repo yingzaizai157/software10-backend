@@ -7,6 +7,7 @@ import com.cqupt.software_10.dao.TableDescribeMapper;
 import com.cqupt.software_10.entity.CategoryEntity;
 import com.cqupt.software_10.entity.FieldManagementEntity;
 import com.cqupt.software_10.entity.TableDescribeEntity;
+import com.cqupt.software_10.mapper.user.UserMapper;
 import com.cqupt.software_10.service.FieldManagementService;
 import com.cqupt.software_10.service.TableDataService;
 import com.cqupt.software_10.vo.CreateTableFeatureVo;
@@ -41,6 +42,9 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Autowired
     FieldManagementService fieldManagementService;
+
+    @Autowired
+    UserMapper userMapper;
     @Override
     public List<LinkedHashMap<String, Object>> getTableData(String TableId, String tableName) {
         List<LinkedHashMap<String, Object>> tableData = tableDataMapper.getTableData(tableName);
@@ -49,31 +53,37 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Transactional(propagation = Propagation.REQUIRED) // 事务控制
     @Override
-    public List<String> uploadFile(MultipartFile file, String tableName, String type, String user, int userId, String parentId, String parentType) throws IOException, ParseException {
+    public List<String> uploadFile(MultipartFile file, String tableName, String type, String user, String userId, String parentId, String parentType,String status,Double size,String is_upload,String is_filter) throws IOException, ParseException {
+        System.out.println(parentId);
         // 封住表描述信息
+        CategoryEntity node = new CategoryEntity();
+        node.setIsDelete(0);
+        node.setParentId(parentId);
+        node.setIsLeafs(1);
+        node.setStatus(status);
+        node.setUid(userId);
+        node.setUsername(user);
+        CategoryEntity categoryEntity = categoryMapper.selectById(parentId);
+        node.setCatLevel(categoryEntity.getCatLevel()+1);
+        node.setLabel(tableName);
+        node.setIsFilter(is_filter);
+        node.setIsUpload(is_upload);
+        categoryMapper.insert(node); // 保存目录信息
+
+        // 表描述信息
         TableDescribeEntity tableDescribeEntity = new TableDescribeEntity();
-        tableDescribeEntity.setClassPath(parentType+"/"+type);
-        // 解析系统当前时间
-        tableDescribeEntity.setCreateTime(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-        tableDescribeEntity.setCreateUser(user);
         tableDescribeEntity.setTableName(tableName);
-        // 封装目录信息
-        CategoryEntity categoryEntity = new CategoryEntity();
-        categoryEntity.setLabel(tableName);
-        CategoryEntity parentCate = categoryMapper.selectById(parentId);
-        categoryEntity.setCatLevel(parentCate.getCatLevel()+1);
-//        categoryEntity.setIsCommon(parentCate.getIsCommon());
-        categoryEntity.setIsLeafs(1);
-//        categoryEntity.setPath(parentCate.getPath()+"/"+tableName);
-        categoryEntity.setParentId(parentId);
-        categoryEntity.setIsDelete(0);
-        // 保存数据库
-        categoryMapper.insert(categoryEntity);
-        System.out.println("目录信息插入成功");
-        tableDescribeEntity.setTableId(categoryEntity.getId());
+        tableDescribeEntity.setCreateUser(user);
+        tableDescribeEntity.setUid(userId);
+        tableDescribeEntity.setTableStatus(status);
+        tableDescribeEntity.setCreateTime(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        tableDescribeEntity.setClassPath(parentType+"/"+tableName);
+        tableDescribeEntity.setTableId(node.getId());
+        tableDescribeEntity.setTableSize(size);
+        // 保存表描述信息
         tableDescribeMapper.insert(tableDescribeEntity);
-        System.out.println("表描述信息插入成功");
         List<String> featureList = storeTableData(file, tableName);
+        userMapper.decUpdateUserColumnById(userId,size);
         return featureList;
     }
 

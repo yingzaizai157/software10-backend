@@ -69,7 +69,7 @@ public class UserController {
     }
 
     @PostMapping("/signUp")
-    public Result signUp(@RequestBody User user, @RequestParam String curUid) throws ParseException {
+    public Result signUp(@RequestBody User user) throws ParseException {
 
         System.out.println(user);
         // 检查用户名是否已经存在
@@ -89,8 +89,9 @@ public class UserController {
         user.setUid(new Random().nextInt() + "");
         user.setUploadSize(200);
         userService.saveUser(user);
-        User user_log = userService.getUserById(curUid);
-        logService.insertLog(user_log.getUid(), user_log.getRole(), user_log.getUsername() + "账户注册成功");
+//        User user_log = userService.getUserById(curUid);
+//        logService.insertLog(user_log.getUid(), user_log.getRole(), user_log.getUsername() + "账户注册成功");
+
 
         //  操作日志记录
 //       UserLog userLog = new UserLog();
@@ -161,9 +162,7 @@ public class UserController {
                 logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录成功");
 
                 String token = SecurityUtil.generateToken(getUser.getUid());
-                String uid = SecurityUtil.getUserIdFromToken(token);
-                System.out.println("user.getUid()=" + user.getUid() + "uid=" + uid);
-
+                System.out.println("================================" + token);
                 return Result.success(200, token, getUser);
             }else {
                 logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录成功");
@@ -218,39 +217,59 @@ public class UserController {
      * @return
      */
     @PostMapping("updateStatus")
-    public Result  updateStatus(@RequestBody UpdateStatusVo updateStatusVo, @RequestParam String curUid){
+    public Result  updateStatus(@RequestBody UpdateStatusVo updateStatusVo, HttpServletRequest request){
         // 根据 id  修改用户状态   角色
         boolean b = userService.updateStatusById(updateStatusVo.getUid() ,updateStatusVo.getRole(),updateStatusVo.getUploadSize(), updateStatusVo.getStatus());
-        User user = userService.getUserById(curUid);
+
+
+        String token = request.getHeader("Authorization");
+        String uid = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(uid);
+
         if (b) {
-            logService.insertLog(user.getUid(), user.getRole(), "成功，修改用户状态");
+            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改用户状态");
             return  Result.success(200 , "修改用户状态成功");
         }
-        logService.insertLog(user.getUid(), user.getRole(), "失败，修改用户状态");
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "失败，修改用户状态");
         return  Result.fail("修改失败");
     }
 
 
     @PostMapping("delUser")
-    public Result delUser(@RequestBody UpdateStatusVo updateStatusVo, @RequestParam String curUid){
+    public Result delUser(@RequestBody UpdateStatusVo updateStatusVo, HttpServletRequest request){
         Integer uid = updateStatusVo.getUid();
         User removedUser = userService.getUserById(uid.toString());
         boolean b = userService.removeUserById(uid);
-        User user = userService.getUserById(curUid);
+
+
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
+
         if (b) {
-            logService.insertLog(user.getUid(), user.getRole(), "成功，删除用户：" + removedUser.getUsername() + "，被删用户id：" + removedUser.getUid());
+            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除用户：" + removedUser.getUsername() + "，被删用户id：" + removedUser.getUid());
             return Result.success(200 , "删除成功");
         }
-        logService.insertLog(user.getUid(), user.getRole(), "失败，删除用户：" + removedUser.getUsername() + "，被删用户id：" + removedUser.getUid());
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "失败，删除用户：" + removedUser.getUsername() + "，被删用户id：" + removedUser.getUid());
         return Result.fail(200 , "删除失败");
     }
 
     // TODO 目前不需要，还未加入日志
     @PostMapping("insertUser")
-    public Result insertUser(@RequestBody InsertUserVo user) throws ParseException {
+    public Result insertUser(@RequestBody InsertUserVo user, HttpServletRequest request) throws ParseException {
         boolean b = userService.insertUser(user);
-        if (b) return Result.success(200 , "删除成功");
-        return Result.fail(200 , "删除失败");
+
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
+        if (b) {
+            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，添加用户：" + user.getUsername());
+            return Result.success(200 , "添加成功");
+        }
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，添加用户：" + user.getUsername());
+        return Result.fail(200 , "添加失败");
     }
 
 
@@ -289,13 +308,19 @@ public class UserController {
     }
 
     @PostMapping("updatePwd")
-    public Result  updatePwd(@RequestBody UserPwd user){
-        User updatedUser = userService.getUserByName(user.getUsername());
+    public Result  updatePwd(@RequestBody UserPwd user, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
+
         String password = user.getPassword();
         String sha256 = SecurityUtil.hashDataSHA256(password);
         user.setPassword(sha256);
         System.out.println(user);
         userService.updatePwd(user);
+
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改密码：" + user.getUsername());
         return Result.success(200 , "修改密码成功");
     }
 
@@ -320,7 +345,11 @@ public class UserController {
     }
 
     @PostMapping("/addUser")
-    public Result addUser(@RequestBody Map<String,String> user, @RequestParam String curUid) {
+    public Result addUser(@RequestBody Map<String,String> user, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
 
         QueryWrapper queryWrapper = new QueryWrapper();
         String username = user.get("username");
@@ -343,47 +372,49 @@ public class UserController {
         tempUser.setRole(1);
         userService.save(tempUser);
 
-        User curUser = userService.getUserById(curUid);
         logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，添加一个用户。添加用户的用户名：" + username);
         return Result.success(200,"新增用户成功！");
 
     }
 
     @GetMapping("/delete/{uid}")
-    public Result deleteUser(@PathVariable int uid, @RequestParam String curUid) {
+    public Result deleteUser(@PathVariable int uid, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
         User user = userService.getUserById(String.valueOf(uid));
 
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("uid",uid);
         userService.remove(queryWrapper);
 
-        User curUser = userService.getUserById(curUid);
         logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除一个用户。被删用户的用户名：" + user.getUsername());
         return Result.success(200,"删除用户成功！");
     }
 
     @GetMapping("/getInfo/{uid}")
-    public Result getUserInfo(@PathVariable int uid, @RequestParam String curUid) {
+    public Result getUserInfo(@PathVariable int uid) {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("uid",uid);
         User tempuser =  userService.getOne(queryWrapper);
 
-
-        User curUser = userService.getUserById(curUid);
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，查询一个用户。被查询用户的用户名：" + tempuser.getUsername());
         return Result.success(200,"获取用户信息成功！",tempuser);
     }
 
     @PostMapping("/edit")
-    public Result getUserInfo(@RequestBody User user, @RequestParam String curUid) {
+    public Result getUserInfo(@RequestBody User user, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("uid",user.getUid());
         user.setPassword(SecurityUtil.hashDataSHA256(user.getPassword()));
         userService.update(user,queryWrapper);
 
 
-        User curUser = userService.getUserById(curUid);
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改密码。被修改用户的用户名：" + user.getUsername());
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改用户信息。被修改用户的用户名：" + user.getUsername());
         return Result.success(200,"更新用户信息成功！");
     }
 

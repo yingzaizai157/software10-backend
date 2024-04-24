@@ -9,15 +9,21 @@ import com.cqupt.software_10.dao.TableDescribeMapper;
 import com.cqupt.software_10.entity.Category2Entity;
 import com.cqupt.software_10.entity.CategoryEntity;
 import com.cqupt.software_10.entity.TableDescribeEntity;
+import com.cqupt.software_10.entity.user.User;
 import com.cqupt.software_10.mapper.user.UserMapper;
 import com.cqupt.software_10.service.Category2Service;
 import com.cqupt.software_10.service.CategoryService;
+import com.cqupt.software_10.service.LogService;
+import com.cqupt.software_10.service.user.UserService;
+import com.cqupt.software_10.util.SecurityUtil;
 import com.cqupt.software_10.vo.AddDiseaseVo;
 import com.cqupt.software_10.vo.DeleteDiseaseVo;
 import com.cqupt.software_10.vo.UpdateDiseaseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,6 +47,12 @@ public class CategoryController {
 
     @Autowired
     CategoryMapper categoryMapper;
+
+    @Autowired
+    LogService logService;
+
+    @Autowired
+    UserService userService;
 
 
     // 获取目录
@@ -68,9 +80,16 @@ public class CategoryController {
 
     // 创建一种新的疾病
     @PostMapping("/addDisease")
-    public Result addDisease(@RequestBody CategoryEntity categoryNode){
+    public Result addDisease(@RequestBody CategoryEntity categoryNode, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
+
         System.out.println("参数为："+ JSON.toJSONString(categoryNode));
         categoryService.save(categoryNode);
+
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，新增目录，" + categoryNode.getLabel());
         return Result.success(200,"新增目录成功");
     }
 
@@ -78,7 +97,12 @@ public class CategoryController {
     // 删除一个目录
     @Transactional
     @GetMapping("/category/remove")
-    public Result removeCate(CategoryEntity categoryEntity){
+    public Result removeCate(CategoryEntity categoryEntity, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
+
         System.out.println("要删除的目录为："+JSON.toJSONString(categoryEntity));
         if(categoryEntity.getIsLeafs()==0){
             categoryService.removeNode(categoryEntity.getId());
@@ -93,6 +117,9 @@ public class CategoryController {
 //            tTableMapper.delete(new QueryWrapper<tTable>().eq("table_name",categoryEntity.getLabel()));
 
         }
+
+
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除目录，" + categoryEntity.getLabel());
         return Result.success(200,"删除成功");
     }
 
@@ -163,15 +190,27 @@ public class CategoryController {
 
 
     @GetMapping("/addParentDisease")
-    public Result addParentDisease(@RequestParam("diseaseName") String diseaseName){
+    public Result addParentDisease(@RequestParam("diseaseName") String diseaseName, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
         System.out.println("name:"+diseaseName);
         categoryService.addParentDisease(diseaseName);
+
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，添加疾病名称，" + diseaseName);
         return Result.success("200",null);
     }
 
     @GetMapping("/changeStatus")
-    public Result changeStatus(CategoryEntity categoryEntity){
+    public Result changeStatus(CategoryEntity categoryEntity, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
         categoryService.changeStatus(categoryEntity);
+
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改树情况，" + categoryEntity);
         return Result.success(200,"修改成功",null);
     }
 
@@ -227,20 +266,40 @@ public class CategoryController {
         return Result.success("200",list);
     }
     @PostMapping("/category/addCategory")
-    public Result addCategory(@RequestBody AddDiseaseVo addDiseaseVo){
-        return Result.success("200",categoryService.addCategory(addDiseaseVo));
+    public Result addCategory(@RequestBody AddDiseaseVo addDiseaseVo, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
+        int result = categoryService.addCategory(addDiseaseVo);
+
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，添加树枝：" + addDiseaseVo);
+        return Result.success("200",result);
     }
     @PostMapping("/category/updateCategory")
-    public Result updateCategory(@RequestBody UpdateDiseaseVo updateDiseaseVo){
-        return categoryService.updateCategory(updateDiseaseVo);
+    public Result updateCategory(@RequestBody UpdateDiseaseVo updateDiseaseVo, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
 
-//        return categoryService.updateById(categoryEntity)? Result.success("修改成功"):Result.fail("修改失败");
+
+        Result result = categoryService.updateCategory(updateDiseaseVo);
+
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，更新树枝：" + updateDiseaseVo);
+        return result;
+
     }
     @PostMapping("/category/deleteCategory")
-    public Result deleteCategory(@RequestBody List<String> deleteIds){
+    public Result deleteCategory(@RequestBody List<String> deleteIds, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        String curId = SecurityUtil.getUserIdFromToken(token);
+        User curUser = userService.getUserById(curId);
+
         System.out.println("删除");
         System.out.println(deleteIds);
         categoryService.removeCategorys(deleteIds);
+
+        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除树枝：" + deleteIds);
         return Result.success("删除成功");
     }
 

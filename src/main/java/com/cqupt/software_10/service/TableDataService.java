@@ -14,7 +14,7 @@ import java.util.Map;
 public interface TableDataService {
     List<LinkedHashMap<String,Object>> getTableData(String TableId, String tableName);
 
-    List<String> uploadFile(MultipartFile file, String tableName, String type, String user, int userId, String parentId, String parentType) throws IOException, ParseException;
+    List<String> uploadFile(MultipartFile file, String tableName, String type, String user, String userId, String parentId, String parentType,String status,Double size,String is_upload,String is_filter) throws IOException, ParseException;
 
     void createTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser, CategoryEntity nodeData);
 
