@@ -126,6 +126,25 @@ public class AdminDataManageServiceImpl extends ServiceImpl<AdminDataManageMappe
         return adminDataManageMapper.selectDataById(id);
     }
 
+    public List<String> selectParentIdsByTableId(String tableId) {
+        CategoryEntity categoryEntity = categoryMapper.selectById(tableId);
+        List<String> ret = new ArrayList<>();
+        while (!categoryEntity.getId().equals("1")){
+            categoryEntity =  categoryMapper.selectById(categoryEntity.getParentId());
+            if (categoryEntity.getIsLeafs()==1 || categoryEntity.getIsDelete()==1){
+                continue;
+            }
+            ret.add(categoryEntity.getId());
+        }
+
+        ret.add(categoryEntity.getId());
+        Collections.reverse(ret);
+
+        return ret;
+
+    }
+
+
     @Override
     public void deleteByTableName(String tableName) {
         adminDataManageMapper.deleteByTableName(tableName);

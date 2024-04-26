@@ -17,6 +17,7 @@ public interface AdminDataManageService extends IService<AdminDataManage> {
 
     List<AdminDataManage> selectDataByName(String searchType, String name);
     AdminDataManage selectDataById(String id);
+    List<String> selectParentIdsByTableId(String tableId);
 
     void deleteByTableName(String tablename);
     void deleteByTableId(String tableId);

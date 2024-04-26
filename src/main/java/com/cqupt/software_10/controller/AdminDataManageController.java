@@ -151,6 +151,8 @@ public class AdminDataManageController {
 //            @RequestParam("current_uid") String current_uid
     ){
         AdminDataManage adminDataManage = adminDataManageService.selectDataById(id);
+        List<String> res = adminDataManageService.selectParentIdsByTableId(id);
+        System.out.println("selectDataById ret:" + res);
 //        System.out.println("数据为："+ JSON.toJSONString(tableDescribeEntity));
 
         return Result.success("200",adminDataManage);
