@@ -130,6 +130,7 @@ public class AdminDataManageServiceImpl extends ServiceImpl<AdminDataManageMappe
         CategoryEntity categoryEntity = categoryMapper.selectById(tableId);
         List<String> ret = new ArrayList<>();
         while (!categoryEntity.getId().equals("1")){
+            // 获取父结点id的对象
             categoryEntity =  categoryMapper.selectById(categoryEntity.getParentId());
             if (categoryEntity.getIsLeafs()==1 || categoryEntity.getIsDelete()==1){
                 continue;
@@ -137,7 +138,6 @@ public class AdminDataManageServiceImpl extends ServiceImpl<AdminDataManageMappe
             ret.add(categoryEntity.getId());
         }
 
-        ret.add(categoryEntity.getId());
         Collections.reverse(ret);
 
         return ret;

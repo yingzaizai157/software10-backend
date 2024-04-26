@@ -151,11 +151,13 @@ public class AdminDataManageController {
 //            @RequestParam("current_uid") String current_uid
     ){
         AdminDataManage adminDataManage = adminDataManageService.selectDataById(id);
-        List<String> res = adminDataManageService.selectParentIdsByTableId(id);
-        System.out.println("selectDataById ret:" + res);
-//        System.out.println("数据为："+ JSON.toJSONString(tableDescribeEntity));
+        CategoryEntity categoryEntity = categoryMapper.selectById(id);
+        CategoryEntity parentCategoryEntity = categoryMapper.selectById(categoryEntity.getParentId());
+        Map<String, Object> ret =  new HashMap<>();
+        ret.put("object", adminDataManage);
+        ret.put("id", parentCategoryEntity.getId());
 
-        return Result.success("200",adminDataManage);
+        return Result.success("200",ret);
     }
 
     @GetMapping("/updateAdminDataManage")
