@@ -442,6 +442,7 @@ def main(rate, reward,iter,gamma, lr, table_name, cols, labels):
     shap_values = explainer.shap_values(explain_data)
     avg_shapvalue = np.sum(shap_values[...,1], axis=0)
     avg_shapvalue = avg_shapvalue.tolist()
+    avg_shapvalue = [abs(number) for number in avg_shapvalue]
 
     # 解释新样本
     # shap_values = explainer.shap_values(new_sample_tensor)

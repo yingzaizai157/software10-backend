@@ -156,7 +156,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
      */
     private Pair<List<CategoryEntity>,int[]> getDiseaseChildren(CategoryEntity level1Cat, List<CategoryEntity> categoryEntities) {
         List<CategoryEntity> children = categoryEntities.stream().filter((categoryEntity) -> {
-            return categoryEntity.getParentId().equals(level1Cat.getId()) && categoryEntity.getIsDelete()==0 && categoryEntity.getStatus()==null; // 获取当前分类的所有子分类
+            return categoryEntity.getParentId().equals(level1Cat.getId()) && categoryEntity.getIsDelete()==0 && (categoryEntity.getStatus()==null || categoryEntity.getStatus().equals("0")); // 获取当前分类的所有子分类
         }).map((child) -> {
             // 递归设置子分类的所有子分类
 //            child.setChildren(getCatChildren(child, categoryEntities));
@@ -186,7 +186,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
         List<CategoryEntity> categoryEntities = dataManagerMapper.selectList(null);
         // 获取所有级结构
         List<CategoryEntity> treeData = categoryEntities.stream().filter((categoryEntity) -> {
-            return categoryEntity.getParentId().equals("1") && categoryEntity.getIsDelete()==0 && categoryEntity.getStatus()==null;
+            return categoryEntity.getParentId().equals("1") && categoryEntity.getIsDelete()==0 && (categoryEntity.getStatus()==null || categoryEntity.getStatus().equals("0")) ;
         }).map((level1Cat) -> {
             Pair<List<CategoryEntity>,int[]> pair = getDiseaseChildren(level1Cat,categoryEntities);
             level1Cat.setChildren(pair.getKey());
@@ -198,14 +198,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
             level1Cat.setTableNum2(numsCat[2]+numsTab[2]);
             return level1Cat;
         }).collect(Collectors.toList());
-
         return treeData;
     }
     // 获取第二层目录
     private Pair<List<CategoryEntity>,int[]> getSecondLevelChildren(String parentId) {
         // 获取所有第二层目录
         List<CategoryEntity> secondLevelCategories = dataManagerMapper.selectList(null).stream()
-                .filter(categoryEntity -> categoryEntity.getParentId().equals(parentId) && categoryEntity.getIsDelete() == 0 && categoryEntity.getStatus()==null)
+                .filter(categoryEntity -> categoryEntity.getParentId().equals(parentId) && categoryEntity.getIsDelete() == 0 && (categoryEntity.getStatus()==null || categoryEntity.getStatus().equals("0")))
                 .map(level2Cat -> {
                     Pair<List<CategoryEntity>,int[]> pair = getThirdLevelChildren((level2Cat.getId()));
                     level2Cat.setChildren(pair.getKey());
@@ -231,7 +230,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
     //获取第三层目录
     private Pair<List<CategoryEntity>,int[]> getThirdLevelChildren(String parentId){
         List<CategoryEntity> thirdLevelCategories = dataManagerMapper.selectList(null).stream()
-                .filter(categoryEntity -> categoryEntity.getParentId().equals(parentId) && categoryEntity.getIsDelete() == 0 && categoryEntity.getStatus()==null)
+                .filter(categoryEntity -> categoryEntity.getParentId().equals(parentId) && categoryEntity.getIsDelete() == 0 && (categoryEntity.getStatus()==null || categoryEntity.getStatus().equals("0")))
                 .map(level3Cat -> {
                     //计算第四层表数量作为第三层的num
                     int[] numsTab = getFileNums(level3Cat.getId());

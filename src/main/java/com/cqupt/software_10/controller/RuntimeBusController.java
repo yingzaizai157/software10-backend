@@ -729,15 +729,15 @@ class RuntimeBusController {
 
         String modelname = object.getString("modelname");
         String taskname = object.getString("taskname");
-        List<String> onedata = object.getJSONArray("featuredata").toJavaList(String.class);
+//        List<String> onedata = object.getJSONArray("featuredata").toJavaList(String.class);
 
-//        String feature = myTaskService.getFeatureByTasknameAndModelname(taskname, modelname);
-//        String[] feature_arr = feature.substring(2, feature.length() - 2).split("\",\"");
-//        List<String> feature_list = Arrays.asList(feature_arr);
-//        List<String> onedata = new ArrayList<String>();
-//        for (int i = 0; i < feature_list.size(); i++) {
-//            onedata.add(object.getString(feature_list.get(i)));
-//        }
+        String feature = myTaskService.getFeatureByTasknameAndModelname(taskname, modelname);
+        String[] feature_arr = feature.substring(2, feature.length() - 2).split("\",\"");
+        List<String> feature_list = Arrays.asList(feature_arr);
+        List<String> onedata = new ArrayList<String>();
+        for (int i = 0; i < feature_list.size(); i++) {
+            onedata.add(object.getString(feature_list.get(i)));
+        }
 
 
 

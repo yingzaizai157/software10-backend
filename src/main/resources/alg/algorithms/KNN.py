@@ -89,6 +89,7 @@ def runKNN(modelName, data,random_state, paramRange, cv, cols, labels):
     shap_values = explainer(explain_data)
     avg_shapvalue = np.sum(shap_values.values, axis=0)
     avg_shapvalue = avg_shapvalue.tolist()
+    avg_shapvalue = [abs(number) for number in avg_shapvalue]
 
     # 保存模型
     # 保存模型到文件
