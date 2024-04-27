@@ -155,17 +155,25 @@ public class AdminDataManageServiceImpl extends ServiceImpl<AdminDataManageMappe
     }
 
     @Override
-    public void updateById(String id, String tableName, String tableStatus) {
-        AdminDataManage adminDataManage = adminDataManageMapper.selectById(id);
-        String classPath = adminDataManage.getClassPath();
-        String[] str = classPath.split("/");
-        str[str.length-1] = tableName;
-        classPath = String.join("/", str);
+    public void updateById(String id, String[] pids, String tableName, String tableStatus) {
+        AdminDataManage adminDataManage = adminDataManageMapper.selectById(id);  // 在table_describe表中获取表id对应的那一行数据
+
+//        设置class_path
+        String classPath = "公共数据集";
+        for (String pid : pids){
+            CategoryEntity categoryEntity = categoryMapper.selectById(pid);
+            classPath += "/" + categoryEntity.getLabel();
+        }
+        classPath += "/" + tableName;
+
         adminDataManage.setClassPath(classPath);
         adminDataManage.setTableName(tableName);
         adminDataManage.setTableStatus(tableStatus);
-        adminDataManageMapper.updateById(adminDataManage);
-//        adminDataManageMapper.updateById(id, tableName, tableStatus);
+
+        CategoryEntity categoryEntity = categoryMapper.selectById(adminDataManage.getTableId());
+        categoryEntity.setParentId(pids[pids.length-1]);
+        categoryMapper.updateById(categoryEntity); // 更改category表
+        adminDataManageMapper.updateById(adminDataManage);// 更改table_describe表
     }
 
     @Override
@@ -175,8 +183,8 @@ public class AdminDataManageServiceImpl extends ServiceImpl<AdminDataManageMappe
 
     @Override
     @Transactional
-    public void updateInfo(String id, String tableid, String oldTableName, String tableName, String tableStatus, String current_uid) {
-        updateById(id, tableName, tableStatus);
+    public void updateInfo(String id, String tableid, String oldTableName, String tableName, String tableStatus,String[] pids, String current_uid) {
+        updateById(id, pids, tableName, tableStatus);
         logService.insertLog(current_uid, 0, "更改了table_describe表中的"+oldTableName + "表为：" + tableName + ",将状态更改为：" + tableStatus + "并更改了classpath");
         categoryMapper.updateTableNameByTableId(tableid, tableName, tableStatus);
         logService.insertLog(current_uid, 0, "更改了category表中的"+oldTableName + "表为：" + tableName + ",将状态更改为：" + tableStatus);

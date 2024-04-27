@@ -49,7 +49,17 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
         return treeData;
     }
 
+    @Override
+    public List<CategoryEntity> getdataset() {
+        // 获取所有目录行程树形结构
+        List<CategoryEntity> categoryEntities = dataManagerMapper.selectList(null);
 
+        List<CategoryEntity> treeData = categoryEntities.stream().filter((categoryEntity) -> {
+            return categoryEntity.getIsLeafs() == 1 && categoryEntity.getIsDelete() == 0;
+        }).collect(Collectors.toList());
+
+        return treeData;
+    }
 
 
     // 获取第二层目录

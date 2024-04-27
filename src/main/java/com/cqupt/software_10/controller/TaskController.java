@@ -14,6 +14,8 @@ import com.cqupt.software_10.service.TaskService;
 import com.cqupt.software_10.service.tasks.MyTaskService;
 import com.cqupt.software_10.service.user.UserService;
 import com.cqupt.software_10.util.SecurityUtil;
+import com.cqupt.software_10.vo.DateCount;
+import com.cqupt.software_10.vo.TaskStaticVo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -275,6 +278,29 @@ public class TaskController {
             logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，添加一个任务。添加任务的任务名和模型名：：" + task.getTaskname() + ", " + task.getModelname());
         }
         return Result.success(200,"创建任务成功");
+    }
+
+
+
+    //用以首页统计使用
+    @GetMapping("/GetTaskNearlySevenDays")
+    public TaskStaticVo getTaskNearlySevenDays() {
+        List<DateCount> tasks = myTaskService.getTaskNearlySevenDays();
+
+        TaskStaticVo result = new TaskStaticVo();
+        List<String> date = new ArrayList<String>();
+        List<Integer> number = new ArrayList<Integer>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // 定义日期格式
+        for (DateCount task : tasks) {
+            String dateKey = sdf.format(task.getDate()); // 将Timestamp转换为格式化的字符串
+            date.add(dateKey);
+            number.add(task.getCount());
+        }
+
+        result.setDate(date);
+        result.setNumber(number);
+
+        return result;
     }
 
 }

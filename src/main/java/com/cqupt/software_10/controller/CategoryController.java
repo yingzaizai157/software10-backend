@@ -63,6 +63,15 @@ public class CategoryController {
         return Result.success("200",list);
     }
 
+
+    // 用在首页的统计信息里面
+    @GetMapping("/getDatasetNumber")
+    public Result getDatasetNumber(){
+        List<CategoryEntity> list = categoryService.getdataset();
+
+        return Result.success("200",list.size());
+    }
+
     @GetMapping("/Taskcategory")
     public Result<List<CategoryEntity>> getCatgory(){
         List<CategoryEntity> list = categoryService.getTaskCategory();

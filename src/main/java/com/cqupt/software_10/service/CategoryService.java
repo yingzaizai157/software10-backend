@@ -13,6 +13,8 @@ import java.util.List;
 public interface CategoryService extends IService<CategoryEntity> {
     List<CategoryEntity> getCategory();
 
+    List<CategoryEntity> getdataset();
+
     //    下面方法是管理员端-数据管理新增
 //    查看各等级病种
 

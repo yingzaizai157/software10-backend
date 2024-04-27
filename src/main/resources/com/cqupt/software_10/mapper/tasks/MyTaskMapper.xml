@@ -24,5 +24,20 @@
         select *  from software10.software10task
     </select>
 
+
+    <select id="getTaskNearlySevenDays" resultType="com.cqupt.software_10.vo.DateCount">
+        SELECT date_series.date, COALESCE(count(software10.software10task.createtime), 0) AS count
+        FROM (
+            SELECT generate_series(
+            CURRENT_DATE - INTERVAL '6 days',
+            CURRENT_DATE,
+            '1 day'
+            )::date AS date
+            ) AS date_series
+            LEFT JOIN software10.software10task ON date_series.date = DATE(software10.software10task.createtime)
+        GROUP BY date_series.date
+        ORDER BY date_series.date;
+    </select>
+
 </mapper>
 

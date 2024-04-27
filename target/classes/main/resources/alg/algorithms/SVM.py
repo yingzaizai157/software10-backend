@@ -100,6 +100,11 @@ def runSVM(modelName, data, kernel, random_state, paramRange, cv, cols, labels):
     shap_values = explainer(explain_data)
     avg_shapvalue = np.sum(shap_values.values, axis=0)
     avg_shapvalue = avg_shapvalue.tolist()
+    avg_shapvalue = [abs(number) for number in avg_shapvalue]
+
+    # 将值转化为百分比
+    total = sum(avg_shapvalue)
+    avg_shapvalue = [(x / total) * 100 for x in avg_shapvalue]
 
     # 保存模型
     # 保存模型到文件
@@ -141,7 +146,7 @@ if __name__ == '__main__':
     parser.add_argument("--paramRange", type=int, default=5)
     parser.add_argument("--cv", type=int, default=5)
     parser.add_argument("--modelName", type=str, default="test")
-    parser.add_argument("--table_name", type=str, default="data_diabetes23")
+    parser.add_argument("--table_name", type=str, default="diabetes")
     parser.add_argument("--cols", type=str,
                         default="pregnancies,glucose,skinthickness,insulin,bmi,diabetespedigreefunction,age")
     parser.add_argument("--labels", type=str, default="outcome")

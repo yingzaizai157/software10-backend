@@ -15,10 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 // TODO 因为操作该模块的用户肯定是管理员，因此在插入日志时将role角色固定为0， 管理员状态
 
@@ -145,32 +142,46 @@ public class AdminDataManageController {
         return Result.success("200",ret);
     }
 
-    @GetMapping("/selectDataById")
-    public Result<AdminDataManage> selectDataById(
+    @GetMapping("/selectCategoryEntityById")
+    public Result<AdminDataManage> selectCategoryEntityById(
             @RequestParam("id") String id
 //            @RequestParam("current_uid") String current_uid
     ){
-        AdminDataManage adminDataManage = adminDataManageService.selectDataById(id);
         CategoryEntity categoryEntity = categoryMapper.selectById(id);
-        CategoryEntity parentCategoryEntity = categoryMapper.selectById(categoryEntity.getParentId());
+        return Result.success("200",categoryEntity);
+    }
+
+    @GetMapping("/selectDataById")
+    public Result<AdminDataManage> selectDataById(
+            @RequestParam("id") String id
+    ){
+        AdminDataManage adminDataManage = adminDataManageService.selectDataById(id); // 根据id获取table_describe表的那一行
         Map<String, Object> ret =  new HashMap<>();
         ret.put("object", adminDataManage);
-        ret.put("id", parentCategoryEntity.getId());
 
+        CategoryEntity categoryEntity = categoryMapper.selectById(adminDataManage.getTableId());// 根据id获取table_describe表的table_id与category形成映射
+        List<String> pids = new ArrayList<>();
+        while (!categoryEntity.getParentId().equals("1")){ // 筛选除疾病列表结点的下面结点
+            categoryEntity = categoryMapper.selectById(categoryEntity.getParentId());
+            pids.add(categoryEntity.getId()); // 迭代添加父节点id
+        }
+        Collections.reverse(pids); // 反转，使得父节点id在前面
+
+        ret.put("ids", pids); // 包含疾病结点的id，不包含表id
         return Result.success("200",ret);
     }
 
-    @GetMapping("/updateAdminDataManage")
+    @PostMapping("/updateAdminDataManage")
     public Result<AdminDataManage> updateAdminDataManage(
             @RequestParam("id") String id,
             @RequestParam("tableid") String tableid,
             @RequestParam("oldTableName") String oldTableName,
             @RequestParam("tableName") String tableName,
             @RequestParam("tableStatus") String tableStatus,
+            @RequestParam("pids") String[] pids,  // 父节点id列表
             @RequestParam("current_uid") String current_uid
             ){
-        adminDataManageService.updateInfo(id, tableid, oldTableName, tableName, tableStatus, current_uid);
-
+        adminDataManageService.updateInfo(id, tableid, oldTableName, tableName, tableStatus, pids, current_uid);
         return Result.success("200","已经更改到数据库");
     }
 

@@ -12,12 +12,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cqupt.software_10.entity.tasks.MyTask;
 import com.cqupt.software_10.mapper.tasks.MyTaskMapper;
 import com.cqupt.software_10.service.tasks.MyTaskService;
+import com.cqupt.software_10.vo.DateCount;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -274,6 +276,14 @@ public class MyTaskServiceImpl extends ServiceImpl<MyTaskMapper, MyTask> impleme
     @Override
     public List<MyTask> getTaskList() {
         return myTaskMapper.getTaskList();
+    }
+
+
+
+    // 用以首页的统计信息
+    @Override
+    public List<DateCount> getTaskNearlySevenDays() {
+        return myTaskMapper.getTaskNearlySevenDays();
     }
 
 }

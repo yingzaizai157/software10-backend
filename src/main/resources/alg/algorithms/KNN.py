@@ -91,6 +91,12 @@ def runKNN(modelName, data,random_state, paramRange, cv, cols, labels):
     avg_shapvalue = avg_shapvalue.tolist()
     avg_shapvalue = [abs(number) for number in avg_shapvalue]
 
+    # 将值转化为百分比
+    total = sum(avg_shapvalue)
+    avg_shapvalue = [(x / total) * 100 for x in avg_shapvalue]
+
+
+
     # 保存模型
     # 保存模型到文件
     file_path1 = os.path.join(MODEL_SAVE_DICTORY, 'trained', f"KNN_{modelName}.pkl")
@@ -128,10 +134,10 @@ if __name__ == '__main__':
     parser.add_argument("--random_state", type=int, default=42)
     parser.add_argument("--cv", type=int, default=5)
     parser.add_argument("--modelName", type=str, default="test")
-    parser.add_argument("--table_name", type=str, default="data_diabetes23")
+    parser.add_argument("--table_name", type=str, default="diabetes")
     parser.add_argument("--cols", type=str,
-                        default="pregnancies,glucose,skinthickness,insulin,bmi,diabetespedigreefunction,age")
-    parser.add_argument("--labels", type=str, default="outcome")
+                        default="Pregnancies,Glucose,SkinThickness,Insulin,BMI,DiabetesPedigreeFunction,Age")
+    parser.add_argument("--labels", type=str, default="Outcome")
     args = parser.parse_args()
 
     paramRange, random_state, cv, modelName, table_name, cols, labels = args.K, args.random_state, args.cv, args.modelName, args.table_name, args.cols, args.labels

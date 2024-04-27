@@ -442,6 +442,11 @@ def main(rate, reward,iter,gamma, lr, table_name, cols, labels):
     shap_values = explainer.shap_values(explain_data)
     avg_shapvalue = np.sum(shap_values[...,1], axis=0)
     avg_shapvalue = avg_shapvalue.tolist()
+    avg_shapvalue = [abs(number) for number in avg_shapvalue]
+
+    # 将值转化为百分比
+    total = sum(avg_shapvalue)
+    avg_shapvalue = [(x / total) * 100 for x in avg_shapvalue]
 
     # 解释新样本
     # shap_values = explainer.shap_values(new_sample_tensor)
@@ -503,7 +508,7 @@ def get_main():
     parser.add_argument("--gamma", type=float, default=0.4)
     parser.add_argument("--learning_rate", type=float, default=0.01)
     parser.add_argument("--modelName", type=str, default="test")
-    parser.add_argument("--table_name", type=str, default="data_diabetes23")
+    parser.add_argument("--table_name", type=str, default="diabetes")
     parser.add_argument("--cols", type=str,
                         default="pregnancies,glucose,skinthickness,insulin,bmi,diabetespedigreefunction,age")
     parser.add_argument("--labels", type=str, default="outcome")
