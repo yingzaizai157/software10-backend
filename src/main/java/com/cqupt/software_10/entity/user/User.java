@@ -16,6 +16,7 @@ public class User {
     @TableField("uid")
     private String uid;
 
+    @TableField("username")
     private String username;
 
     private String password;

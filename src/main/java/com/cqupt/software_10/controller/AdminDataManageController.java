@@ -1,17 +1,21 @@
 package com.cqupt.software_10.controller;
 
-
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.cqupt.software_10.common.Result;
+import com.cqupt.software_10.dao.AdminDataManageMapper;
 import com.cqupt.software_10.dao.CategoryMapper;
 import com.cqupt.software_10.entity.AdminDataManage;
 import com.cqupt.software_10.entity.CategoryEntity;
+import com.cqupt.software_10.entity.CheckApprovingVo;
+import com.cqupt.software_10.mapper.user.UserMapper;
 import com.cqupt.software_10.service.*;
 import com.cqupt.software_10.service.user.UserService;
 import com.cqupt.software_10.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.cqupt.software_10.entity.user.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +27,8 @@ import java.util.*;
 @RequestMapping("/api/sysManage")
 public class AdminDataManageController {
     @Autowired
+    AdminDataManageMapper adminDataManageMapper;
+    @Autowired
     AdminDataManageService adminDataManageService;
     @Autowired
     CategoryService categoryService;
@@ -31,11 +37,12 @@ public class AdminDataManageController {
     @Autowired
     UserService userService;
     @Autowired
+    UserMapper userMapper;
+    @Autowired
     private LogService logService;
     // 文件上传
     @PostMapping("/uploadDataTable")
     public Result uploadDataTable(@RequestParam("file") MultipartFile file,
-//                             @RequestParam("tableId") String tableId,
                              @RequestParam("pid") String pid,
                              @RequestParam("tableName") String tableName,
                              @RequestParam("userName") String userName,
@@ -169,6 +176,70 @@ public class AdminDataManageController {
 
         ret.put("ids", pids); // 包含疾病结点的id，不包含表id
         return Result.success("200",ret);
+    }
+
+
+    @GetMapping("/selectUsernamesById")
+    public Result<AdminDataManage> selectUsernamesById(
+            @RequestParam("id") String id
+    ){
+        AdminDataManage adminDataManage = adminDataManageService.selectDataById(id); // 根据id获取table_describe表的那一行
+        String checkApproving = adminDataManage.getCheckApproving();
+        if (checkApproving == null || checkApproving.length() == 0){
+            return Result.fail(501, "没有申请人",null);
+        }
+        String[] approvingUsernames = checkApproving.split(",");
+
+        List<CheckApprovingVo> checkApprovingVos = new ArrayList<>();
+
+
+        for( String username: approvingUsernames){
+            // 添加查询条件，假设我们要搜索 username 为 "testUser" 的用户
+            // 使用 QueryWrapper 构建查询条件
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("username", username);
+            User user = userMapper.selectOne(queryWrapper);
+
+            CheckApprovingVo checkApprovingVo = new CheckApprovingVo();
+            checkApprovingVo.setUsername(user.getUsername());
+            checkApprovingVo.setUid(user.getUid());
+            checkApprovingVo.setClasspath(adminDataManage.getClassPath());
+            checkApprovingVos.add(checkApprovingVo);
+        }
+
+        System.out.println(checkApprovingVos);
+
+        return Result.success("200",checkApprovingVos);
+    }
+
+    @GetMapping("/updateCheckApprove")
+    public Result<AdminDataManage> updateCheckApprove(
+            @RequestParam("id") String id,
+            @RequestParam("username") String username,
+            @RequestParam("type") int type
+    ){
+        AdminDataManage adminDataManage = adminDataManageService.selectDataById(id);
+        // 根据id获取table_describe表的那一行
+        String checkApproving = adminDataManage.getCheckApproving();
+        String checkApproved = adminDataManage.getCheckApproved();
+        String[] approvingUsernames = checkApproving.split(",");
+        List<String> itemList = new ArrayList<>(Arrays.asList(approvingUsernames));
+
+        itemList.remove(username);  // 不管同意还是拒绝下载，都要把他从申请列表中删除
+        if (type == 1){   // 如果同意下载，还需要将他添加到已同意列表中去
+            if (checkApproved == null || checkApproved.length() == 0){
+                checkApproved = username;
+            }else{
+                checkApproved += ","+username;
+            }
+
+        }
+
+        adminDataManage.setCheckApproving(String.join(",", itemList));
+        adminDataManage.setCheckApproved(checkApproved);
+
+        adminDataManageMapper.updateById(adminDataManage);
+        return Result.success("200","成功更改");
     }
 
     @PostMapping("/updateAdminDataManage")
