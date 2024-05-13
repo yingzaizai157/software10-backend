@@ -14,7 +14,7 @@ public class FileController {
     @Value("${file.path}")
     private String dirPath;
 
-    @Value("softOperation.docx")
+    @Value("softOperation.pdf")
     private String optFileName;
     @Value("softInfo.pdf")
     private String introFile;

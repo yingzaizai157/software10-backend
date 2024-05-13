@@ -13,6 +13,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // 文件磁盘图片url映射
         // 配置server虚拟路径，handler为前台访问的目录，locations为files相对应的本地路径
         registry.addResourceHandler("/fig/**").addResourceLocations("file:D:/Code/Java/software10/software-software_backend/src/main/resources/alg/fig/");
+        registry.addResourceHandler("/**").addResourceLocations("file:D:/Code/Java/software10/software-software_backend/src/main/resources/Files/");
     }
 
 }
