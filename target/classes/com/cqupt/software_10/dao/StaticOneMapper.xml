@@ -13,7 +13,7 @@
     </select>
 
     <select id="getTableNames" resultType="java.lang.String">
-        SELECT tablename FROM public.tablemanage;
+        SELECT label FROM software10.category WHERE is_leafs=1 and is_delete=0 and status=2;
     </select>
 
     <select id="getEarlyDate" resultType="java.util.Date">

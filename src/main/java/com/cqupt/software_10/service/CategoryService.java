@@ -41,4 +41,8 @@ public interface CategoryService extends IService<CategoryEntity> {
     //    查看各等级病种
     List<CategoryEntity> getLevel2Label();
     List<CategoryEntity> getLabelsByPid(@Param("pid") String pid);
+
+    List<String> getTableNames();
+
+    void removeTable(@Param("label") String label);
 }

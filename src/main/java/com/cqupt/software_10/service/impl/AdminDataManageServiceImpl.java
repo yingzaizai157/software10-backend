@@ -185,12 +185,12 @@ public class AdminDataManageServiceImpl extends ServiceImpl<AdminDataManageMappe
     @Transactional
     public void updateInfo(String id, String tableid, String oldTableName, String tableName, String tableStatus,String[] pids, String current_uid) {
         updateById(id, pids, tableName, tableStatus);
-        logService.insertLog(current_uid, 0, "更改了table_describe表中的"+oldTableName + "表为：" + tableName + ",将状态更改为：" + tableStatus + "并更改了classpath");
+//        logService.insertLog(current_uid, 0, "更改了table_describe表中的"+oldTableName + "表为：" + tableName + ",将状态更改为：" + tableStatus + "并更改了classpath");
         categoryMapper.updateTableNameByTableId(tableid, tableName, tableStatus);
-        logService.insertLog(current_uid, 0, "更改了category表中的"+oldTableName + "表为：" + tableName + ",将状态更改为：" + tableStatus);
+//        logService.insertLog(current_uid, 0, "更改了category表中的"+oldTableName + "表为：" + tableName + ",将状态更改为：" + tableStatus);
         if (!oldTableName.equals(tableName)){
             updateDataBaseTableName(oldTableName, tableName);
-            logService.insertLog(current_uid, 0, "更改了数据库中的"+oldTableName + "表为：" + tableName );
+//            logService.insertLog(current_uid, 0, "更改了数据库中的"+oldTableName + "表为：" + tableName );
         }
     }
 

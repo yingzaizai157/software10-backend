@@ -6,6 +6,6 @@
 
 
     <select id="selectFeatures" resultType="com.cqupt.software_10.entity.FeatureEntity">
-        select * from field_management where ${belongType}=true;
+        select * from software10.field_management where ${belongType}=true;
     </select>
 </mapper>

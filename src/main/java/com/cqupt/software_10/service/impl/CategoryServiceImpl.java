@@ -364,9 +364,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
 
     @Override
     public List<CategoryEntity> getCategory(String uid) {
-        List<CategoryEntity> categoryEntities_private = new ArrayList<CategoryEntity>();
-        List<CategoryEntity> categoryEntities_share = new ArrayList<CategoryEntity>();
-        List<CategoryEntity> categoryEntities_common = new ArrayList<CategoryEntity>();
         // 获取所有目录行程树形结构
         List<CategoryEntity> categoryEntities = categoryMapper.selectList(null);
         // 获取所有级结构
@@ -380,7 +377,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
 
         CategoryEntity copiedTree1 = copyPrivareTreeStructure(treeData.get(0),uid);
         copiedTree1.setLabel("私有数据集");
-        CategoryEntity copiedTree2 = copyShareTreeStructure(treeData.get(0));
+        CategoryEntity copiedTree2 = copyShareTreeStructure(treeData.get(0),uid);
         copiedTree2.setLabel("共享数据集");
         CategoryEntity copiedTree3 = copyCommonTreeStructure(treeData.get(0));
         copiedTree3.setLabel("公共数据集");
@@ -416,9 +413,24 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper,CategoryEnti
     public List<CategoryEntity> getLabelsByPid(String pid) {
         return categoryMapper.getLabelsByPid(pid);
     }
+
+    @Override
+    public List<String> getTableNames() {
+        return categoryMapper.getTableNames();
+    }
+
+    @Override
+    public void removeTable(String label) {
+        categoryMapper.removeTable(label);
+    }
+
     public void updateTableNameByTableId(String tableid, String tableName, String tableStatus) {
         System.out.println("status: " + tableStatus);
         categoryMapper.updateTableNameByTableId(tableid, tableName, tableStatus);
 
     }
+
+
+
+
 }

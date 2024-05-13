@@ -11,6 +11,10 @@
         select * from software10.software10task where  id = #{Id}
     </select>
 
+    <select id="getlistbyTaskname" resultType="com.cqupt.software_10.entity.tasks.MyTask">
+        select * from software10.software10task where  taskname = #{taskname}
+    </select>
+
 
     <select id="getFeatureByTasknameAndModelname" resultType="java.lang.String">
         select feature from software10.software10task where  taskname = #{taskname} and modelname = #{modelname}
@@ -37,6 +41,25 @@
             LEFT JOIN software10.software10task ON date_series.date = DATE(software10.software10task.createtime)
         GROUP BY date_series.date
         ORDER BY date_series.date;
+    </select>
+
+
+    <select id="getEveryTaskNearlySevenDays" resultType="com.cqupt.software_10.vo.DateModelCount">
+        SELECT
+        ds.date,
+        mn.modelname,
+        COALESCE(COUNT(st.createtime), 0) AS count
+        FROM
+        (SELECT generate_series(CURRENT_DATE - INTERVAL '6 days', CURRENT_DATE, '1 day')::date AS date) ds
+        CROSS JOIN
+        (SELECT DISTINCT modelname FROM software10.software10task) mn
+        LEFT JOIN software10.software10task st ON ds.date = DATE(st.createtime) AND mn.modelname = st.modelname
+        WHERE
+        st.createtime IS NULL OR (st.createtime >= CURRENT_DATE - INTERVAL '6 days' AND st.createtime &lt; CURRENT_DATE + INTERVAL '1 day')
+        GROUP BY
+        ds.date, mn.modelname
+        ORDER BY
+        mn.modelname, ds.date
     </select>
 
 </mapper>

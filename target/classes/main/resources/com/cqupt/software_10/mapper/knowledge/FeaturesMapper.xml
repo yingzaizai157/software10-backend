@@ -4,16 +4,16 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cqupt.software_10.mapper.knowledge.FeaturesMapper">
     <select id="getKnowledgeDisease" resultType="java.lang.String">
-        select distinct disease_name  from software10.knowledge_features;
+        select distinct disease_name  from software10.knowledge;
     </select>
 
     <select id="getKnowledgeFactorCN" resultType="java.lang.String">
-        select distinct risk_factors_cn  from software10.knowledge_features;
+        select distinct risk_factors_cn  from software10.knowledge;
     </select>
 
     <select id="searchByDiseaseName" resultType="com.cqupt.software_10.entity.knowledge.Features">
         select *
-        from software10.knowledge_features
+        from software10.knowledge
         where
             true
             <if test="diseaseName != null and diseaseName != ''" >
@@ -27,49 +27,44 @@
     </select>
 
     <delete id="deleteKnowledgeById">
-        delete from software10.knowledge_features where id=${id}
+        delete from software10.knowledge where id=${id}
     </delete>
 
     <update id="updateKnowledgeInfo">
-        update software10.knowledge_features
+        update software10.knowledge
         SET 
             disease_name = #{knowledge.diseaseName},
             risk_factors_cn = #{knowledge.riskFactorsCn},
             is_exception = #{knowledge.isException},
             exception_low = #{knowledge.exceptionLow},
             exception_up = #{knowledge.exceptionUp},
-            exception_explain = #{knowledge.exceptionExplain},
-            resource = #{knowledge.resource},
-            address = #{knowledge.address}
             
         WHERE id = ${knowledge.id}
     </update>
 
     <insert id="addKnowledgeInfo">
-        insert into software10.knowledge_features(disease_name, risk_factors_cn, is_exception,
-                                       exception_low, exception_up, exception_explain,
-                                       resource, address)
+        insert into software10.knowledge(disease_name, risk_factors_cn, is_exception,
+                                       exception_low, exception_up)
             value ( #{knowledge.diseaseName}, #{knowledge.riskFactorsCn}, #{knowledge.isException},
-                    #{knowledge.exceptionLow}, #{knowledge.exceptionUp}, #{knowledge.exceptionExplain},
-                    #{knowledge.resource}, #{knowledge.address})
+                    #{knowledge.exceptionLow}, #{knowledge.exceptionUp})
 
     </insert>
 
 
     <select id="getAllFeaturesKnowledges" resultType="com.cqupt.software_10.entity.knowledge.Features">
-        select *  from software10.knowledge_features;
+        select *  from software10.knowledge;
     </select>
 
 
 
     <select id="getAllFeaturesENName" resultType="java.lang.String">
-        select risk_factors from knowledge_features;
+        select risk_factors from software10.knowledge;
     </select>
 
 
     <select id="getExceptionKnowledge" resultType="java.lang.String">
 
-        select exception_explain from knowledge_features
+        select exception_explain from software10.knowledge
                                  where
                                     disease_name = #{disease}
                                    and  risk_factors = #{field}

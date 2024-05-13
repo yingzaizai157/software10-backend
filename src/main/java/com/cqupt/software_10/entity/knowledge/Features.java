@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName(value ="knowledge_features")
+@TableName(value ="knowledge",schema = "software10")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,18 +18,10 @@ public class Features {
     private int isException;
     private double exceptionLow;
     private double exceptionUp;
-    private String exceptionExplain;
-    private String resource;
-    private String address;
-    private double modelRate;
-    private double doctorRate;
-    private String typeCol;
-    private String tableName;
 
     public Features(
             int id, String diseaseName, String riskFactorsCn,
-            int isException, double exceptionLow, double exceptionUp,
-            String exceptionExplain, String resource, String address
+            int isException, double exceptionLow, double exceptionUp
     ) {
         this.id = id;
         this.diseaseName = diseaseName;
@@ -37,19 +29,13 @@ public class Features {
         this.isException = isException;
         this.exceptionLow = exceptionLow;
         this.exceptionUp = exceptionUp;
-        this.exceptionExplain = exceptionExplain;
-        this.resource = resource;
-        this.address = address;
     }
 
-    public Features(String diseaseName, String riskFactorsCn, int isException, double exceptionLow, double exceptionUp, String exceptionExplain, String resource, String address) {
+    public Features(String diseaseName, String riskFactorsCn, int isException, double exceptionLow, double exceptionUp) {
         this.diseaseName = diseaseName;
         this.riskFactorsCn = riskFactorsCn;
         this.isException = isException;
         this.exceptionLow = exceptionLow;
         this.exceptionUp = exceptionUp;
-        this.exceptionExplain = exceptionExplain;
-        this.resource = resource;
-        this.address = address;
     }
 }

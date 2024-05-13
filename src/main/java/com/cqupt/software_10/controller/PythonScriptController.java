@@ -1,6 +1,7 @@
 package com.cqupt.software_10.controller;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +16,9 @@ import java.io.InputStreamReader;
 @RequestMapping("/scripts")
 public class PythonScriptController {
 
+    @Value("${gorit.file.py.GetFillRate}")
+    private String GetFillRate;
+
 
     @GetMapping("/get_fill_rate")
     public String pyfileUpload(@RequestParam String tablename) {
@@ -22,7 +26,7 @@ public class PythonScriptController {
         Process process = null;
         try {
             process = Runtime.getRuntime()
-                    .exec("D:\\pythonMachineLearning\\venv\\Scripts\\python.exe src/main/resources/Scripts/get_fill_rate.py "+tablename);  // 确保提供正确的Python脚本路径和Python解释器
+                    .exec("F:\\Anaconda3\\envs\\pytorch\\python.exe " + GetFillRate + " " + tablename);  // 确保提供正确的Python脚本路径和Python解释器
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
 

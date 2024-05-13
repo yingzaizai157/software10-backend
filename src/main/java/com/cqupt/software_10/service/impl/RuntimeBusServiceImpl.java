@@ -36,6 +36,9 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
     @Value("${gorit.file.py.DQN}")
     private String dqn1;
 
+    @Value("${gorit.file.py.QLearning}")
+    private String qLearning;
+
     @Value("${gorit.file.py.getLackInfos}")
     private String getLackInfos;
 
@@ -44,6 +47,9 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
 
     @Value("${gorit.file.py.use_model}")
     private String use_model;
+
+    @Value("${gorit.file.py.RunQLearning}")
+    private String runqLearning;
 
     @Value("${gorit.file.py.RUNDQN}")
     private String runDQN;
@@ -277,7 +283,7 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
         return response;
     }
 
-    public RuntimeBusServiceResponse submitDQN(String reward, String epoch, String gamma, String learning_rate, String modelName, String table_name, List<String> cols, List<String> labels) throws Exception {
+    public RuntimeBusServiceResponse submitDQN(String reward, String epoch, String gamma, String learning_rate, String modelName, String table_name, List<String> cols, List<String> labels, List<String> features_label, List<String> features_doctorRate) throws Exception {
         List<String> args = new ArrayList<>();
         args.add("--reward=" + Double.parseDouble(reward));
         args.add("--epoch=" + (int) Double.parseDouble(epoch));
@@ -305,12 +311,129 @@ public class RuntimeBusServiceImpl implements RuntimeBusService {
             }
         }
         args.add(temp);
+
+        temp = "--features_label=";
+        for (int i = 0; i < features_label.size(); i++) {
+            if (i == 0) {
+                temp = temp + features_label.get(i);
+            }else {
+                temp = temp + "," + features_label.get(i);
+            }
+        }
+        args.add(temp);
+
+        temp = "--features_doctorRate=";
+        for (int i = 0; i < features_doctorRate.size(); i++) {
+            if (i == 0) {
+                temp = temp + String.valueOf(features_doctorRate.get(i));
+            }else {
+                temp = temp + "," + String.valueOf(features_doctorRate.get(i));
+            }
+        }
+        args.add(temp);
         System.out.println("args:  " + args);
 
         RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
         RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
 
         runtimeTaskRequest.setPyPath(dqn1);
+        runtimeTaskRequest.setArgs(args);
+
+        System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());
+
+        RuntimeTaskResponse taskResponse=runtimeTaskService.submitRLModelTask(runtimeTaskRequest);
+        // response.setTaskCreateTime(new Timestamp(taskResponse.getTaskFinishTime()));
+        response.setRes(taskResponse.getRes());
+        return response;
+    }
+
+    @Override
+    public RuntimeBusServiceResponse submitQLearning(String lr, String epsilon, String gamma, String declay, String episodes, String modelName, String table_name, List<String> cols, List<String> labels, List<String> features_label, List<String> features_doctorRate) throws Exception {
+        List<String> args = new ArrayList<>();
+        args.add("--lr=" + Double.parseDouble(lr));
+        args.add("--epsilon=" + (int) Double.parseDouble(epsilon));
+        args.add("--gamma=" + Double.parseDouble(gamma));
+        args.add("--declay=" + Double.parseDouble(declay));
+        args.add("--episodes=" + Double.parseDouble(episodes));
+        args.add("--modelName=" + modelName);
+        args.add("--table_name=" + table_name);
+
+        String temp = "--cols=";
+        for (int i = 0; i < cols.size(); i++) {
+            if (i == 0) {
+                temp = temp + cols.get(i);
+            }else {
+                temp = temp + "," + cols.get(i);
+            }
+        }
+        args.add(temp);
+
+        temp = "--labels=";
+        for (int i = 0; i < labels.size(); i++) {
+            if (i == 0) {
+                temp = temp + labels.get(i);
+            }else {
+                temp = temp + "," + labels.get(i);
+            }
+        }
+        args.add(temp);
+
+        temp = "--features_label=";
+        for (int i = 0; i < features_label.size(); i++) {
+            if (i == 0) {
+                temp = temp + features_label.get(i);
+            }else {
+                temp = temp + "," + features_label.get(i);
+            }
+        }
+        args.add(temp);
+
+        temp = "--features_doctorRate=";
+        for (int i = 0; i < features_doctorRate.size(); i++) {
+            if (i == 0) {
+                temp = temp + String.valueOf(features_doctorRate.get(i));
+            }else {
+                temp = temp + "," + String.valueOf(features_doctorRate.get(i));
+            }
+        }
+        args.add(temp);
+        System.out.println("args:  " + args);
+
+        RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
+        RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
+
+        runtimeTaskRequest.setPyPath(qLearning);
+        runtimeTaskRequest.setArgs(args);
+
+        System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());
+
+        RuntimeTaskResponse taskResponse=runtimeTaskService.submitRLModelTask(runtimeTaskRequest);
+        // response.setTaskCreateTime(new Timestamp(taskResponse.getTaskFinishTime()));
+        response.setRes(taskResponse.getRes());
+        return response;
+    }
+
+    @Override
+    public RuntimeBusServiceResponse runqLearning(String modelname, String taskname, List<String> onedata) throws Exception {
+        List<String> args = new ArrayList<>();
+        args.add("--modelname=" + modelname);
+        args.add("--taskname=" + taskname);
+
+        String temp = "--onedata=";
+        for (int i = 0; i < onedata.size(); i++) {
+            if (i == 0) {
+                temp = temp + onedata.get(i);
+            }else {
+                temp = temp + "," + onedata.get(i);
+            }
+        }
+        args.add(temp);
+        System.out.println("args:  " + args);
+
+        RuntimeBusServiceResponse response = new RuntimeBusServiceResponse();
+        RuntimeTaskRequest runtimeTaskRequest = new RuntimeTaskRequest();
+
+        runtimeTaskRequest.setPyPath(runqLearning);
         runtimeTaskRequest.setArgs(args);
 
         System.out.println("Python脚本路径：" + runtimeTaskRequest.getPyPath());

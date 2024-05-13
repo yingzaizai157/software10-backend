@@ -34,7 +34,8 @@ mybatis-plus:
 server:
   port: 8088
 
-
+file:
+  path: src/main/resources/Files
 
 gorit:
   file:
@@ -61,14 +62,17 @@ gorit:
       SVM: src/main/resources/alg/algorithms/SVM.py
       DQN: src/main/resources/alg/algorithms/dqn.py
       KNN: src/main/resources/alg/algorithms/KNN.py
+      QLearning: src/main/resources/alg/algorithms/Q_learning.py
       RUNDQN: src/main/resources/alg/algorithms/RunDQN.py
       RUNSVM: src/main/resources/alg/algorithms/RunSVM.py
       RUNKNN: src/main/resources/alg/algorithms/RunKNN.py
+      RunQLearning: src/main/resources/alg/algorithms/RunQLearning.py
       explainerPath: src/main/resources/alg/models/explainer/
       explanationPath: src/main/resources/alg/models/explanation/
       scalerPath: src/main/resources/alg/models/scaler/
       trainedPath: src/main/resources/alg/models/trained/
       shapPath: src/main/resources/alg/fig/
+      GetFillRate: src/main/resources/alg/algorithms/get_fill_rate.py
 
 
 #      dqn1: C:/Users/pc/PycharmProjects/pythonProject/dqn1.py
@@ -80,3 +84,7 @@ application:
   python:
 #    environment: /home/data/anaconda3/envs/software10/bin/python
     environment: F:/Anaconda3/envs/pytorch/python.exe
+
+resources:
+  static-locations: >
+    file: src/main/resources/Files

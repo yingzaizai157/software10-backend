@@ -9,6 +9,10 @@
         update software10.category set is_delete=1 where id = CAST(#{id} AS VARCHAR);
     </update>
 
+    <select id="getTableNames" resultType="java.lang.String">
+        SELECT label FROM software10.category WHERE is_leafs=1 and is_delete=0 and status='2';
+    </select>
+
     <update id="removeTable">
         drop table "${label}";
     </update>
@@ -23,7 +27,7 @@
 
 
     <select id="getComDisease" resultType="com.cqupt.software_10.entity.CategoryEntity">
-        SELECT * FROM software10.category WHERE is_common = 1 and is_leafs = 1;
+        SELECT * FROM software10.category WHERE is_delete = 0 and is_leafs = 1;
     </select>
 
 <!--    下面方法是管理员端-数据管理新增-->

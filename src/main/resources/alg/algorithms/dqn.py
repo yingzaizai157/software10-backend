@@ -83,7 +83,7 @@ def Find():
     engine_url = f"postgresql+psycopg2://{db_params['user']}:{db_params['password']}@{db_params['host']}:{db_params['port']}/{db_params['dbname']}"
     engine = create_engine(engine_url)
 
-    sqlQuery = "SELECT * FROM software10.knowledge_features"
+    sqlQuery = "SELECT * FROM software10.knowledge"
 
     try:
         # 使用 SQLAlchemy 引擎执行 SQL 查询，获取 DataFrame
@@ -187,7 +187,7 @@ class Environment1:
     """
     配置一个强化学习环境
     """
-    def __init__(self, X, Y,rewardValue, feature_names, history_t=90):
+    def __init__(self, X, Y, rewardValue, feature_names, features_label, features_doctorRate, history_t=90):
         self.data = X
         self.data_label = Y
         self.current_sample_idx = 0
@@ -196,6 +196,8 @@ class Environment1:
         self.rate = "model"
         self.rewardValue = rewardValue
         self.feature_names = feature_names
+        self.features_label= features_label
+        self.features_doctorRate= features_doctorRate
 
     def reset(self):
         self.current_sample_idx = 0
@@ -204,6 +206,8 @@ class Environment1:
     def step(self, act):
         reward = 0
         cols = self.feature_names
+        features_label = self.features_label
+        features_doctorRate = self.features_doctorRate
 
         current_sample = self.data[self.current_sample_idx]
         true_label = self.data_label[self.current_sample_idx]
@@ -224,17 +228,33 @@ class Environment1:
             # for li in lst:
             #     col = li.get('risk_factors')
             #     if col in cols:
-            #         position = cols.index(col)
+            #         position1 = cols.index(col)
+            #         position2 = features_label.index(col)
             #         if li["is_exception"] == 1:
             #             #                     print(one_sample[lst.index(li)] )
-            #             if li['exception_low'] == -1 and one_sample[position] > li["exception_up"]:
+            #             if li['exception_low'] == -1 and one_sample[position1] > li["exception_up"]:
             #                 reward += li[mode] * self.rewardValue
-            #             elif li['exception_up'] == -1 and one_sample[position] < li["exception_low"]:
+            #             elif li['exception_up'] == -1 and one_sample[position1] < li["exception_low"]:
             #                 reward += li[mode] * self.rewardValue
             #             else:
-            #                 if one_sample[position] > li["exception_up"] or one_sample[position] < li[
+            #                 if one_sample[position1] > li["exception_up"] or one_sample[position1] < li[
             #                     "exception_low"]:
             #                     reward += li[mode] * self.rewardValue
+
+            for li in lst:
+                col = li.get('risk_factors')
+                if col in cols:
+                    position1 = cols.index(col)
+                    position2 = features_label.index(col)
+                    if li["is_exception"] == 1:
+                        if li['exception_low'] == -1 and one_sample[position1] > li["exception_up"]:
+                            reward += float(features_doctorRate[position2]) * self.rewardValue
+                        elif li['exception_up'] == -1 and one_sample[position1] < li["exception_low"]:
+                            reward += float(features_doctorRate[position2]) * self.rewardValue
+                        else:
+                            if one_sample[position1] > li["exception_up"] or one_sample[position1] < li[
+                                "exception_low"]:
+                                reward += float(features_doctorRate[position2]) * self.rewardValue
 
         else:
             reward -= self.rewardValue
@@ -254,6 +274,23 @@ class Environment1:
             #                 if one_sample[position] > li["exception_up"] or one_sample[position] < li[
             #                     "exception_low"]:
             #                     reward -= li[mode] * self.rewardValue
+
+
+            for li in lst:
+                col = li.get('risk_factors')
+                if col in cols:
+                    position1 = cols.index(col)
+                    position2 = features_label.index(col)
+                    if li["is_exception"] == 1:
+                        #                     print(one_sample[lst.index(li)] )
+                        if li['exception_low'] == -1 and one_sample[position1] > li["exception_up"]:
+                            reward -= float(features_doctorRate[position2]) * self.rewardValue
+                        elif li['exception_up'] == -1 and one_sample[position1] < li["exception_low"]:
+                            reward -= float(features_doctorRate[position2]) * self.rewardValue
+                        else:
+                            if one_sample[position1] > li["exception_up"] or one_sample[position1] < li[
+                                "exception_low"]:
+                                reward -= float(features_doctorRate[position2]) * self.rewardValue
 
         if self.current_sample_idx == len(self.data):
             self.done = True
@@ -398,7 +435,7 @@ def train_dqn(env,iter,gamma, lr, INPUT_SIZE):
     return Q, total_losses, total_rewards
 
 
-def main(rate, reward,iter,gamma, lr, table_name, cols, labels):
+def main(rate, reward, iter, gamma, lr, table_name, cols, labels, features_label, features_doctorRate):
     """
     1.将数据集划分
     2.获取DQN模型，画损失和奖励图
@@ -408,7 +445,7 @@ def main(rate, reward,iter,gamma, lr, table_name, cols, labels):
     :return: 模型预测准确度
     """
     X_train, X_test, y_train, y_test, feature_names = get_torch_data(table_name, cols, labels)
-    train_env = Environment1(X_train, y_train, reward, feature_names = cols)
+    train_env = Environment1(X_train, y_train, reward, cols, features_label, features_doctorRate)
     train_env.rate = rate
     Q, total_losses, total_rewards = train_dqn(train_env,iter,gamma, lr, X_train.shape[1])
 
@@ -460,7 +497,7 @@ def main(rate, reward,iter,gamma, lr, table_name, cols, labels):
     # torch.save(Q, MODEL_SAVE_DICTORY + "\DQN_" + rate + ".pt")
     torch.save(Q, file_path3)
 
-    test_env = Environment1(X_test, y_test, reward, feature_names=cols)
+    test_env = Environment1(X_test, y_test, reward, cols, features_label, features_doctorRate)
     # test
     test_env.rate = rate
     pobs = test_env.reset()
@@ -508,10 +545,12 @@ def get_main():
     parser.add_argument("--gamma", type=float, default=0.4)
     parser.add_argument("--learning_rate", type=float, default=0.01)
     parser.add_argument("--modelName", type=str, default="test")
-    parser.add_argument("--table_name", type=str, default="diabetes")
+    parser.add_argument("--table_name", type=str, default="heart2")
     parser.add_argument("--cols", type=str,
-                        default="pregnancies,glucose,skinthickness,insulin,bmi,diabetespedigreefunction,age")
-    parser.add_argument("--labels", type=str, default="outcome")
+                        default="age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal")
+    parser.add_argument("--labels", type=str, default="target")
+    parser.add_argument("--features_label", type=str, default="cp,ca,thal,sex,exang,chol,oldpeak,age,restecg,trestbps,thalach,slope,fbs")
+    parser.add_argument("--features_doctorRate", type=str, default="24.7,17.1,11.4,10.9,7.199999999999999,4.8,4.8,4.7,4.7,3.4000000000000004,3.3000000000000003,2.1,0.6")
     args = parser.parse_args()
 
 
@@ -524,11 +563,17 @@ def get_main():
     modelName = args.modelName
     cols = args.cols
     labels = args.labels
+    features_label = args.features_label
+    features_doctorRate = args.features_doctorRate
+
 
     cols = cols.split(",")
     labels = labels.split(",")
+    features_label = features_label.split(",")
+    features_doctorRate = features_doctorRate.split(",")
 
-    accuracy, precision, recall, f1, TP, FN, FP, TN, total_losses, total_rewards, avg_shapvalue = main(modelName, reward, iter, gamma, lr, table_name, cols, labels)
+
+    accuracy, precision, recall, f1, TP, FN, FP, TN, total_losses, total_rewards, avg_shapvalue = main(modelName, reward, iter, gamma, lr, table_name, cols, labels, features_label, features_doctorRate)
 
 
     accuracy = {"accuracy": accuracy}

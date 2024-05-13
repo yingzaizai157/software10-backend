@@ -17,4 +17,9 @@
 
     </select>
 
+    <insert id="myInsert" parameterType="com.cqupt.software_10.entity.LogEntity">
+        INSERT INTO software10.log (uid, username, operation, op_time, role)
+        VALUES (#{uid}, #{username}, #{operation}, #{opTime}, #{role})
+    </insert>
+
 </mapper>

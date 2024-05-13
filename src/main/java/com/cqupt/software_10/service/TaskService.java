@@ -3,6 +3,7 @@ package com.cqupt.software_10.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cqupt.software_10.entity.AlgorithmUsageDailyStats;
+import com.cqupt.software_10.entity.ModelInfo;
 import com.cqupt.software_10.entity.Task;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface TaskService extends IService<Task> {
     Task getlistbyId(Integer id);
 
     void deleteTask(int id);
+
+    List<ModelInfo> getModelInfo();
 }

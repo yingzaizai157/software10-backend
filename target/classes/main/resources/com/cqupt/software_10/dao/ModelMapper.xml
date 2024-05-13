@@ -5,7 +5,7 @@
 <mapper namespace="com.cqupt.software_10.dao.ModelMapper">
 
     <select id="getModelNames" resultType="java.lang.String">
-        SELECT "modelName" FROM software10.software10model;
+        SELECT "modelname" FROM software10.software10model;
     </select>
 
 

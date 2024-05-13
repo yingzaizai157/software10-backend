@@ -3,6 +3,7 @@ package com.cqupt.software_10.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cqupt.software_10.dao.TaskMapper;
 import com.cqupt.software_10.entity.AlgorithmUsageDailyStats;
+import com.cqupt.software_10.entity.ModelInfo;
 import com.cqupt.software_10.entity.Task;
 import com.cqupt.software_10.service.TaskService;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
     @Override
     public void deleteTask(int id) {
         taskMapper.deleteTask(id);
+    }
+
+    @Override
+    public List<ModelInfo> getModelInfo() {
+        return taskMapper.getModelInfo();
     }
 
 }

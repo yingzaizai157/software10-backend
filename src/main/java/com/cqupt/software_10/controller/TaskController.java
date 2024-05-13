@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.mapper.Mapper;
 import com.cqupt.software_10.common.Result;
 import com.cqupt.software_10.common.TaskRequest;
+import com.cqupt.software_10.entity.ModelInfo;
 import com.cqupt.software_10.entity.Task;
 import com.cqupt.software_10.entity.tasks.AnalysisTask;
 import com.cqupt.software_10.entity.tasks.Model;
@@ -15,6 +16,8 @@ import com.cqupt.software_10.service.tasks.MyTaskService;
 import com.cqupt.software_10.service.user.UserService;
 import com.cqupt.software_10.util.SecurityUtil;
 import com.cqupt.software_10.vo.DateCount;
+import com.cqupt.software_10.vo.DateModelCount;
+import com.cqupt.software_10.vo.EveryTaskStaticVo;
 import com.cqupt.software_10.vo.TaskStaticVo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -107,8 +110,19 @@ public class TaskController {
         MyTask task = myTaskService.getlistbyId(id);
         myTaskService.deleteTaskById(id);
 
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除一个任务。被删除任务的任务名和模型名：：" + task.getTaskname() + ", " + task.getModelname());
-        return Result.success(200, "删除给", myTaskService.getTaskList());
+//        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除一个任务。被删除任务的任务名和模型名：" + task.getTaskname() + ", " + task.getModelname());
+        return Result.success(200, "删除成功", myTaskService.getTaskList());
+    }
+
+
+    @GetMapping("/existstaskname")
+    public Result existstaskname(@RequestParam String name){
+        List<MyTask> tasks = myTaskService.getlistbyTaskname(name);
+        if (tasks != null && !tasks.isEmpty()) {  // 确保列表非空
+            return Result.success(200, "查询成功", 1);
+        } else {
+            return Result.success(200, "查询成功", 0);
+        }
     }
 
 
@@ -275,7 +289,7 @@ public class TaskController {
             task.setTp(TP);
             task.setAvgshapvalue(avgshapvalue);
             myTaskService.save(task);
-            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，添加一个任务。添加任务的任务名和模型名：：" + task.getTaskname() + ", " + task.getModelname());
+//            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，添加一个任务。添加任务的任务名和模型名：：" + task.getTaskname() + ", " + task.getModelname());
         }
         return Result.success(200,"创建任务成功");
     }
@@ -283,6 +297,32 @@ public class TaskController {
 
 
     //用以首页统计使用
+    @GetMapping("/GetEveryTaskNearlySevenDays")
+    public EveryTaskStaticVo getEveryTaskNearlySevenDays() {
+        List<DateModelCount> tasks = myTaskService.getEveryTaskNearlySevenDays();
+
+        EveryTaskStaticVo result = new EveryTaskStaticVo();
+        List<String> date = new ArrayList<String>();
+        List<Integer> dqn = new ArrayList<Integer>();
+        List<Integer> svm = new ArrayList<Integer>();
+        List<Integer> knn = new ArrayList<Integer>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // 定义日期格式
+        for (int i = 0; i < 7; i++) {
+            String dateKey = sdf.format(tasks.get(i).getDate()); // 将Timestamp转换为格式化的字符串
+            date.add(dateKey);
+            dqn.add(tasks.get(i).getCount());
+            svm.add(tasks.get(i+7).getCount());
+            knn.add(tasks.get(i+14).getCount());
+        }
+        result.setDate(date);
+        result.setDqn(dqn);
+        result.setSvm(svm);
+        result.setKnn(knn);
+
+        return result;
+    }
+
+
     @GetMapping("/GetTaskNearlySevenDays")
     public TaskStaticVo getTaskNearlySevenDays() {
         List<DateCount> tasks = myTaskService.getTaskNearlySevenDays();
@@ -302,5 +342,13 @@ public class TaskController {
 
         return result;
     }
+
+    @GetMapping("/getAllModelInfo")
+    public List<ModelInfo> getModelInfo() {
+        List<ModelInfo> result = taskService.getModelInfo();
+
+        return result;
+    }
+
 
 }

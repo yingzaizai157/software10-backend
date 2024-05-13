@@ -15,7 +15,8 @@ import java.util.*;
 public class StasticOneServiceImpl extends ServiceImpl<StasticOneMapper, StasticOne>
         implements StasticOneService {
 
-    @Autowired StasticOneMapper stasticOneMapper;
+    @Autowired
+    StasticOneMapper stasticOneMapper;
     public StasticOne getStasticOne(){
         StasticOne stasticOne = new StasticOne();
         //获得任务总量

@@ -145,16 +145,6 @@ public class CategoryEntity {
 //    }
 
 
-
-
-
-
-
-
-
-
-
-
     @TableId
     private String id;
     private Integer catLevel;
@@ -168,6 +158,7 @@ public class CategoryEntity {
     private String isFilter;
     private String isUpload;
     private String icdCode;
+    private String uidList;
 
     @TableField(exist = false)
     private List<CategoryEntity> children;
@@ -195,6 +186,28 @@ public class CategoryEntity {
         this.children = new ArrayList<>();
     }
 
+
+    public CategoryEntity(String id, Integer catLevel, String label, String parentId, Integer isLeafs, Integer isDelete, String uid,
+                          String number, String username, String isUpload, String isFilter, String icdCode, String uidList) {
+        this.id = id;
+        this.catLevel = catLevel;
+        this.label = label;
+        this.parentId = parentId;
+        this.isLeafs = isLeafs;
+        this.isDelete = isDelete;
+        this.uid=uid;
+        this.status = number;
+        this.username = username;
+        this.isUpload = isUpload;
+        this.isFilter=isFilter;
+        this.icdCode = icdCode;
+        this.uidList=uidList;
+
+    }
+
+    public CategoryEntity(Object o, int i, String diseaseName, String number, int i1, int i2, String number1, Object o1, String admin, Object o2, Object o3, Object o4, Object o5, int i3, int i4, int i5) {
+    }
+
     public void addChild(CategoryEntity child) {
         if (this.children == null) {
             this.children = new ArrayList<>();
@@ -205,7 +218,7 @@ public class CategoryEntity {
     // 递归复制符合条件的节点
     public static CategoryEntity copyPrivareTreeStructure(CategoryEntity node,String uid) {
         if (node.isLeafs == 0 || (node.isLeafs == 1 && "0".equals(node.status) && uid.equals(node.uid))) {
-            CategoryEntity newNode = new CategoryEntity(node.id, node.catLevel, node.label, node.parentId, node.isLeafs, node.isDelete, node.uid, "0", node.username,node.isUpload,node.isFilter);
+            CategoryEntity newNode = new CategoryEntity(node.id, node.catLevel, node.label, node.parentId, node.isLeafs, node.isDelete, node.uid, "0", node.username,node.isUpload,node.isFilter,node.icdCode,node.uidList);
             if (node.children != null) {
                 for (CategoryEntity child : node.children) {
                     CategoryEntity copiedChild = copyPrivareTreeStructure(child,uid);
@@ -220,12 +233,14 @@ public class CategoryEntity {
         }
     }
 
-    public static CategoryEntity copyShareTreeStructure(CategoryEntity node) {
-        if (node.isLeafs == 0 || (node.isLeafs == 1 && "1".equals(node.status))) {
-            CategoryEntity newNode = new CategoryEntity(node.id, node.catLevel, node.label, node.parentId, node.isLeafs, node.isDelete, node.uid, "1", node.username,node.isUpload,node.isFilter);
+
+
+    public static CategoryEntity copyShareTreeStructure(CategoryEntity node, String uid) {
+        if (node.isLeafs == 0 || (node.isLeafs == 1 && "1".equals(node.status) && (node.uidList.contains(uid)||uid.equals(node.uid)) )) {
+            CategoryEntity newNode = new CategoryEntity(node.id, node.catLevel, node.label, node.parentId, node.isLeafs, node.isDelete, node.uid, "1", node.username,node.isUpload,node.isFilter,node.icdCode,node.uidList);
             if (node.children != null) {
                 for (CategoryEntity child : node.children) {
-                    CategoryEntity copiedChild = copyShareTreeStructure(child);
+                    CategoryEntity copiedChild = copyShareTreeStructure(child, uid);
                     if (copiedChild != null) {
                         newNode.addChild(copiedChild);
                     }
@@ -253,4 +268,26 @@ public class CategoryEntity {
             return null;
         }
     }
+
+
+    // 新增可共享用户列表
+    // 递归复制符合条件的节点
+//    public static CategoryEntity copyPrivareTreeStructure(CategoryEntity node,String uid) {
+//        if (node.isLeafs == 0 || (node.isLeafs == 1 && "0".equals(node.status) && uid.equals(node.uid))) {
+//            CategoryEntity newNode = new CategoryEntity(node.id, node.catLevel, node.label, node.parentId, node.isLeafs, node.isDelete, node.uid, "0", node.username,node.isUpload,node.isFilter,node.icdCode,node.uidList);
+//            if (node.children != null) {
+//                for (CategoryEntity child : node.children) {
+//                    CategoryEntity copiedChild = copyPrivareTreeStructure(child,uid);
+//                    if (copiedChild != null) {
+//                        newNode.addChild(copiedChild);
+//                    }
+//                }
+//            }
+//            return newNode;
+//        } else {
+//            return null;
+//        }
+//    }
+
+
 }

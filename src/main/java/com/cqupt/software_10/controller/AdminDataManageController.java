@@ -242,6 +242,109 @@ public class AdminDataManageController {
         return Result.success("200","成功更改");
     }
 
+    @GetMapping("/updateCheckApproves")
+    public Result<AdminDataManage> updateCheckApproves(
+            @RequestParam("id") String id,
+            @RequestParam("multipleSelection") String multipleSelection,
+            @RequestParam("type") int type
+    ){
+        AdminDataManage adminDataManage = adminDataManageService.selectDataById(id);
+        // 根据id获取table_describe表的那一行
+        String checkApproving = adminDataManage.getCheckApproving();
+        String checkApproved = adminDataManage.getCheckApproved();
+        String[] approvingUsernames = checkApproving.split(",");
+        List<String> itemList = new ArrayList<>(Arrays.asList(approvingUsernames));
+
+        String[] selectionNames = multipleSelection.split(",");
+        for (String username: selectionNames) {
+            itemList.remove(username);  // 不管同意还是拒绝下载，都要把他从申请列表中删除
+            if (type == 1){   // 如果同意下载，还需要将他添加到已同意列表中去
+                if (checkApproved == null || checkApproved.length() == 0){
+                    checkApproved = username;
+                }else{
+                    checkApproved += ","+username;
+                }
+            }
+        }
+        adminDataManage.setCheckApproving(String.join(",", itemList));
+        adminDataManage.setCheckApproved(checkApproved);
+        adminDataManageMapper.updateById(adminDataManage);
+        return Result.success("200","成功更改");
+    }
+    @GetMapping("/getCheckApprove")
+    public Result<AdminDataManage> getCheckApprove(
+            @RequestParam("id") String id,
+            @RequestParam("username") String username
+    ){
+        QueryWrapper<AdminDataManage> wrapper = new QueryWrapper<>();
+        wrapper.eq("table_id", id);
+        List<AdminDataManage> list = adminDataManageService.list(wrapper);
+
+        AdminDataManage adminDataManage = adminDataManageService.selectDataById(list.get(0).getId());
+        // 根据id获取table_describe表的那一行
+        String checkApproving = adminDataManage.getCheckApproving();
+        String checkApproved = adminDataManage.getCheckApproved();
+
+        if (checkApproving != null && checkApproving.length() != 0){
+            String[] approvingUsernames = checkApproving.split(",");
+            List<String> approvingItemList = new ArrayList<>(Arrays.asList(approvingUsernames));
+            if (approvingItemList.contains(username)){
+                return Result.success("200","1");
+            }
+        }
+        if (checkApproved != null && checkApproved.length() != 0){
+            String[] approvedUsernames = checkApproved.split(",");
+            List<String> approvedItemList = new ArrayList<>(Arrays.asList(approvedUsernames));
+            if (approvedItemList.contains(username)){
+                return Result.success("200","2");
+            }
+        }
+        return Result.success("500","0");
+    }
+
+    @GetMapping("/applyCheckApprove")
+    public Result<AdminDataManage> applyCheckApprove(
+            @RequestParam("id") String id,
+            @RequestParam("username") String username
+    ){
+        QueryWrapper<AdminDataManage> wrapper = new QueryWrapper<>();
+        wrapper.eq("table_id", id);
+        List<AdminDataManage> list = adminDataManageService.list(wrapper);
+
+        AdminDataManage adminDataManage = adminDataManageService.selectDataById(list.get(0).getId());
+        // 根据id获取table_describe表的那一行
+        String checkApproving = adminDataManage.getCheckApproving();
+        if (checkApproving == null || checkApproving.length() == 0){
+            checkApproving = username;
+        }else{
+            checkApproving += ","+username;
+        }
+        adminDataManage.setCheckApproving(checkApproving);
+        adminDataManageMapper.updateById(adminDataManage);
+        return Result.success(username+"成功申请下载数据集"+adminDataManage.getTableName(),"1");
+    }
+
+    @GetMapping("/allowCheckApprove")
+    public Result<AdminDataManage> allowCheckApprove(
+            @RequestParam("id") String id,
+            @RequestParam("username") String username
+    ){
+        QueryWrapper<AdminDataManage> wrapper = new QueryWrapper<>();
+        wrapper.eq("table_id", id);
+        List<AdminDataManage> list = adminDataManageService.list(wrapper);
+
+        AdminDataManage adminDataManage = adminDataManageService.selectDataById(list.get(0).getId());  // 根据id获取table_describe表的那一行
+        // 根据id获取table_describe表的那一行
+        String checkApproved = adminDataManage.getCheckApproved();
+        String[] approvedUsernames = checkApproved.split(",");
+        List<String> approvedItemList = new ArrayList<>(Arrays.asList(approvedUsernames));
+        approvedItemList.remove(username);
+        adminDataManage.setCheckApproved(String.join(",", approvedItemList));
+        adminDataManageMapper.updateById(adminDataManage);
+        return Result.success(username+"成功下载数据集"+adminDataManage.getTableName()+"并取消下次下载权限","0");
+//        return Result.success("200",);
+    }
+
     @PostMapping("/updateAdminDataManage")
     public Result<AdminDataManage> updateAdminDataManage(
             @RequestParam("id") String id,

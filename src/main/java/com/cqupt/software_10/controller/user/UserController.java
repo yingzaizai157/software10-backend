@@ -60,7 +60,7 @@ public class UserController {
     @GetMapping("/getmessage/{uid}")
     public Result<List<User>> getall(@PathVariable("uid") String uid){
         User user = userMapper.selectById(uid);
-        user.setPassword(null);
+//        user.setPassword(null);
         System.out.println("user info"+user);
         return Result.success(200,"获取成功",user);
     }
@@ -122,7 +122,7 @@ public class UserController {
             // 处理可能出现的任何异常，例如数据库连接失败等
             // 记录异常信息，根据实际情况决定是否需要发送错误日志
             // 这里返回一个通用的错误信息
-            return Result.success(500, "更新失败，发生未知错误");
+            return Result.success(400, "更新失败，发生未知错误");
         }
     }
 
@@ -153,7 +153,7 @@ public class UserController {
             // 处理可能出现的任何异常，例如数据库连接失败等
             // 记录异常信息，根据实际情况决定是否需要发送错误日志
             // 这里返回一个通用的错误信息
-            return Result.success("500", "更新失败，发生未知错误");
+            return Result.success("400", "更新失败，发生未知错误");
         }
     }
 
@@ -179,11 +179,11 @@ public class UserController {
     public Result querUserNameExist(@RequestParam String userName){
         User existUser = userService.getUserByName(userName);
         if (existUser != null){
-            System.out.println(Result.fail(500,"用户已经存在",null).toString());
-            return Result.fail(500,"用户已经存在",null);
+            return Result.fail(400,"用户已经存在",null);
+        }else{
+            return Result.success(200, "用户名可用" , null);
         }
-        System.out.println(Result.success(200, "用户名可用" , null).toString());
-        return Result.success(200, "用户名可用" , null);
+
     }
 
     @PostMapping("/signUp")
@@ -194,7 +194,7 @@ public class UserController {
         user.setUid("0");
         User existUser = userService.getUserByName(user.getUsername());
         if (existUser != null){
-            return Result.success(500, "用户已经存在", null);
+            return Result.success(400, "用户已经存在", null);
         }
         String pwd = user.getPassword();
         // 对密码进行加密处理
@@ -228,9 +228,9 @@ public class UserController {
 
         // 判断验证编码
         String code = request.getSession().getAttribute("code").toString();
-        if(code==null) return Result.fail(500,"验证码已过期！");
+        if(code==null) return Result.fail(400,"验证码已过期！");
         if(user.getCode()==null || !user.getCode().equals(code)) {
-            return Result.fail(500, "验证码错误!");
+            return Result.fail(501, "验证码错误!");
         }
 
         String userName = user.getUsername();
@@ -253,9 +253,9 @@ public class UserController {
 
             String userStatus = getUser.getUserStatus();
             if(userStatus.equals("0")){ // 待激活
-                return Result.fail(500,"账户未激活！");
+                return Result.fail(502,"账户未激活！");
             }else if(userStatus.equals("2")){
-                return Result.fail(500,"用户已被禁用!");
+                return Result.fail(503,"用户已被禁用!");
             }
 
             // 进行验证密码
@@ -283,11 +283,11 @@ public class UserController {
                 System.out.println("================================" + token);
                 return Result.success(200, token, getUser);
             }else {
-                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录成功");
-                return Result.success("500","密码错误请重新输入");
+                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录失败");
+                return Result.fail(504,"密码错误请重新输入",null);
             }
         }else {
-            return Result.success(500,"用户不存在",null);
+            return Result.fail(505,"用户不存在",null);
         }
     }
 
@@ -438,7 +438,7 @@ public class UserController {
         System.out.println(user);
         userService.updatePwd(user);
 
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改密码：" + user.getUsername());
+//        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改密码：" + user.getUsername());
         return Result.success(200 , "修改密码成功");
     }
 
@@ -476,7 +476,7 @@ public class UserController {
         User existUser = userService.getOne(queryWrapper);
 
         if (existUser != null){
-            return Result.fail(500,"用户名已存在");
+            return Result.fail(400,"用户名已存在");
         }
         String pwd = user.get("password");
         // 对密码进行加密处理
@@ -535,5 +535,22 @@ public class UserController {
         logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改用户信息。被修改用户的用户名：" + user.getUsername());
         return Result.success(200,"更新用户信息成功！");
     }
+
+    // 新增可共享用户列表
+    @GetMapping("/getTransferUserList")
+    public Result getTransferUserList(@RequestParam("uid") String uid) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.ne("uid", uid);
+        List<User> userList = userMapper.selectList(queryWrapper);
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        for (User user : userList) {
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("key", user.getUid());
+            resultMap.put("label", user.getUsername());
+            resultList.add(resultMap);
+        }
+        return  Result.success(200,"获得成功",resultList);
+    }
+
 
 }

@@ -2,6 +2,7 @@ package com.cqupt.software_10.controller.knowledge;
 
 
 import com.cqupt.software_10.common.R;
+import com.cqupt.software_10.common.Result;
 import com.cqupt.software_10.entity.data.ManageData;
 import com.cqupt.software_10.entity.knowledge.Features;
 import com.cqupt.software_10.service.knowledge.FeaturesService;
@@ -34,6 +35,14 @@ public class FeaturesController {
 
         return new R<>(200,"成功",exceptions, exceptions.size());
     }
+
+    //用以首页统计使用
+    @GetMapping("/knowledgeNum")
+    public Result knowledgeNum(){
+        List<Features> tableList = featuresService.getAllFeaturesKnowledges();
+        return Result.success(tableList.size());
+    }
+
 
     @GetMapping("/e_features")
     public R<List<Features>> getAllFeatures(){
@@ -74,16 +83,12 @@ public class FeaturesController {
             @RequestParam("riskFactorsCn") String riskFactorsCn,
             @RequestParam("isException") int isException,
             @RequestParam("exceptionLow") double exceptionLow,
-            @RequestParam("exceptionUp") double exceptionUp,
-            @RequestParam("exceptionExplain") String exceptionExplain,
-            @RequestParam("resource") String resource,
-            @RequestParam("address") String address
+            @RequestParam("exceptionUp") double exceptionUp
     ){
         // System.out.println(id + " " +  tableName + " " +  disease + " " +  creator + " " +  remark);
         Features features = new Features(
                 id, diseaseName, riskFactorsCn,
-                isException, exceptionLow, exceptionUp,
-                exceptionExplain, resource, address);
+                isException, exceptionLow, exceptionUp);
 
         featuresService.updateKnowledgeInfo(features);
         List<Features> knowledges = featuresService.getAllFeaturesKnowledges();
@@ -106,8 +111,7 @@ public class FeaturesController {
         // System.out.println(id + " " +  tableName + " " +  disease + " " +  creator + " " +  remark);
         Features features = new Features(
                 diseaseName, riskFactorsCn,
-                isException, exceptionLow, exceptionUp,
-                exceptionExplain, resource, address);
+                isException, exceptionLow, exceptionUp);
 
         featuresService.addKnowledgeInfo(features);
         List<Features> knowledges = featuresService.getAllFeaturesKnowledges();
@@ -116,20 +120,20 @@ public class FeaturesController {
     }
 
 
-    @GetMapping("/rates")
-    public R<List<Map<String, String>>> getRates(){
-        List<Map<String, String>> res = new ArrayList<>();
-        List<Features> tableList = featuresService.getAllFeaturesKnowledges();
-        for (int i = 0; i < tableList.size(); i++) {
-            double num = tableList.get(i).getModelRate() * 100;
-            String  str = String.format("%.2f",num);
-            Map<String, String> map = new HashMap<>();
-            map.put("riskFactor", tableList.get(i).getRiskFactorsCn());
-            map.put("rate", str);
-            res.add(map);
-        }
-        return new R<>(200,"成功",res, res.size());
-    }
+//    @GetMapping("/rates")
+//    public R<List<Map<String, String>>> getRates(){
+//        List<Map<String, String>> res = new ArrayList<>();
+//        List<Features> tableList = featuresService.getAllFeaturesKnowledges();
+//        for (int i = 0; i < tableList.size(); i++) {
+//            double num = tableList.get(i).getModelRate() * 100;
+//            String  str = String.format("%.2f",num);
+//            Map<String, String> map = new HashMap<>();
+//            map.put("riskFactor", tableList.get(i).getRiskFactorsCn());
+//            map.put("rate", str);
+//            res.add(map);
+//        }
+//        return new R<>(200,"成功",res, res.size());
+//    }
 
 //    @GetMapping("/factor_rates")
 //    public R<List<Map<String, String>>> getFactorRates(){
@@ -147,16 +151,16 @@ public class FeaturesController {
 //    }
 
 
-    @PostMapping("/updateDoctorRate")
-    public void updateDoctorRate(@RequestBody Map<String, String> params){
-        System.out.println(params);
-        Features feature = new Features();
-        feature.setId(Integer.parseInt(params.get("id")));
-        feature.setDoctorRate(Double.parseDouble(params.get("doctorRate")));
-        System.out.println(feature);
-        featuresService.setDoctorRate(feature);
-        System.out.println("======医生反馈成功=======");
-    }
+//    @PostMapping("/updateDoctorRate")
+//    public void updateDoctorRate(@RequestBody Map<String, String> params){
+//        System.out.println(params);
+//        Features feature = new Features();
+//        feature.setId(Integer.parseInt(params.get("id")));
+//        feature.setDoctorRate(Double.parseDouble(params.get("doctorRate")));
+//        System.out.println(feature);
+//        featuresService.setDoctorRate(feature);
+//        System.out.println("======医生反馈成功=======");
+//    }
 
 
 }

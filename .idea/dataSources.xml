@@ -8,11 +8,11 @@
       <jdbc-url>jdbc:mysql://10.16.48.219:3306/ten_Diabetes</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="mimiciv@10.16.48.219" uuid="266df5d4-ec27-407c-9eeb-e65690f9afc2">
+    <data-source source="LOCAL" name="10.16.48.219" uuid="266df5d4-ec27-407c-9eeb-e65690f9afc2">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://10.16.48.219:5432/mimiciv</jdbc-url>
+      <jdbc-url>jdbc:postgresql://10.16.48.219:5432/postgres</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

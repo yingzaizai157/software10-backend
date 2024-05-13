@@ -1,4 +1,7 @@
 import json
+import math
+import os
+import pickle
 import warnings
 import numpy as np
 import pandas as pd
@@ -23,6 +26,28 @@ test_size = config["test_size"]
 
 
 
+
+def Find():
+    # 使用 SQLAlchemy 创建数据库连接引擎
+    engine_url = f"postgresql+psycopg2://{db_params['user']}:{db_params['password']}@{db_params['host']}:{db_params['port']}/{db_params['dbname']}"
+    engine = create_engine(engine_url)
+
+    sqlQuery = "SELECT * FROM software10.knowledge"
+
+    try:
+        # 使用 SQLAlchemy 引擎执行 SQL 查询，获取 DataFrame
+        df = pd.read_sql(sqlQuery, engine)
+
+        # 将 DataFrame 转换为字典列表
+        lst = df.to_dict(orient='records')
+    except Exception as e:
+        print("数据查询失败：" + str(e))
+        lst = []
+
+    return lst
+
+
+lst = Find()
 
 
 
@@ -54,7 +79,7 @@ def getDF(db_params, sql):
     return data
 
 
-def Q_learning(modelName, lr, epsilon, gamma, declay, episodes, table_name, cols, labels):
+def Q_learning(modelName, lr, epsilon, gamma, declay, episodes, table_name, cols, labels, features_label, features_doctorRate):
 
     # 用于加载数据的SQL查询
     sql = f"select * from {modename}.{table_name}"
@@ -70,43 +95,45 @@ def Q_learning(modelName, lr, epsilon, gamma, declay, episodes, table_name, cols
     # 划分数据集
     X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=test_size, random_state=42)
 
+    # 确保y_train和y_test是整数类型
+    y_train = y_train.astype(int)
+    y_test = y_test.astype(int)
+
     n_states = len(X_train)  # 状态数为训练集的样本数
     n_actions = 2  # 动作数，假设是二分类问题
 
     # 初始化Q-table
     Q = np.zeros((n_states, n_actions))
 
-
-
-    # Q-learning训练过程
     for episode in range(episodes):
         for state_index in range(n_states):
-            # 探索 or 利用
+            current_state = state_index
             if np.random.rand() < epsilon:
-                action = np.random.choice([0, 1])  # 随机选择动作
-                epsilon -= declay
+                action = np.random.choice([0, 1])
             else:
-                action = np.argmax(Q[state_index, :])  # 选择Q值最高的动作
+                action = np.argmax(Q[current_state, :])
 
-            # 假设奖励机制
-            reward = 1 if action == y_train.iloc[state_index].item() else -1
-
-            # 更新Q-table
             next_state_index = (state_index + 1) % n_states
-            Q[state_index, action] += lr * (reward + gamma * np.max(Q[next_state_index, :]) - Q[state_index, action])
+            next_state = next_state_index
 
-    # 使用训练好的Q-table进行预测
-    predictions = np.array([np.argmax(Q[state_index, :]) for state_index in range(len(X_test))])
+            if action == y_train.iloc[state_index].item():
+                reward = 1
+            else:
+                reward = -1
+
+            old_value = Q[current_state, action]
+            future_max = np.max(Q[next_state, :])
+            Q[current_state, action] = old_value + lr * (reward + gamma * future_max - old_value)
+
+        # Epsilon decay at the end of each episode
+        epsilon = max(0.01, epsilon - declay)  # Ensure epsilon never goes below 0.01
+
+    predictions = np.array([np.argmax(Q[i, :]) for i in range(len(X_test))])
+
 
     def q_model_predict(features):
-        predictions = []
-        for i in range(features.shape[0]):
-            if i >= Q.shape[0]:  # 检查索引是否有效
-                # print(f"Warning: Index {i} is out of bounds for Q-table with size {Q.shape[0]}.")
-                continue  # 跳过这个索引，或者你可以选择其他的处理方式
-            action = np.argmax(Q[i, :])
-            predictions.append(action)
-        return np.array(predictions)
+        Q_expanded = np.vstack([Q] * (math.ceil(len(features)/len(Q)) + 1))
+        return np.array([np.argmax(Q_expanded[i, :]) for i in range(len(features))])
 
     # shap总体解释
     # 假设 model 是已经训练好的SVM或KNN模型
@@ -114,10 +141,29 @@ def Q_learning(modelName, lr, epsilon, gamma, declay, episodes, table_name, cols
         explain_data = X_train[:SHAP_TRAINSIZE]
     else:
         explain_data = X_train
-    explainer = shap.KernelExplainer(q_model_predict, explain_data)
+    explainer = shap.Explainer(q_model_predict, explain_data)
     shap_values = explainer.shap_values(explain_data)
     avg_shapvalue = np.sum(shap_values, axis=0)
     avg_shapvalue = avg_shapvalue.tolist()
+    avg_shapvalue = [abs(number) for number in avg_shapvalue]
+
+    # 将值转化为百分比
+    total = sum(avg_shapvalue)
+    avg_shapvalue = [(x / total) * 100 for x in avg_shapvalue]
+
+    # 保存模型
+    # 保存模型到文件
+    file_path1 = os.path.join(MODEL_SAVE_DICTORY, 'trained', f"QLearning_{modelName}.pkl")
+    with open(file_path1, 'wb') as file:
+        pickle.dump(Q, file)
+    # 保存SHAP
+    file_path2 = os.path.join(MODEL_SAVE_DICTORY, 'explainer', f"QLearning_{modelName}.pkl")
+    with open(file_path2, 'wb') as file:
+        pickle.dump(explain_data, file)
+    # 保存数据预处理模块
+    file_path3 = os.path.join(MODEL_SAVE_DICTORY, 'scaler', f"QLearning_{modelName}.pkl")
+    with open(file_path3, 'wb') as f:
+        pickle.dump(scaler, f)
 
 
 
@@ -126,8 +172,11 @@ def Q_learning(modelName, lr, epsilon, gamma, declay, episodes, table_name, cols
     precision = precision_score(y_test, predictions)
     recall = recall_score(y_test, predictions)
     f1 = f1_score(y_test, predictions)
-    matrix = confusion_matrix(y_test, predictions)
-    TN, FP, FN, TP = matrix.ravel()
+    conf_matrix = confusion_matrix(y_test, predictions)
+    TN = int(conf_matrix[0, 0])
+    FP = int(conf_matrix[0, 1])
+    FN = int(conf_matrix[1, 0])
+    TP = int(conf_matrix[1, 1])
 
     return accuracy, precision, recall, f1, TP, FN, FP, TN, avg_shapvalue
 
@@ -147,10 +196,12 @@ def get_main():
     parser.add_argument("--declay", type=float, default=1e-3)
     parser.add_argument("--episodes", type=float, default=1000)
     parser.add_argument("--modelName", type=str, default="test")
-    parser.add_argument("--table_name", type=str, default="data_diabetes23")
+    parser.add_argument("--table_name", type=str, default="heart2")
     parser.add_argument("--cols", type=str,
-                        default="pregnancies,glucose,skinthickness,insulin,bmi,diabetespedigreefunction,age")
-    parser.add_argument("--labels", type=str, default="outcome")
+                        default="age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal")
+    parser.add_argument("--labels", type=str, default="target")
+    parser.add_argument("--features_label", type=str, default="cp,ca,thal,sex,exang,chol,oldpeak,age,restecg,trestbps,thalach,slope,fbs")
+    parser.add_argument("--features_doctorRate", type=str, default="24.7,17.1,11.4,10.9,7.199999999999999,4.8,4.8,4.7,4.7,3.4000000000000004,3.3000000000000003,2.1,0.6")
     args = parser.parse_args()
 
     table_name = args.table_name
@@ -162,11 +213,15 @@ def get_main():
     modelName = args.modelName
     cols = args.cols
     labels = args.labels
+    features_label = args.features_label
+    features_doctorRate = args.features_doctorRate
 
     cols = cols.split(",")
     labels = labels.split(",")
+    features_label = features_label.split(",")
+    features_doctorRate = features_doctorRate.split(",")
 
-    accuracy, precision, recall, f1, TP, FN, FP, TN, avg_shapvalue = Q_learning(modelName, lr, epsilon, gamma, declay,episodes, table_name, cols, labels)
+    accuracy, precision, recall, f1, TP, FN, FP, TN, avg_shapvalue = Q_learning(modelName, lr, epsilon, gamma, declay,episodes, table_name, cols, labels, features_label, features_doctorRate)
 
     accuracy = {"accuracy": accuracy}
     accuracy = json.dumps(accuracy, ensure_ascii=False)

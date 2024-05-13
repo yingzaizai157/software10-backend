@@ -146,7 +146,7 @@ class RuntimeBusController {
 
         System.out.println(listMap);
 
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，使用算法" + alg + "，应用的数据表名：" + tableName);
+//        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，使用算法" + alg + "，应用的数据表名：" + tableName);
         return listMap;
     }
 
@@ -494,34 +494,54 @@ class RuntimeBusController {
 
     @PostMapping("/submitAlg")
     public Map<String,Map<String, String>> submitAlg(
-            @RequestBody(required=false)  List<AlgorithmParameter> parameters, HttpServletRequest request
+            @RequestBody(required=false) Map<String, Object> paramss, HttpServletRequest request
     ) throws Exception {
-        String token = request.getHeader("Authorization");
-        String curId = SecurityUtil.getUserIdFromToken(token);
-        User curUser = userService.getUserById(curId);
+//        String token = request.getHeader("Authorization");
+//        String curId = SecurityUtil.getUserIdFromToken(token);
+//        User curUser = userService.getUserById(curId);
+
+        List<AlgorithmParameter> parameters = new ArrayList<AlgorithmParameter>();
+        List<LinkedHashMap> te = (List<LinkedHashMap>) paramss.get("modelname");
+        for (int i = 0; i < te.size(); i++) {
+            AlgorithmParameter ttt = new AlgorithmParameter();
+            ttt.setName((String) te.get(i).get("name"));
+            ttt.setForms((Map<String, Object>) te.get(i).get("forms"));
+            parameters.add(ttt);
+        }
 
 
         Map<String,Map<String, String>> result = new HashMap<String,Map<String, String>>();
         for (AlgorithmParameter parameter : parameters) {
             Map<String, String> mapRes = new HashMap<>();
             String name = parameter.getName();
-            Map<String, Object> params = parameter.getForms();
+            Map<String, Object> forms = parameter.getForms();
+            Map<String, Map<String,Object>> params = (Map<String, Map<String,Object>>) forms.get("paramObject");
 
             System.out.println(parameter);
             if (name.equals("dqn")) {
                 // dqn参数
-                String reward = params.get("reward") + "";
-                String epoch = params.get("epoch") + "";
-                String gamma = params.get("gamma") + "";
-                String learning_rate = params.get("learning_rate") + "";
-                String modelName = params.get("taskname") + "";
-                String table_name = params.get("table_name") + "";
-                List<String> cols = (List<String>) params.get("cols");
-                List<String> labels = (List<String>) params.get("labels");
+                String reward = params.get("reward").get("value") + "";
+                String epoch = params.get("iter").get("value") + "";
+                String gamma = params.get("gamma").get("value") + "";
+                String learning_rate = params.get("learning_rate").get("value") + "";
+                String modelName = forms.get("taskname") + "";
+                String table_name = forms.get("table_name") + "";
+                List<String> cols = (List<String>) forms.get("cols");
+                List<String> labels = (List<String>) forms.get("labels");
+
+                // 解析特征重要度
+                List<Map<String,String>> feartues = (List<Map<String,String>>) paramss.get("features");
+                List<String> features_label = new ArrayList<String>();
+                List<String> features_doctorRate = new ArrayList<String>();
+                for (Map<String, String> feature : feartues) {
+                    features_label.add(feature.get("riskFactor"));
+                    features_doctorRate.add(feature.get("doctorRate"));
+                }
+
                 // dqn模型运行
                 System.out.println("======dqn========");
                 System.out.println("reward, epoch, gamma, learning_rate, modelName, table_name, cols, labels"+ reward+ epoch+ gamma+ learning_rate+ modelName+ table_name+ cols+ labels);
-                RuntimeBusServiceResponse runtimeBusServiceResponse = runtimeBusService.submitDQN(reward, epoch, gamma, learning_rate, modelName, table_name, cols, labels);
+                RuntimeBusServiceResponse runtimeBusServiceResponse = runtimeBusService.submitDQN(reward, epoch, gamma, learning_rate, modelName, table_name, cols, labels, features_label, features_doctorRate);
                 List<String> temp = runtimeBusServiceResponse.getRes();
                 for (String ret : temp) {
                     ret = ret.substring(1, ret.length() - 1);
@@ -557,15 +577,73 @@ class RuntimeBusController {
                 }
 
             }
+            else if (name.equals("qLearning")) {
+                // qLearning参数
+                String lr = params.get("lr").get("value") + "";
+                String epsilon = params.get("epsilon").get("value") + "";
+                String gamma = params.get("gamma").get("value") + "";
+                String declay = params.get("declay").get("value") + "";
+                String episodes = params.get("episodes").get("value") + "";
+                String modelName = forms.get("taskname") + "";
+                String table_name = forms.get("table_name") + "";
+                List<String> cols = (List<String>) forms.get("cols");
+                List<String> labels = (List<String>) forms.get("labels");
+
+                // 解析特征重要度
+                List<Map<String,String>> feartues = (List<Map<String,String>>) paramss.get("features");
+                List<String> features_label = new ArrayList<String>();
+                List<String> features_doctorRate = new ArrayList<String>();
+                for (Map<String, String> feature : feartues) {
+                    features_label.add(feature.get("riskFactor"));
+                    features_doctorRate.add(feature.get("doctorRate"));
+                }
+
+                // dqn模型运行
+                System.out.println("======qLearning========");
+                RuntimeBusServiceResponse runtimeBusServiceResponse = runtimeBusService.submitQLearning(lr, epsilon, gamma, declay, episodes, modelName, table_name, cols, labels, features_label, features_doctorRate);
+                List<String> temp = runtimeBusServiceResponse.getRes();
+                for (String ret : temp) {
+                    ret = ret.substring(1, ret.length() - 1);
+                    String[] parts = ret.split(",");
+                    for (String part : parts) {
+                        String[] sp = part.split(":");
+                        String strkey = sp[0].substring(1, sp[0].length() - 1);
+                        if (strkey.equals("total_losses") || strkey.equals("total_rewards")) {
+                            String strvalue = sp[1].substring(2, sp[1].length() - 1);
+                            strvalue = strvalue.replaceAll("p", ",");
+                            String[] value = strvalue.split(",");
+                            Integer total = value.length;
+                            strvalue = "";
+                            for (int j = 0; j < total; j++) {
+                                strvalue += "[['" + String.valueOf(j + 1) + "'," + value[j] + "]],";
+                            }
+                            mapRes.put(strkey, strvalue.substring(0, strvalue.length() - 1));
+                        } else if (strkey.equals("cols")) {
+                        } else if (strkey.equals("avg_shapvalue")) {
+                            String strvalue = sp[1].substring(2, sp[1].length() - 1);
+                            strvalue = strvalue.replaceAll("p", ",");
+                            String[] value = strvalue.split(",");
+                            Integer total = value.length;
+                            strvalue = "";
+                            for (int j = 0; j < total; j++) {
+                                strvalue += "{value:" + value[j] + ",name:" + cols.get(j) + "},";
+                            }
+                            mapRes.put(strkey, strvalue.substring(0, strvalue.length() - 1));
+                        } else {
+                            mapRes.put(strkey, sp[1].substring(1, sp[1].length()));
+                        }
+                    }
+                }
+            }
             else if (name.equals("svm")) {
                 // SVM参数
-                String kernel = (String) params.get("kernel");
-                String random_state = params.get("random_state") + "";
-                String cv = params.get("cv") + "";
-                String modelName = (String) params.get("taskname");
-                String table_name = (String) params.get("table_name");
-                List<String> cols = (List<String>) params.get("cols");
-                List<String> labels = (List<String>) params.get("labels");
+                String kernel = params.get("kernel").get("value") + "";
+                String random_state = params.get("random_state").get("value") + "";
+                String cv = params.get("cv").get("value") + "";
+                String modelName = forms.get("taskname") + "";
+                String table_name = forms.get("table_name") + "";
+                List<String> cols = (List<String>) forms.get("cols");
+                List<String> labels = (List<String>) forms.get("labels");
                 //svm模型运行
                 System.out.println("======svm========");
                 RuntimeBusServiceResponse runtimeBusServiceResponse = runtimeBusService.submitSVM(kernel, random_state, cv, modelName, table_name, cols, labels);
@@ -609,13 +687,13 @@ class RuntimeBusController {
                 //KNN参数
 //                String paramRange = String.valueOf(params.get("paramRange"));
 //                String cv = String.valueOf(params.get("cv"));
-                String K = params.get("K") + "";
-                String random_state = params.get("random_state") + "";
-                String cv = params.get("cv") + "";
-                String modelName = (String) params.get("taskname");
-                String table_name = (String) params.get("table_name");
-                List<String> cols = (List<String>) params.get("cols");
-                List<String> labels = (List<String>) params.get("labels");
+                String K = params.get("K").get("value") + "";
+                String random_state = params.get("random_state").get("value") + "";
+                String cv = params.get("cv").get("value") + "";
+                String modelName = forms.get("taskname") + "";
+                String table_name = forms.get("table_name") + "";
+                List<String> cols = (List<String>) forms.get("cols");
+                List<String> labels = (List<String>) forms.get("labels");
                 // knn模型运行
                 System.out.println("======knn========");
                 RuntimeBusServiceResponse runtimeBusServiceResponse = runtimeBusService.submitKNN(K, random_state, cv, modelName, table_name, cols, labels);
@@ -655,66 +733,66 @@ class RuntimeBusController {
             }
             result.put(name, mapRes);
 
-            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，运行算法" + name + "，应用的数据表名：" + params.get("table_name") + "，任务名：" + params.get("taskname"));
+//            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，运行算法" + name + "，应用的数据表名：" + params.get("table_name") + "，任务名：" + params.get("taskname"));
 
         }
         return result;
     }
 
 
-    @PostMapping("/dqn")
-    public Map<String, String> submitDQN(
-            @RequestBody(required=false)  String parameters
-    ) throws Exception {
-        JSONObject object = JSONObject.parseObject(parameters);
-
-        String reward = object.getString("reward");
-        String epoch = object.getString("epoch");
-        String gamma = object.getString("gamma");
-        String learning_rate = object.getString("learning_rate");
-        String modelName = object.getString("modelName");
-        String table_name = object.getString("table_name");
-        List<String> cols = object.getJSONArray("cols").toJavaList(String.class);
-        List<String> labels = object.getJSONArray("labels").toJavaList(String.class);
-
-        RuntimeBusServiceResponse runtimeBusServiceResponse = runtimeBusService.submitDQN(reward, epoch, gamma, learning_rate, modelName, table_name, cols, labels);
-
-        System.out.println("======submit_model========");
-
-        List<String> temp = runtimeBusServiceResponse.getRes();
-        System.out.println(temp);
-
-        Map<String, String> mapRes = new HashMap<>();
-        for (int i = 0; i < temp.size(); i++) {
-            String ret = temp.get(i);
-            ret = ret.substring(1, ret.length() - 1);
-            String[] parts = ret.split(",");
-            for(String part: parts){
-                String[] sp = part.split(":");
-                String strkey = sp[0].substring(1, sp[0].length() - 1);
-                if (strkey.equals("total_losses") || strkey.equals("total_rewards")){
-                    String strvalue = sp[1].substring(2, sp[1].length()-1);
-                    strvalue = strvalue.replaceAll("p",",");
-                    String[] value = strvalue.split(",");
-                    Integer total = value.length;
-                    strvalue = "";
-                    for (int j = 0; j < total; j++) {
-                        strvalue += "['" + String.valueOf(j+1) + "'," + value[j] + "],";
-                    }
-                    mapRes.put(strkey, strvalue.substring(0,strvalue.length()-1));
-                }
-                else {
-                    mapRes.put(strkey, sp[1].substring(1, sp[1].length()));
-                }
-            }
-        }
-
-
-
-        System.out.println(mapRes);
-
-        return mapRes;
-    }
+//    @PostMapping("/dqn")
+//    public Map<String, String> submitDQN(
+//            @RequestBody(required=false)  String parameters
+//    ) throws Exception {
+//        JSONObject object = JSONObject.parseObject(parameters);
+//
+//        String reward = object.getString("reward");
+//        String epoch = object.getString("epoch");
+//        String gamma = object.getString("gamma");
+//        String learning_rate = object.getString("learning_rate");
+//        String modelName = object.getString("modelName");
+//        String table_name = object.getString("table_name");
+//        List<String> cols = object.getJSONArray("cols").toJavaList(String.class);
+//        List<String> labels = object.getJSONArray("labels").toJavaList(String.class);
+//
+//        RuntimeBusServiceResponse runtimeBusServiceResponse = runtimeBusService.submitDQN(reward, epoch, gamma, learning_rate, modelName, table_name, cols, labels);
+//
+//        System.out.println("======submit_model========");
+//
+//        List<String> temp = runtimeBusServiceResponse.getRes();
+//        System.out.println(temp);
+//
+//        Map<String, String> mapRes = new HashMap<>();
+//        for (int i = 0; i < temp.size(); i++) {
+//            String ret = temp.get(i);
+//            ret = ret.substring(1, ret.length() - 1);
+//            String[] parts = ret.split(",");
+//            for(String part: parts){
+//                String[] sp = part.split(":");
+//                String strkey = sp[0].substring(1, sp[0].length() - 1);
+//                if (strkey.equals("total_losses") || strkey.equals("total_rewards")){
+//                    String strvalue = sp[1].substring(2, sp[1].length()-1);
+//                    strvalue = strvalue.replaceAll("p",",");
+//                    String[] value = strvalue.split(",");
+//                    Integer total = value.length;
+//                    strvalue = "";
+//                    for (int j = 0; j < total; j++) {
+//                        strvalue += "['" + String.valueOf(j+1) + "'," + value[j] + "],";
+//                    }
+//                    mapRes.put(strkey, strvalue.substring(0,strvalue.length()-1));
+//                }
+//                else {
+//                    mapRes.put(strkey, sp[1].substring(1, sp[1].length()));
+//                }
+//            }
+//        }
+//
+//
+//
+//        System.out.println(mapRes);
+//
+//        return mapRes;
+//    }
 
 
     @PostMapping("/runmodel")
@@ -752,6 +830,9 @@ class RuntimeBusController {
         }else if (modelname.equals("svm")) {
             runtimeBusServiceResponse = runtimeBusService.runsvm(modelname, taskname, onedata);
             System.out.println("======onepre_svm========");
+        }else if (modelname.equals("qLearning")) {
+            runtimeBusServiceResponse = runtimeBusService.runqLearning(modelname, taskname, onedata);
+            System.out.println("======onepre_qLearning========");
         }
 
         List<String> temp = runtimeBusServiceResponse.getRes();
@@ -767,7 +848,7 @@ class RuntimeBusController {
         }
 
 
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，运行任务，任务名称：" + taskname + "，算法名称：" + modelname);
+//        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，运行任务，任务名称：" + taskname + "，算法名称：" + modelname);
         return mapRes;
     }
 

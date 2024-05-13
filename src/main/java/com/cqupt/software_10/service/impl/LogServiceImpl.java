@@ -51,7 +51,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper, LogEntity>
         String formattedDate = now.format(formatter);
         logEntity.setOpTime(formattedDate);
 
-        logMapper.insert(logEntity);
+        logMapper.myInsert(logEntity);
     }
 
     @Override

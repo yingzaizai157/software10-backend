@@ -68,6 +68,12 @@
         DELETE from software10.software10task where id = #{id}
     </delete>
 
+    <select id="getModelInfo" resultType="com.cqupt.software_10.entity.ModelInfo">
+        select * from software10.software10model
+    </select>
+
+
+
 
 
 </mapper>

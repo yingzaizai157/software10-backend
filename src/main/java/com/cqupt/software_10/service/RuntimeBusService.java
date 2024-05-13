@@ -23,7 +23,11 @@ public interface RuntimeBusService {
 
     RuntimeBusServiceResponse submitKNN(String paramRange, String random_state, String cv, String modelName, String table_name, List<String> cols, List<String> labels) throws Exception;
 
-    RuntimeBusServiceResponse submitDQN(String reward, String epoch, String gamma, String learning_rate, String modelName, String table_name, List<String> cols, List<String> labels) throws Exception;
+    RuntimeBusServiceResponse submitDQN(String reward, String epoch, String gamma, String learning_rate, String modelName, String table_name, List<String> cols, List<String> labels, List<String> features_label, List<String> features_doctorRate) throws Exception;
+
+    RuntimeBusServiceResponse submitQLearning(String lr, String epsilon, String gamma, String declay, String episodes, String modelName, String table_name, List<String> cols, List<String> labels, List<String> features_label, List<String> features_doctorRate) throws Exception;
+
+    RuntimeBusServiceResponse runqLearning(String modelname, String taskname, List<String> onedata) throws Exception;
 
     RuntimeBusServiceResponse rundqn(String modelname, String taskname, List<String> onedata) throws Exception;
 

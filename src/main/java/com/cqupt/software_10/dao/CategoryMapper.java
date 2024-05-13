@@ -31,4 +31,7 @@ public interface CategoryMapper extends BaseMapper<CategoryEntity> {
 
     void changeStatusToPrivate(@Param("id") String id);
 
+
+    List<String> getTableNames();
+
 }

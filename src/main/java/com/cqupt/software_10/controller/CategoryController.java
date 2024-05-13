@@ -2,6 +2,7 @@ package com.cqupt.software_10.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.cqupt.software_10.common.Result;
 import com.cqupt.software_10.dao.CategoryMapper;
@@ -19,16 +20,15 @@ import com.cqupt.software_10.util.SecurityUtil;
 import com.cqupt.software_10.vo.AddDiseaseVo;
 import com.cqupt.software_10.vo.DeleteDiseaseVo;
 import com.cqupt.software_10.vo.UpdateDiseaseVo;
+import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 // TODO 公共模块新增类
 @RestController
@@ -60,7 +60,15 @@ public class CategoryController {
     public Result<List<CategoryEntity>> getCatgory(@RequestParam String uid){
         List<CategoryEntity> list = categoryService.getCategory(uid);
 //        System.out.println(JSON.toJSONString(list));
+        System.out.println("list: --"+list);
         return Result.success("200",list);
+    }
+
+
+    @GetMapping("/getAllTableNames")
+    public Result getAllTableNames(){
+        List<String> res = categoryService.getTableNames();
+        return Result.success("200",res);
     }
 
 
@@ -106,12 +114,7 @@ public class CategoryController {
     // 删除一个目录
     @Transactional
     @GetMapping("/category/remove")
-    public Result removeCate(CategoryEntity categoryEntity, HttpServletRequest request){
-        String token = request.getHeader("Authorization");
-        String curId = SecurityUtil.getUserIdFromToken(token);
-        User curUser = userService.getUserById(curId);
-
-
+    public Result removeCate(CategoryEntity categoryEntity){
         System.out.println("要删除的目录为："+JSON.toJSONString(categoryEntity));
         if(categoryEntity.getIsLeafs()==0){
             categoryService.removeNode(categoryEntity.getId());
@@ -120,15 +123,13 @@ public class CategoryController {
             categoryService.removeNode(categoryEntity.getId(),categoryEntity.getLabel());
             TableDescribeEntity tableDescribeEntity = tableDescribeMapper.selectOne(new QueryWrapper<TableDescribeEntity>().eq("table_id",categoryEntity.getId()));
             if(tableDescribeEntity.getTableSize()!=0){
-                userMapper.recoveryUpdateUserColumnById(tableDescribeEntity.getUid(),new Double(tableDescribeEntity.getTableSize()));
+                userMapper.recoveryUpdateUserColumnById(tableDescribeEntity.getUid(),tableDescribeEntity.getTableSize());
             }
             tableDescribeMapper.delete(new QueryWrapper<TableDescribeEntity>().eq("table_id",categoryEntity.getId()));
 //            tTableMapper.delete(new QueryWrapper<tTable>().eq("table_name",categoryEntity.getLabel()));
 
         }
 
-
-        logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除目录，" + categoryEntity.getLabel());
         return Result.success(200,"删除成功");
     }
 
@@ -162,14 +163,11 @@ public class CategoryController {
     }
 
     // TODO 获取公病数据集个数
-    @GetMapping("/getComDiseaseNum")
-    public Result getComDiseaseNum(){
+    @GetMapping("/getDiseaseNum")
+    public Result getDiseaseNum(){
         List<CategoryEntity> list = categoryService.getComDisease();
         return Result.success("200",list.size());
     }
-
-
-
 
 //    @PostMapping("/category/deleteCategory")
 //    public Result deleteCategory(@RequestBody DeleteDiseaseVo deleteDiseaseVo){
@@ -182,21 +180,6 @@ public class CategoryController {
 //        categoryService.removeCategorys(deleteDiseaseVo.getDeleteIds());
 //        return Result.success("删除成功");
 //    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     @GetMapping("/addParentDisease")
     public Result addParentDisease(@RequestParam("diseaseName") String diseaseName, HttpServletRequest request){
@@ -222,6 +205,9 @@ public class CategoryController {
         logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，修改树情况，" + categoryEntity);
         return Result.success(200,"修改成功",null);
     }
+
+    // 新增可共享用户列表
+
 
 
     @GetMapping("/inspectionOfIsNotCommon")
@@ -330,5 +316,136 @@ public class CategoryController {
         logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，删除树枝：" + deleteDiseaseVo);
         return Result.success("删除成功");
     }
+
+
+    // 用以首页统计信息用
+    @GetMapping("/category/static")
+    public Map<String,Integer> categoryStatic(){
+        List<CategoryEntity> categoryEntities = categoryMapper.selectList(null);
+
+        List<CategoryEntity> treeData = categoryEntities.stream().filter((categoryEntity) -> {
+            return categoryEntity.getIsLeafs() == 1 && categoryEntity.getIsDelete() == 0 ;
+        }).collect(Collectors.toList());
+
+        List<CategoryEntity> disease = categoryEntities.stream().filter((categoryEntity) -> {
+            return categoryEntity.getCatLevel() == 2;
+        }).collect(Collectors.toList());
+
+        Map<String,Integer> result = new HashMap<String,Integer>();
+
+        for (CategoryEntity categoryEntity : disease) {
+            result.put(categoryEntity.getLabel(), 0);
+        }
+
+        for (CategoryEntity cate : treeData) {
+            while (cate.getCatLevel() != 2) {
+                String id = cate.getParentId();
+                List<CategoryEntity> temp = categoryMapper.selectList(null).stream().filter((categoryEntity) -> {
+                    return categoryEntity.getId().equals(id);
+                }).collect(Collectors.toList());
+                cate = temp.get(0);
+            }
+            Integer num = result.get(cate.getLabel());
+            result.put(cate.getLabel(), num + 1);
+        }
+
+
+        return result;
+    }
+
+
+
+
+
+
+    // 新增可共享用户列表
+    @PostMapping("/category/changeToShare")
+    public Result changeToShare(@RequestBody Map<String, Object> requestData){
+        String nodeid = (String) requestData.get("nodeid");
+        String uid_list = (String) requestData.get("uid_list");
+        CategoryEntity entity = new CategoryEntity();
+        entity.setUidList(uid_list);
+        entity.setStatus("1");
+        UpdateWrapper<CategoryEntity> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", nodeid);
+        int res = categoryMapper.update(entity, updateWrapper);
+        if(res == 1){
+            return Result.success(200,"修改成功");
+        }
+        else {
+            return Result.fail(500,"修改失败");
+        }
+    }
+
+    //新增可共享用户列表
+    @PostMapping("/category/changeToPrivate")
+    public Result changeToPrivate(@RequestBody Map<String, Object> requestData){
+        String nodeid = (String) requestData.get("nodeid");
+        CategoryEntity entity = new CategoryEntity();
+        entity.setUidList("");
+        entity.setStatus("0");
+        UpdateWrapper<CategoryEntity> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", nodeid);
+        int res = categoryMapper.update(entity, updateWrapper);
+        if(res == 1){
+            return Result.success(200,"修改成功");
+        }
+        else {
+            return Result.fail(500,"修改失败");
+        }
+    }
+
+    //新增可共享用户列表
+    @PostMapping("/category/getNodeInfo")
+    public Result getNodeInfo(@RequestBody Map<String, Object> requestData){
+        String nodeid = (String) requestData.get("nodeid");
+        String uid = (String) requestData.get("uid");
+
+        QueryWrapper<CategoryEntity> queryWrapper = Wrappers.query();
+        queryWrapper.eq("id",nodeid);
+        CategoryEntity categoryEntity = categoryMapper.selectOne(queryWrapper);
+        String includedUids = categoryEntity.getUidList();
+        //使用 split() 方法返回的数组是一个固定长度的数组，无法修改其大小。
+        //可以使用 Arrays.asList() 方法将数组转换为 ArrayList，然后再添加额外的元素。
+        List<String> includedUidList = new ArrayList<>(Arrays.asList(includedUids.split(",")));
+
+        includedUidList.add(uid);
+
+        QueryWrapper<User> userQueryWrapper1 = new QueryWrapper<>();
+        userQueryWrapper1.notIn("uid", includedUidList);
+        List<User> excludeUserList = userMapper.selectList(userQueryWrapper1);
+
+        QueryWrapper<User> userQueryWrapper2 = new QueryWrapper<>();
+        includedUidList.remove(uid);
+        userQueryWrapper2.in("uid", includedUidList);
+        List<User> includeUserList = userMapper.selectList(userQueryWrapper2);
+
+
+        //
+        List<String> tempRes = new ArrayList<>();
+        List<Map<String, Object>> included = new ArrayList<>();
+        for (User user : includeUserList) {
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("key", user.getUid());
+            resultMap.put("label", user.getUsername());
+            tempRes.add(user.getUid());
+            included.add(resultMap);
+        }
+
+
+        List<Map<String, Object>> excluded = new ArrayList<>();
+        for (User user : excludeUserList) {
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("key", user.getUid());
+            resultMap.put("label", user.getUsername());
+            excluded.add(resultMap);
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("included", included);
+        result.put("excluded", excluded);
+        return  Result.success(200,"操作成功", tempRes);
+    }
+
+
 
 }

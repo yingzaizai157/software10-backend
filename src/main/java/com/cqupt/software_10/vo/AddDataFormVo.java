@@ -13,5 +13,9 @@ import java.util.List;
 public class AddDataFormVo {
     private String dataName;
     private String createUser;
+    private String uid;
+    private String username;
+    private String IsFilter;
+    private String IsUpload;
     private List<CreateTableFeatureVo> characterList;
 }

@@ -1,27 +1,29 @@
 package com.cqupt.software_10.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.cqupt.software_10.dao.CategoryMapper;
-import com.cqupt.software_10.dao.TableDataMapper;
-import com.cqupt.software_10.dao.TableDescribeMapper;
-import com.cqupt.software_10.entity.CategoryEntity;
-import com.cqupt.software_10.entity.FieldManagementEntity;
-import com.cqupt.software_10.entity.TableDescribeEntity;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.cqupt.software_10.dao.*;
+import com.cqupt.software_10.entity.*;
+import com.cqupt.software_10.entity.user.User;
 import com.cqupt.software_10.mapper.user.UserMapper;
 import com.cqupt.software_10.service.FieldManagementService;
 import com.cqupt.software_10.service.TableDataService;
 import com.cqupt.software_10.vo.CreateTableFeatureVo;
 import com.opencsv.CSVReader;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -45,6 +47,14 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Autowired
     UserMapper userMapper;
+
+    @Autowired
+    FilterDataInfoMapper filterDataInfoMapper;
+
+    @Autowired
+    FilterDataColMapper filterDataColMapper;
+
+
     @Override
     public List<LinkedHashMap<String, Object>> getTableData(String TableId, String tableName) {
         List<LinkedHashMap<String, Object>> tableData = tableDataMapper.getTableData(tableName);
@@ -89,7 +99,7 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void createTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser, CategoryEntity nodeData) {
+    public void createTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser, CategoryEntity nodeData,String uid,String username,String IsFilter,String IsUpload) {
         /**
          *          筛选数据
          *              查询当前目录下的宽表所有数据
@@ -106,17 +116,18 @@ public class TableDataServiceImpl implements TableDataService {
          *
          */
         List<LinkedHashMap<String, Object>> res = getFilterDataByConditions(characterList, nodeData);
-        CategoryEntity mustContainNode = getBelongType(nodeData, new ArrayList<CategoryEntity>());
-        // 查询考虑疾病的宽表数据
-         List<LinkedHashMap<String,Object>> diseaseData = tableDataMapper.getAllTableData(mustContainNode.getLabel()); // 传递表名参数
-        System.out.println("考虑疾病所有数据");
-        // 合并考虑疾病和非考虑疾病的所有数据
-        for (LinkedHashMap<String, Object> re : res) {
-            diseaseData.add(re);
-        }
+//        CategoryEntity mustContainNode = getBelongType(nodeData, new ArrayList<CategoryEntity>());
+//        // 查询考虑疾病的宽表数据
+        //List<LinkedHashMap<String,Object>> diseaseData = tableDataMapper.getAllTableData("merge"); // 传递表名参数
+        List<LinkedHashMap<String,Object>> diseaseData = res;
+//        System.out.println("考虑疾病所有数据");
+//        // 合并考虑疾病和非考虑疾病的所有数据
+//        for (LinkedHashMap<String, Object> re : res) {
+//            diseaseData.add(re);
+//        }
         // 创建表头信息 获取宽表字段管理信息
         List<FieldManagementEntity> fields = fieldManagementService.list(null);
-       // System.out.println("字段长度为："+fields.size());
+        // System.out.println("字段长度为："+fields.size());
         HashMap<String, String> fieldMap = new HashMap<>();
         for (FieldManagementEntity field : fields) {
             fieldMap.put(field.getFeatureName(),field.getUnit());
@@ -152,21 +163,28 @@ public class TableDataServiceImpl implements TableDataService {
         CategoryEntity node = new CategoryEntity();
         node.setIsDelete(0);
         node.setParentId(nodeData.getId());
-//        node.setPath(node.getPath()+"/"+tableName);
         node.setIsLeafs(1);
-//        node.setIsCommon(nodeData.getIsCommon());
+        node.setStatus(nodeData.getStatus());
+        node.setUid(uid);
+        node.setUsername(username);
         node.setCatLevel(nodeData.getCatLevel()+1);
-//        node.setIsWideTable(0);
         node.setLabel(tableName);
+        node.setIsFilter(IsFilter);
+        node.setIsUpload(IsUpload);
+        System.out.println(node);
         categoryMapper.insert(node); // 保存目录信息
 
         // 表描述信息
         TableDescribeEntity tableDescribeEntity = new TableDescribeEntity();
         tableDescribeEntity.setTableName(tableName);
-        tableDescribeEntity.setCreateUser(createUser);
+        tableDescribeEntity.setCreateUser(node.getUsername());
+        tableDescribeEntity.setUid(uid);
+        tableDescribeEntity.setTableStatus(node.getStatus());
+        tableDescribeEntity.setCreateUser(username);
         tableDescribeEntity.setCreateTime(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-//        tableDescribeEntity.setClassPath(nodeData.getPath()+"/"+tableName);
+        tableDescribeEntity.setClassPath(nodeData.getLabel()+"/"+tableName);
         tableDescribeEntity.setTableId(node.getId());
+        tableDescribeEntity.setTableSize(0.0);
         // 保存表描述信息
         tableDescribeMapper.insert(tableDescribeEntity);
 
@@ -187,27 +205,23 @@ public class TableDataServiceImpl implements TableDataService {
     // 根据条件筛选数据
     @Override
     public List<LinkedHashMap<String, Object>> getFilterDataByConditions(List<CreateTableFeatureVo> characterList,CategoryEntity nodeData) {
+        User user = userMapper.getUerByUserName("tl");
+
         List<CategoryEntity> categoryEntities = categoryMapper.selectList(null); // 查询所有的目录信息
         // 找到所有的宽表节点
-//        List<CategoryEntity> allWideTableNodes = categoryEntities.stream().filter(categoryEntity -> {
-//            return categoryEntity.getIsWideTable()!=null && categoryEntity.getIsWideTable() == 1;
-//        }).collect(Collectors.toList());
+        List<CategoryEntity> allWideTableNodes = categoryEntities.stream().collect(Collectors.toList());
+        System.out.println("所有的宽表节点："+JSON.toJSONString(allWideTableNodes));
         // 遍历当前节点的所有叶子节点，找到这个宽表节点
         ArrayList<CategoryEntity> leafNodes = new ArrayList<>();
-        getLeafNode(nodeData, leafNodes);
+//        getLeafNode(nodeData, leafNodes);
         /** 找到所有的非考虑疾病的宽表节点 **/
         List<CategoryEntity> otherWideTable = null;
         if(leafNodes!=null && leafNodes.size()>0){
-//            for (CategoryEntity leafNode : leafNodes) {
-//                if(leafNode.getIsWideTable()!=null && leafNode.getIsWideTable()==1) {
-//                    otherWideTable = allWideTableNodes.stream().filter(categoryEntity -> { // 所有的非考虑疾病的宽表节点
-//                        return !categoryEntity.getLabel().equals(leafNode.getLabel());
-//                    }).collect(Collectors.toList());
-//                }
-//            }
+            System.out.println("非空！！！！！！！！！！！！");
         }else{
-            return null;
+            otherWideTable = allWideTableNodes;
         }
+        if(otherWideTable==null) otherWideTable = allWideTableNodes;
         // 筛选所有非考虑疾病的宽表数据
         /** select * from ${tableName} where ${feature} ${computeOpt} ${value} ${connector} ... **/
         // 前端传过来的 AND OR NOT 是数字形式0,1,2，需要变成字符串拼接sql
@@ -219,22 +233,46 @@ public class TableDataServiceImpl implements TableDataService {
         }
         // 处理varchar类型的数据
         for (CreateTableFeatureVo createTableFeatureVo : characterList) {
-            if(createTableFeatureVo.getUnit()!=null && createTableFeatureVo.getUnit().equals("character varying")){
+            System.out.println("当前字段的类型："+createTableFeatureVo.getUnit());
+            if(createTableFeatureVo.getType()==null || createTableFeatureVo.getType().equals("character varying")){
                 createTableFeatureVo.setValue("'"+createTableFeatureVo.getValue()+"'");
             }
         }
-        // 依次查询每一个表中符合条件的数据
         List<List<LinkedHashMap<String, Object>>> otherWideTableData = new ArrayList<>();
-        for (CategoryEntity wideTable : otherWideTable) {
-            otherWideTableData.add(tableDataMapper.getFilterData(wideTable.getLabel(),characterList)); // TODO 筛选SQl xml
-        }
-        /** 数据合并List<List<Map<String, Object>>> otherWideTableData(多张表) 合并到 List<Map<String,Object>> diseaseData（一张表） **/
         ArrayList<LinkedHashMap<String, Object>> res = new ArrayList<>();
+        otherWideTableData.add(tableDataMapper.getFilterData("merge",characterList));
+        ArrayList<LinkedHashMap<String, Object>> res2 = new ArrayList<>();
         for (List<LinkedHashMap<String, Object>> otherWideTableDatum : otherWideTableData) {
             for (LinkedHashMap<String, Object> rowData : otherWideTableDatum) {
                 res.add(rowData);
             }
         }
+
+// 插入 filter_data_info 表信息
+        FilterDataInfo filterDataInfo = new FilterDataInfo();
+
+        filterDataInfo.setUid(Integer.valueOf(user.getUid()));
+        filterDataInfo.setCreateUser(user.getUsername());
+        filterDataInfo.setUsername(user.getUsername());
+
+        filterDataInfo.setCateId(nodeData.getId());
+        filterDataInfo.setParentId(nodeData.getParentId());
+        filterDataInfo.setFilterTime(new Timestamp(System.currentTimeMillis())); // 时间
+        filterDataInfoMapper.insert(filterDataInfo);
+
+
+        ArrayList<FilterDataCol> filterDataCols = new ArrayList<>();
+        for (CreateTableFeatureVo createTableFeatureVo : characterList) {
+            FilterDataCol filterDataCol = new FilterDataCol();
+            BeanUtils.copyProperties(createTableFeatureVo,filterDataCol);
+            filterDataCol.setFilterDataInfoId(filterDataInfo.getId());
+            FieldManagementEntity fieldManagementEntity = fieldManagementService.getOne(new QueryWrapper<FieldManagementEntity>().eq("feature_name", createTableFeatureVo.getFeatureName()));
+            filterDataCol.setRange(fieldManagementEntity.getRange());
+            filterDataColMapper.insert(filterDataCol);
+        }
+
+
+
         return res;
     }
 

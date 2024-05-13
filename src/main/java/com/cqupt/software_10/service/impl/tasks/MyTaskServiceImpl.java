@@ -13,6 +13,7 @@ import com.cqupt.software_10.entity.tasks.MyTask;
 import com.cqupt.software_10.mapper.tasks.MyTaskMapper;
 import com.cqupt.software_10.service.tasks.MyTaskService;
 import com.cqupt.software_10.vo.DateCount;
+import com.cqupt.software_10.vo.DateModelCount;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -284,6 +285,17 @@ public class MyTaskServiceImpl extends ServiceImpl<MyTaskMapper, MyTask> impleme
     @Override
     public List<DateCount> getTaskNearlySevenDays() {
         return myTaskMapper.getTaskNearlySevenDays();
+    }
+
+    @Override
+    public List<DateModelCount> getEveryTaskNearlySevenDays() {
+        return myTaskMapper.getEveryTaskNearlySevenDays();
+    }
+
+    @Override
+    public List<MyTask> getlistbyTaskname(String taskname) {
+        List<MyTask> tasks = myTaskMapper.getlistbyTaskname(taskname);
+        return tasks;
     }
 
 }
