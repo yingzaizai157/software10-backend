@@ -157,6 +157,8 @@ public class TaskController {
 
         JSONObject object = JSONObject.parseObject(arg);
 
+        System.out.println("----------------------------\n" + object);
+
         String taskname = object.getString("taskName");
         String leader = object.getString("leader");
         String participant = object.getString("participant");
@@ -186,11 +188,11 @@ public class TaskController {
         // 有几个算法就添加几条任务
         for (int i = 0; i < taskmodel.size(); i++) {
             JsonNode alg = taskmodel.get(i);
-            String modelname = String.valueOf(alg.get("name"));
+            String modelname = String.valueOf(alg.get("modelname"));
             modelname = modelname.substring(1, modelname.length() - 1);
-            String modeltype = String.valueOf(alg.get("model_type"));
+            String modeltype = String.valueOf(alg.get("modelType"));
             modeltype = modeltype.substring(1, modeltype.length() - 1);
-            String modelparams = String.valueOf(alg.get("params"));
+            String modelparams = String.valueOf(alg.get("algorithm_params"));
             modelparams = modelparams.substring(1, modelparams.length() - 1);
 
             // 结果解析

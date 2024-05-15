@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 @Data
 public class FilterDataInfo {
     private Integer id;
-    private Integer uid;
+    private String uid;
     private String username;
     private String createUser;
     private String cateId;

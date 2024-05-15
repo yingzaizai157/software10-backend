@@ -115,6 +115,31 @@ public class TableDataController {
         logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，创建数据：" + filterTableDataVo.getAddDataForm().getDataName());
         return Result.success(200,"SUCCESS");
     }
+    @PostMapping("/createFilterBtnTable")
+    public Result createFilterBtnTable(@RequestBody FilterTableDataVo filterTableDataVo,
+                                       @RequestHeader("uid") String userId,
+                                       @RequestHeader("username") String username,
+                                       @RequestHeader("role") Integer role){
+        tableDataService.createFilterBtnTable(filterTableDataVo.getAddDataForm().getDataName(),filterTableDataVo.getAddDataForm().getCharacterList(),
+                filterTableDataVo.getAddDataForm().getCreateUser(),filterTableDataVo.getStatus(),filterTableDataVo.getAddDataForm().getUid(),filterTableDataVo.getAddDataForm().getUsername(),filterTableDataVo.getAddDataForm().getIsFilter(),filterTableDataVo.getAddDataForm().getIsUpload(),filterTableDataVo.getAddDataForm().getUid_list(),filterTableDataVo.getNodeid());
+//        UserLog userLog = new UserLog();
+        // userLog.setId(1);
+//        userLog.setUsername(username);
+//        userLog.setUid(userId);
+//        userLog.setRole(role);
+//        userLog.setTime(new Date());
+//        userLog.setOperation("用户建表"+filterTableDataVo.getAddDataForm().getDataName());
+//        userLogMapper.insert(userLog);
+        return Result.success(200,"SUCCESS");
+    }
+
+    @PostMapping("/getFilterDataByConditionsByDieaseId")
+    public Result<List<Map<String,Object>>> getFilterDataByConditionsByDieaseId(@RequestBody FilterTableDataVo filterTableDataVo){
+        List<LinkedHashMap<String, Object>> filterDataByConditions = tableDataService.getFilterDataByConditionsByDieaseId(filterTableDataVo.getAddDataForm().getCharacterList(), filterTableDataVo.getAddDataForm().getUid(),filterTableDataVo.getAddDataForm().getUsername(),filterTableDataVo.getNodeid());
+        System.out.println("筛选数据长度为："+filterDataByConditions.size());
+        return Result.success("200",filterDataByConditions);
+    }
+
 
     // 根据条件筛选数据
     @PostMapping("/filterTableData")

@@ -26,4 +26,9 @@ public interface TableDataService {
     List<String> ParseFileCol(MultipartFile file, String tableName) throws IOException;
 
     Integer getCountByTableName(String tableName);
+    void createFilterBtnTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser,String status,String uid,String username,String IsFilter,String IsUpload,String uid_list,String nodeid);
+
+
+    List<LinkedHashMap<String, Object>> getFilterDataByConditionsByDieaseId(List<CreateTableFeatureVo> characterList,String uid,String username,String nodeid);
+
 }
