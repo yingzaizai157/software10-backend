@@ -4,6 +4,7 @@ package com.cqupt.software_10.controller;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.cqupt.software_10.common.Result;
+import com.cqupt.software_10.dao.CategoryMapper;
 import com.cqupt.software_10.dao.TableDescribeMapper;
 import com.cqupt.software_10.entity.CategoryEntity;
 import com.cqupt.software_10.entity.TableDescribeEntity;
@@ -40,6 +41,8 @@ public class TableDescribeController {
     UserService userService;
     @Autowired
     LogService logService;
+    @Autowired
+    CategoryMapper categoryMapper;
 
     @GetMapping("/tableDescribe")
     public Result<TableDescribeEntity> getTableDescribe(@RequestParam("id") String id){ // 参数表的Id
@@ -69,24 +72,28 @@ public class TableDescribeController {
                                   @RequestParam("pid") String pid,
                                   @RequestParam("tableName") String tableName,
                                   @RequestParam("userName") String userName,
-                                  @RequestParam("classPath") String classPath,
-                                  @RequestParam("uid") String uid,
+                                  @RequestParam("ids") String[] ids,
+                                  @RequestParam("uid") String uid,   // 传表中涉及到的用户的uid
                                   @RequestParam("tableStatus") String tableStatus,
                                   @RequestParam("tableSize") Double tableSize,
-                                  HttpServletRequest request
+                                  @RequestParam("current_uid") String current_uid, //操作用户的uid
+                                  @RequestParam("uid_list") String uid_list
     ){
-        String token = request.getHeader("Authorization");
-        String curId = SecurityUtil.getUserIdFromToken(token);
-        User curUser = userService.getUserById(curId);
-
         // 保存表数据信息
         try {
-            List<String> featureList = tableDescribeService.uploadDataTable(file, pid, tableName, userName, classPath, uid, tableStatus, tableSize);
-            logService.insertLog(curUser.getUid(), curUser.getRole(), "成功，上传文件：" + tableName);
+//            String tableId="";
+            // 管理员端-数据管理新更改
+//            传入的是category的id集合，根据id获取labels拼接成classpath
+            String classPath = "公共数据集";
+            for (String id : ids){
+                CategoryEntity categoryEntity = categoryMapper.selectById(id);
+                classPath += "/" + categoryEntity.getLabel();
+            }
+            classPath += "/" + tableName;
+            List<String> featureList = tableDescribeService.uploadDataTable(file, pid, tableName, userName, classPath, uid, tableStatus, tableSize, current_uid,uid_list);
             return Result.success("200",featureList); // 返回表头信息
         }catch (Exception e){
             e.printStackTrace();
-            logService.insertLog(curUser.getUid(), curUser.getRole(), "失败，上传文件：" + tableName);
             return Result.success(500,"文件上传异常");
         }
     }

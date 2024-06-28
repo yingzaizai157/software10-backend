@@ -16,7 +16,9 @@ warnings.filterwarnings("ignore")
 
 
 
-config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
+# config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
+config_file = r"/root/keti3/backend/software10/alg/algorithms/config.json"
+
 # 读取常量
 with open(config_file) as json_file:
     config = json.load(json_file)
@@ -134,9 +136,9 @@ if __name__ == '__main__':
     parser.add_argument("--random_state", type=int, default=42)
     parser.add_argument("--cv", type=int, default=5)
     parser.add_argument("--modelName", type=str, default="test")
-    parser.add_argument("--table_name", type=str, default="diabetes")
+    parser.add_argument("--table_name", type=str, default="diabetes22")
     parser.add_argument("--cols", type=str,
-                        default="Pregnancies,Glucose,SkinThickness,Insulin,BMI,DiabetesPedigreeFunction,Age")
+                        default="Pregnancies,Glucose,BloodPressure,SkinThickness,Insulin,BMI,DiabetesPedigreeFunction,Age")
     parser.add_argument("--labels", type=str, default="Outcome")
     args = parser.parse_args()
 

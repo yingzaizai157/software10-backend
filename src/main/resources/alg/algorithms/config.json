@@ -1,14 +1,14 @@
 {
   "db_params" : {
     "dbname": "software10",
-    "user": "pg",
+    "user": "postgres",
     "password": "111111",
-    "host": "10.16.48.219",
+    "host": "localhost",
     "port": 5432
   },
 
-  "MODEL_SAVE_DICTORY" : "D:\\Code\\Java\\software10\\software-software_backend\\src\\main\\resources\\alg\\models",
-  "FIG_SAVE_DICTORY" : "D:\\Code\\Java\\software10\\software-software_backend\\src\\main\\resources\\alg\\fig\\model",
+  "MODEL_SAVE_DICTORY" : "/root/keti3/backend/software10/alg/models",
+  "FIG_SAVE_DICTORY" : "/root/keti3/frontend/software10/dist/static/fig/model",
 
   "INPUT_SIZE" : 8,
   "HIDDEN_SIZE" : 64,
@@ -21,7 +21,7 @@
 
   "core" : 0,
 
-  "SHAP_SAVE_PATH" : "D:\\Code\\Java\\software10\\software-software_backend\\src\\main\\resources\\alg\\fig",
+  "SHAP_SAVE_PATH" : "/root/keti3/frontend/software10/dist/static/fig",
 
   "N" : 5
 }

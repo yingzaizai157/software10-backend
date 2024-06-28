@@ -15,7 +15,7 @@ public interface TableDataMapper {
     void createTable(@Param("headers") String[] headers,@Param("tableName") String tableName);
     void insertRow(@Param("row") String[] row, @Param("tableName") String tableName);
     List<LinkedHashMap<String, Object>> getFilterData(@Param("tableName") String label, @Param("conditions") List<CreateTableFeatureVo> characterList);
-    void createTableByField(@Param("tableName") String tableName, @Param("fieldMap") HashMap<String, String> fieldMap);
+    void createTableByField(@Param("tableName") String tableName, @Param("featureList") ArrayList<String> featureList);
     void bachInsertData(@Param("diseaseData") List<LinkedHashMap<String, Object>> diseaseData,@Param("tableName") String tableName);
     List<LinkedHashMap<String, Object>> getColsTableData(@Param("colsName") ArrayList<String> colNames, @Param("tableName") String tableName);
     List<LinkedHashMap<String, Object>> getAllTableData(@Param("tableName") String label);

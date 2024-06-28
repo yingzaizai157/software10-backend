@@ -17,7 +17,9 @@ public interface TableDataService {
 
     List<String> uploadFile(MultipartFile file, String tableName, String type, String user, String userId, String parentId, String parentType,String status,Double size,String is_upload,String is_filter) throws IOException, ParseException;
 
-    void createTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser, CategoryEntity nodeData,String uid,String username,String IsFilter,String IsUpload);
+    void createTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser, CategoryEntity nodeData,String uid,String username,String IsFilter,String IsUpload,String uid_list);
+
+    void createFilterBtnTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser,String status,String uid,String username,String IsFilter,String IsUpload,String uid_list,String nodeid);
 
     List<LinkedHashMap<String, Object>> getFilterDataByConditions(List<CreateTableFeatureVo> characterList,CategoryEntity nodeData);
 
@@ -26,9 +28,8 @@ public interface TableDataService {
     List<String> ParseFileCol(MultipartFile file, String tableName) throws IOException;
 
     Integer getCountByTableName(String tableName);
-    void createFilterBtnTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser,String status,String uid,String username,String IsFilter,String IsUpload,String uid_list,String nodeid);
-
 
     List<LinkedHashMap<String, Object>> getFilterDataByConditionsByDieaseId(List<CreateTableFeatureVo> characterList,String uid,String username,String nodeid);
 
+    List<LinkedHashMap<String, Object>> getFilterDataByConditionsWhenCreateTable(List<CreateTableFeatureVo> characterList, CategoryEntity nodeData, String uid, String username);
 }

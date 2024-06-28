@@ -20,7 +20,7 @@ import com.cqupt.software_10.util.SecurityUtil;
 import com.cqupt.software_10.vo.AddDiseaseVo;
 import com.cqupt.software_10.vo.DeleteDiseaseVo;
 import com.cqupt.software_10.vo.UpdateDiseaseVo;
-import javafx.util.Pair;
+//import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

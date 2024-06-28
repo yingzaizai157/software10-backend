@@ -15,7 +15,10 @@ from sqlalchemy import create_engine
 warnings.filterwarnings("ignore")
 
 
-config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
+# config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
+
+config_file = r"/root/keti3/backend/software10/alg/algorithms/config.json"
+
 # 读取常量
 with open(config_file) as json_file:
     config = json.load(json_file)

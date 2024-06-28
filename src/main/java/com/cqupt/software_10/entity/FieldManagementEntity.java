@@ -37,36 +37,57 @@ public class FieldManagementEntity {
 //    private String range;
 //    private String disease;
 
+//    private Integer characterId;
+//    private String featureName;
+//    private String chName;
+//    private Boolean diseaseStandard;
+//    private Boolean isDemography;
+//    private Boolean isPhysiological;
+//    private Boolean isSociology;
+//    private String tableName;
+//    private String unit;
+//    private Boolean isLabel;
+//    private Boolean discrete;
+//    private String range;
+//    private String disease;
+//    private Integer she;
+//    private String isClinicaRelationship;
+//    private String isMultipleDiseases;
+//    private String isRoomInformation;
+//    private String isQuestionnaire;
+//    private String isTimeInformation;
+//    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+//    private Timestamp startTime;
+//    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+//    private Timestamp endTime;
+//    private String timeSpace;
+//    private Date createTime;
+//    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+//    private Timestamp updateTime;
+//    private String tablePeople;
+//    private String tableOrigin;
+//    private String type;
+
+
+    @TableId
     private Integer characterId;
     private String featureName;
     private String chName;
     private Boolean diseaseStandard;
-    private Boolean isDemography;
-    private Boolean isPhysiological;
-    private Boolean isSociology;
+
+    // 人口学
+    private Boolean population;
+    // 生理指标
+    private Boolean physiology;
+
+    // 行为学
+    private Boolean society;
     private String tableName;
     private String unit;
     private Boolean isLabel;
     private Boolean discrete;
     private String range;
     private String disease;
-    private Integer she;
-    private String isClinicaRelationship;
-    private String isMultipleDiseases;
-    private String isRoomInformation;
-    private String isQuestionnaire;
-    private String isTimeInformation;
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Timestamp startTime;
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Timestamp endTime;
-    private String timeSpace;
-    private Date createTime;
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Timestamp updateTime;
-    private String tablePeople;
-    private String tableOrigin;
-    private String type;
 
 
 }

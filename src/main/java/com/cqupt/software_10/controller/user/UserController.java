@@ -18,9 +18,11 @@ import com.cqupt.software_10.mapper.user.UserMapper;
 import com.cqupt.software_10.service.LogService;
 import com.cqupt.software_10.service.user.UserLogService;
 import com.cqupt.software_10.service.user.UserService;
+import com.cqupt.software_10.util.EncryptionUtil;
 import com.cqupt.software_10.util.SecurityUtil;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -223,73 +225,100 @@ public class UserController {
        return Result.success(200, "成功", null);
     }
 
-    @PostMapping("/login")
-    public Result login(@RequestBody User user, HttpServletResponse response, HttpServletRequest request){
+//    @PostMapping("/login")
+//    public Result login(@RequestBody User user, HttpServletResponse response, HttpServletRequest request){
+//
+//        // 判断验证编码
+//        String code = request.getSession().getAttribute("code").toString();
+//        if(code==null) return Result.fail(400,"验证码已过期！");
+//        if(user.getCode()==null || !user.getCode().equals(code)) {
+//            return Result.fail(501, "验证码错误!");
+//        }
+//
+//        String userName = user.getUsername();
+//        User getUser = userService.getUserByName(userName);
+//        String password = getUser.getPassword();
+//
+//
+//        if (getUser != null){
+//            // 用户状态校验
+//            // 判断用户是否激活
+//            System.out.println("getUser:"+  getUser+ "\n" + getUser.getUserStatus() );
+//            if (getUser.getUserStatus().equals("0")){
+//                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "账户未激活");
+//                return Result.fail("该账户未激活");
+//            }
+//            if (getUser.getUserStatus().equals("2")){
+//                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "该账户已经被禁用");
+//                return Result.fail("该账户已经被禁用");
+//            }
+//
+//            String userStatus = getUser.getUserStatus();
+//            if(userStatus.equals("0")){ // 待激活
+//                return Result.fail(502,"账户未激活！");
+//            }else if(userStatus.equals("2")){
+//                return Result.fail(503,"用户已被禁用!");
+//            }
+//
+//            // 进行验证密码
+//            String pwd = user.getPassword();
+//            String sha256 = SecurityUtil.hashDataSHA256(pwd);
+//            if (sha256.equals(password)){
+//                // 验证成功
+////                UserLog userLog = new UserLog();
+////                userLog.setUid(getUser.getUid());
+////                userLog.setOpTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+////                userLog.setOpType("登录系统");
+////                userLog.setUsername(userName);
+////                System.out.println("userlog:"+userLog);
+////                userLogService.save(userLog);
+//                // session认证
+//                HttpSession session = request.getSession();
+////                request.setR
+//                session.setAttribute("username",user.getUsername());
+//                session.setAttribute("userId",getUser.getUid());
+//
+////                logService.insertLog(getUser.getUid(), user.getRole(), "用户登录");
+//                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录成功");
+//
+//                String token = SecurityUtil.generateToken(getUser.getUid());
+//                System.out.println("================================" + token);
+//                return Result.success(200, token, getUser);
+//            }else {
+//                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录失败");
+//                return Result.fail(504,"密码错误请重新输入",null);
+//            }
+//        }else {
+//            return Result.fail(505,"用户不存在",null);
+//        }
+//    }
 
-        // 判断验证编码
-        String code = request.getSession().getAttribute("code").toString();
-        if(code==null) return Result.fail(400,"验证码已过期！");
-        if(user.getCode()==null || !user.getCode().equals(code)) {
-            return Result.fail(501, "验证码错误!");
-        }
-
-        String userName = user.getUsername();
-        User getUser = userService.getUserByName(userName);
-        String password = getUser.getPassword();
+    @Value("${shandong.key}")
+    private String key;
+    @GetMapping("/login")
+    public Result login(HttpServletRequest request, @RequestParam("key") String token) throws Exception {
 
 
-        if (getUser != null){
-            // 用户状态校验
-            // 判断用户是否激活
-            System.out.println("getUser:"+  getUser+ "\n" + getUser.getUserStatus() );
-            if (getUser.getUserStatus().equals("0")){
-                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "账户未激活");
-                return Result.fail("该账户未激活");
-            }
-            if (getUser.getUserStatus().equals("2")){
-                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "该账户已经被禁用");
-                return Result.fail("该账户已经被禁用");
-            }
-
-            String userStatus = getUser.getUserStatus();
-            if(userStatus.equals("0")){ // 待激活
-                return Result.fail(502,"账户未激活！");
-            }else if(userStatus.equals("2")){
-                return Result.fail(503,"用户已被禁用!");
-            }
-
-            // 进行验证密码
-            String pwd = user.getPassword();
-            String sha256 = SecurityUtil.hashDataSHA256(pwd);
-            if (sha256.equals(password)){
-                // 验证成功
-//                UserLog userLog = new UserLog();
-//                userLog.setUid(getUser.getUid());
-//                userLog.setOpTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-//                userLog.setOpType("登录系统");
-//                userLog.setUsername(userName);
-//                System.out.println("userlog:"+userLog);
-//                userLogService.save(userLog);
-                // session认证
+        // 解密
+        String userInfo = EncryptionUtil.decrypt(EncryptionUtil.generateKey(key), token);
+        String[] split = userInfo.split(":");
+        System.out.println(split[0]);
+        User userByName = userService.getUserByName(split[0]);
+        if(userByName!=null){
+            if(userByName.getPassword().equals(split[1])){
                 HttpSession session = request.getSession();
-//                request.setR
-                session.setAttribute("username",user.getUsername());
-                session.setAttribute("userId",getUser.getUid());
-
-//                logService.insertLog(getUser.getUid(), user.getRole(), "用户登录");
-                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录成功");
-
-                String token = SecurityUtil.generateToken(getUser.getUid());
-                System.out.println("================================" + token);
-                return Result.success(200, token, getUser);
-            }else {
-                logService.insertLog(getUser.getUid(), getUser.getRole(), getUser.getUsername() + "登录失败");
-                return Result.fail(504,"密码错误请重新输入",null);
+                session.setAttribute("username",userByName.getUsername());
+                session.setAttribute("userId",userByName.getUid());
+                return Result.success(200,"登录成功", userByName);
+            }else{
+                return Result.fail(500, "密码错误");
             }
-        }else {
-            return Result.fail(505,"用户不存在",null);
+        }else{
+            return Result.fail(500, "用户不存在");
         }
+
     }
+
 
     @PostMapping("/logout")
     public Result logout(HttpServletRequest request,HttpServletResponse response){

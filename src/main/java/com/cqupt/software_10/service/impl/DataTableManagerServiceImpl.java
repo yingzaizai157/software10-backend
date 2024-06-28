@@ -21,8 +21,8 @@ import java.util.function.Function;
 public class DataTableManagerServiceImpl implements DataTableManagerService {
 
 
-    String  dbUrl = "jdbc:mysql://10.16.48.219:3306/ten_Diabetes?characterEncoding=utf-8";
-    String dbUsername = "root";
+    String  dbUrl = "jdbc:postgresql://schh.work:2208/software4v2";
+    String dbUsername = "postgres";
     String dbPassword = "111111";
 
     @Resource

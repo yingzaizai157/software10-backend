@@ -17,8 +17,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -99,7 +97,7 @@ public class TableDataServiceImpl implements TableDataService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void createTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser, CategoryEntity nodeData,String uid,String username,String IsFilter,String IsUpload) {
+    public void createTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser, CategoryEntity nodeData,String uid,String username,String IsFilter,String IsUpload,String uid_list) {
         /**
          *          筛选数据
          *              查询当前目录下的宽表所有数据
@@ -115,7 +113,7 @@ public class TableDataServiceImpl implements TableDataService {
          *              5、创建目录节点信息，并保存数据库
          *
          */
-        List<LinkedHashMap<String, Object>> res = getFilterDataByConditions(characterList, nodeData);
+        List<LinkedHashMap<String, Object>> res = getFilterDataByConditionsWhenCreateTable(characterList, nodeData,uid,username);
 //        CategoryEntity mustContainNode = getBelongType(nodeData, new ArrayList<CategoryEntity>());
 //        // 查询考虑疾病的宽表数据
         //List<LinkedHashMap<String,Object>> diseaseData = tableDataMapper.getAllTableData("merge"); // 传递表名参数
@@ -129,11 +127,14 @@ public class TableDataServiceImpl implements TableDataService {
         List<FieldManagementEntity> fields = fieldManagementService.list(null);
         // System.out.println("字段长度为："+fields.size());
         HashMap<String, String> fieldMap = new HashMap<>();
+        ArrayList<String> featureList = new ArrayList<String>();
         for (FieldManagementEntity field : fields) {
+            featureList.add(field.getFeatureName());
             fieldMap.put(field.getFeatureName(),field.getUnit());
         }
+        System.out.println("字段管理信息为："+fieldMap);
         // TODO 创建表头信息
-        tableDataMapper.createTableByField(tableName,fieldMap);
+        tableDataMapper.createTableByField(tableName,featureList);
         // TODO 数据保存 批量插入
         // TODO 保证value值数量与字段个数一致
         for (Map<String, Object> diseaseDatum : diseaseData) {
@@ -170,7 +171,9 @@ public class TableDataServiceImpl implements TableDataService {
         node.setCatLevel(nodeData.getCatLevel()+1);
         node.setLabel(tableName);
         node.setIsFilter(IsFilter);
+        System.out.println(uid_list);
         node.setIsUpload(IsUpload);
+        node.setUidList(uid_list);
         System.out.println(node);
         categoryMapper.insert(node); // 保存目录信息
 
@@ -334,6 +337,7 @@ public class TableDataServiceImpl implements TableDataService {
         return featureList;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void createFilterBtnTable(String tableName, List<CreateTableFeatureVo> characterList, String createUser, String status, String uid, String username, String IsFilter, String IsUpload, String uid_list,String nodeid) {
         /**
@@ -367,11 +371,13 @@ public class TableDataServiceImpl implements TableDataService {
         List<FieldManagementEntity> fields = fieldManagementService.list(null);
         // System.out.println("字段长度为："+fields.size());
         HashMap<String, String> fieldMap = new HashMap<>();
+        ArrayList<String> featureList = new ArrayList<String>();
         for (FieldManagementEntity field : fields) {
             fieldMap.put(field.getFeatureName(),field.getUnit());
+            featureList.add(field.getFeatureName());
         }
         // TODO 创建表头信息
-        tableDataMapper.createTableByField(tableName,fieldMap);
+        tableDataMapper.createTableByField(tableName,featureList);
         // TODO 数据保存 批量插入
         // TODO 保证value值数量与字段个数一致
         for (Map<String, Object> diseaseDatum : diseaseData) {
@@ -509,5 +515,62 @@ public class TableDataServiceImpl implements TableDataService {
         return res;
     }
 
+    @Override
+    public List<LinkedHashMap<String, Object>> getFilterDataByConditionsWhenCreateTable(List<CreateTableFeatureVo> characterList, CategoryEntity nodeData, String uid, String username) {
+        List<CategoryEntity> categoryEntities = categoryMapper.selectList(null); // 查询所有的目录信息
+        // 找到所有的宽表节点
+        List<CategoryEntity> allWideTableNodes = categoryEntities.stream().collect(Collectors.toList());
+        System.out.println("所有的宽表节点："+JSON.toJSONString(allWideTableNodes));
+        // 遍历当前节点的所有叶子节点，找到这个宽表节点
+        ArrayList<CategoryEntity> leafNodes = new ArrayList<>();
+        getLeafNode(nodeData, leafNodes);
+        /** 找到所有的非考虑疾病的宽表节点 **/
+        List<CategoryEntity> otherWideTable = null;
+        if(leafNodes!=null && leafNodes.size()>0){
+            System.out.println("非空！！！！！！！！！！！！");
+        }else{
+            otherWideTable = allWideTableNodes;
+        }
+        if(otherWideTable==null) otherWideTable = allWideTableNodes;
+        // 筛选所有非考虑疾病的宽表数据
+        /** select * from ${tableName} where ${feature} ${computeOpt} ${value} ${connector} ... **/
+        // 前端传过来的 AND OR NOT 是数字形式0,1,2，需要变成字符串拼接sql
+        for (CreateTableFeatureVo createTableFeatureVo : characterList) {
+            if(createTableFeatureVo.getOpt()==null) createTableFeatureVo.setOptString("");
+            else if(createTableFeatureVo.getOpt()==0) createTableFeatureVo.setOptString("AND");
+            else if(createTableFeatureVo.getOpt()==1) createTableFeatureVo.setOptString("OR");
+            else createTableFeatureVo.setOptString("AND NOT");
+        }
+        // 处理varchar类型的数据
+        for (CreateTableFeatureVo createTableFeatureVo : characterList) {
+            System.out.println("当前字段的类型："+createTableFeatureVo.getUnit());
+            if(createTableFeatureVo.getType()==null || createTableFeatureVo.getType().equals("character varying")){
+                createTableFeatureVo.setValue("'"+createTableFeatureVo.getValue()+"'");
+            }
+        }
+        List<List<LinkedHashMap<String, Object>>> otherWideTableData = new ArrayList<>();
+        ArrayList<LinkedHashMap<String, Object>> res = new ArrayList<>();
+        otherWideTableData.add(tableDataMapper.getFilterData("merge",characterList));
+        ArrayList<LinkedHashMap<String, Object>> res2 = new ArrayList<>();
+        for (List<LinkedHashMap<String, Object>> otherWideTableDatum : otherWideTableData) {
+            for (LinkedHashMap<String, Object> rowData : otherWideTableDatum) {
+                res.add(rowData);
+            }
+        }
+//        // 依次查询每一个表中符合条件的数据
+//        List<List<LinkedHashMap<String, Object>>> otherWideTableData = new ArrayList<>();
+//        for (CategoryEntity wideTable : otherWideTable) {
+//            otherWideTableData.add(tableDataMapper.getFilterData(wideTable.getLabel(),characterList)); // TODO 筛选SQl xml
+//        }
+//        /** 数据合并List<List<Map<String, Object>>> otherWideTableData(多张表) 合并到 List<Map<String,Object>> diseaseData（一张表） **/
+//        ArrayList<LinkedHashMap<String, Object>> res = new ArrayList<>();
+//        for (List<LinkedHashMap<String, Object>> otherWideTableDatum : otherWideTableData) {
+//            for (LinkedHashMap<String, Object> rowData : otherWideTableDatum) {
+//                res.add(rowData);
+//            }
+//        }
+
+        return res;
+    }
 
 }

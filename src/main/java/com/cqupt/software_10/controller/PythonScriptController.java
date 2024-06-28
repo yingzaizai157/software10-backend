@@ -19,6 +19,8 @@ public class PythonScriptController {
     @Value("${gorit.file.py.GetFillRate}")
     private String GetFillRate;
 
+    @Value("${application.python.environment}")
+    private String pythonPath;
 
     @GetMapping("/get_fill_rate")
     public String pyfileUpload(@RequestParam String tablename) {
@@ -26,7 +28,7 @@ public class PythonScriptController {
         Process process = null;
         try {
             process = Runtime.getRuntime()
-                    .exec("F:\\Anaconda3\\envs\\pytorch\\python.exe " + GetFillRate + " " + tablename);  // 确保提供正确的Python脚本路径和Python解释器
+                    .exec(pythonPath + " " + GetFillRate + " " + tablename);  // 确保提供正确的Python脚本路径和Python解释器
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
 

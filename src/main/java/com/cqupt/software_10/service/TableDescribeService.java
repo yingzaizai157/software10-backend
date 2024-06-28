@@ -13,7 +13,7 @@ import java.util.Map;
 // TODO 公共模块新增类
 public interface TableDescribeService extends IService<TableDescribeEntity> {
     @Transactional
-    List<String> uploadDataTable(MultipartFile file, String pid, String tableName, String userName, String classPath, String uid, String tableStatus, Double tableSize) throws IOException, ParseException;
+    List<String> uploadDataTable(MultipartFile file, String pid, String tableName, String userName, String classPath, String uid, String tableStatus, Double tableSize,String current_uid,String uid_list) throws IOException, ParseException;
 
     List<TableDescribeEntity> selectAllDataInfo();
 

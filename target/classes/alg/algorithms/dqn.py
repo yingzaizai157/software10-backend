@@ -20,7 +20,8 @@ warnings.filterwarnings("ignore")
 from sklearn.metrics import f1_score, accuracy_score, confusion_matrix, precision_score, recall_score
 
 
-config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
+# config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
+config_file = r"/root/keti3/backend/software10/alg/algorithms/config.json"
 # 读取常量
 with open(config_file) as json_file:
     config = json.load(json_file)
@@ -545,12 +546,12 @@ def get_main():
     parser.add_argument("--gamma", type=float, default=0.4)
     parser.add_argument("--learning_rate", type=float, default=0.01)
     parser.add_argument("--modelName", type=str, default="test")
-    parser.add_argument("--table_name", type=str, default="heart2")
+    parser.add_argument("--table_name", type=str, default="diabetes22")
     parser.add_argument("--cols", type=str,
-                        default="age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal")
-    parser.add_argument("--labels", type=str, default="target")
-    parser.add_argument("--features_label", type=str, default="cp,ca,thal,sex,exang,chol,oldpeak,age,restecg,trestbps,thalach,slope,fbs")
-    parser.add_argument("--features_doctorRate", type=str, default="24.7,17.1,11.4,10.9,7.199999999999999,4.8,4.8,4.7,4.7,3.4000000000000004,3.3000000000000003,2.1,0.6")
+                        default="Pregnancies,Glucose,BloodPressure,SkinThickness,Insulin,BMI,DiabetesPedigreeFunction,Age")
+    parser.add_argument("--labels", type=str, default="Outcome")
+    parser.add_argument("--features_label", type=str, default="Glucose,Age,BMI,Insulin,DiabetesPedigreeFunction,Pregnancies,SkinThickness,BloodPressure")
+    parser.add_argument("--features_doctorRate", type=str, default="26,13.900000000000002,13.600000000000001,10.2,9.6,9.3,9.2,8.200000000000001")
     args = parser.parse_args()
 
 

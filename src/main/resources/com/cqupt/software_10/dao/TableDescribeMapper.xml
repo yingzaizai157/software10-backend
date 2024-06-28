@@ -9,7 +9,7 @@
     <update id="createTable">
         create table ${tableName} (
         <foreach collection="headers" item="columnName" separator=",">
-            ${columnName} VARCHAR(255)
+            "${columnName}" VARCHAR(255)
         </foreach>
         );
     </update>

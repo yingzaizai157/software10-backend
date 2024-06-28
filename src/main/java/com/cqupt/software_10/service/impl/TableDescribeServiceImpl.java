@@ -64,7 +64,7 @@ public class TableDescribeServiceImpl extends ServiceImpl<TableDescribeMapper, T
 
     @Override
     @Transactional
-    public List<String> uploadDataTable(MultipartFile file, String pid, String tableName, String userName, String classPath, String uid, String tableStatus, Double tableSize) throws IOException, ParseException {
+    public List<String> uploadDataTable(MultipartFile file, String pid, String tableName, String userName, String classPath, String uid, String tableStatus, Double tableSize,String current_id,String uid_list) throws IOException, ParseException {
         // 封住表描述信息
         TableDescribeEntity adminDataManageEntity = new TableDescribeEntity();
         CategoryEntity categoryEntity = new CategoryEntity();
@@ -78,6 +78,7 @@ public class TableDescribeServiceImpl extends ServiceImpl<TableDescribeMapper, T
         categoryEntity.setUsername(userName);
         categoryEntity.setIsUpload("1");
         categoryEntity.setIsFilter("0");
+        categoryEntity.setUidList(uid_list);
         System.out.println("==categoryEntity==" + categoryEntity );
         categoryMapper.insert(categoryEntity);
 

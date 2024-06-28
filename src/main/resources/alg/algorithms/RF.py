@@ -11,7 +11,10 @@ warnings.filterwarnings("ignore")
 
 
 
-config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
+# config_file = r"D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms\config.json"
+
+config_file = r"/root/keti3/backend/software10/alg/algorithms/config.json"
+
 # 读取常量
 with open(config_file) as json_file:
     config = json.load(json_file)
@@ -175,8 +178,14 @@ if __name__ == '__main__':
     importances = model.feature_importances_
 
     # 创建特征重要性和特征名称的元组列表
-    feature_importances = [{key: round(value, 3)} for key, value in zip(columns, importances)]
-    print(feature_importances)
+    # feature_importances = [{key: round(value, 3)} for key, value in zip(columns, importances)]
+    # print(feature_importances)
+
+    # 修改点 1: 将 np.float32 转换为标准的 Python 浮点数 float，并四舍五入到三位小数
+    feature_importances = [{key: round(float(value), 3)} for key, value in zip(columns, importances)]
+
+    # 修改点 2: 使用 json.dumps 将特征重要性列表转换为 JSON 字符串输出
+    print(json.dumps(feature_importances))
 
     # for col_name, val in feature_importances:
     #     res = Find(f"select * from table_cols_contribute where table_name = '{table_name}' and en_col='{col_name}'")
