@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7a35b563-19c8-4ac0-a2d0-779261730c30" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/common/FeatureType.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/common/FeatureType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/config/WebMvcConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/config/WebMvcConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/controller/PythonScriptController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/controller/PythonScriptController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/controller/TableDataController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/controller/TableDataController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/controller/TableDescribeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/controller/TableDescribeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/controller/user/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/controller/user/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/dao/TableDataMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/dao/TableDataMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/entity/FieldManagementEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/entity/FieldManagementEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/service/TableDataService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/service/TableDataService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/service/TableDescribeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/service/TableDescribeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/service/impl/TableDataServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/service/impl/TableDataServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../java/com/cqupt/software_10/service/impl/TableDescribeServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../java/com/cqupt/software_10/service/impl/TableDescribeServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/KNN.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/KNN.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/RF.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/RF.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/RunDQN.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/RunDQN.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/RunKNN.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/RunKNN.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/RunSVM.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/RunSVM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/SVM.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SVM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/dqn.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/dqn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/getLackInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/getLackInfos.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/get_fill_rate.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/get_fill_rate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/xgb.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/xgb.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../com/cqupt/software_10/dao/TableDataMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../com/cqupt/software_10/dao/TableDataMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../com/cqupt/software_10/dao/TableDescribeMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../com/cqupt/software_10/dao/TableDescribeMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/KNN.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/KNN.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/RF.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/RF.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/RunDQN.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/RunDQN.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/RunKNN.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/RunKNN.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/RunSVM.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/RunSVM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/SVM.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/SVM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/dqn.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/dqn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/getLackInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/getLackInfos.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/xgb.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/algorithms/xgb.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/models/explainer/DQN_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/models/explainer/DQN_test.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/models/explainer/KNN_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/models/explainer/KNN_test.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/models/explainer/SVM_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/models/explainer/SVM_test.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/models/explanation/DQN_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/models/explanation/DQN_test.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/models/scaler/SVM_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/models/scaler/SVM_test.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/models/trained/DQN_test.pt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/models/trained/DQN_test.pt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/models/trained/KNN_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/models/trained/KNN_test.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/alg/models/trained/SVM_test.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/alg/models/trained/SVM_test.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/common/FeatureType.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/common/FeatureType.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/config/WebMvcConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/config/WebMvcConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/controller/TableDataController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/controller/TableDataController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/controller/TableDescribeController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/controller/TableDescribeController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/controller/user/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/controller/user/UserController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/dao/TableDataMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/dao/TableDataMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/dao/TableDataMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/dao/TableDataMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/dao/TableDescribeMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/dao/TableDescribeMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/entity/FieldManagementEntity.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/entity/FieldManagementEntity.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/service/TableDataService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/service/TableDataService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/service/TableDescribeService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/service/TableDescribeService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/service/impl/TableDataServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/service/impl/TableDataServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/service/impl/TableDescribeServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/com/cqupt/software_10/service/impl/TableDescribeServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/alg/algorithms/KNN.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/alg/algorithms/RunDQN.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/alg/algorithms/dqn.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/alg/fig/add_dqn_shap1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/alg/fig/add_dqn_shap2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/alg/models/explainer/DQN_test.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/alg/models/explainer/KNN_test.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/alg/models/explanation/DQN_test.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/alg/models/scaler/KNN_test.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/alg/models/trained/DQN_test.pt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/alg/models/trained/KNN_test.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../target/classes/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../target/classes/main/resources/application.yml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../.." />
+  </component>
+  <component name="ProjectId" id="2YRM5kat2fYhJTfJ7wozH11TDIy" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "D:/Code/Java/software10/software-software_backend/src/main/resources/alg",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Code\Java\software10\software-software_backend\src\main\resources\alg\algorithms" />
+      <recent name="D:\Code\Java\software10\software-software_backend\src\main\resources\alg\oldfile" />
+      <recent name="D:\Code\Java\software10\software-software_backend\src\main\resources\alg" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.KNN">
+    <configuration name="KNN" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="alg" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/algorithms" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/algorithms/KNN.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Q_learning" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="alg" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/algorithms" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/algorithms/Q_learning.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="RunDQN" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="alg" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/algorithms" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/algorithms/RunDQN.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="RunQLearning (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="alg" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/algorithms" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/algorithms/RunQLearning.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="dqn" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="alg" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/algorithms" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/algorithms/dqn.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.KNN" />
+        <item itemvalue="Python.RunDQN" />
+        <item itemvalue="Python.dqn" />
+        <item itemvalue="Python.RunQLearning (1)" />
+        <item itemvalue="Python.Q_learning" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="7a35b563-19c8-4ac0-a2d0-779261730c30" name="更改" comment="" />
+      <created>1700483757898</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1700483757898</updated>
+      <workItem from="1700483758981" duration="1326000" />
+      <workItem from="1711174935778" duration="16933000" />
+      <workItem from="1711338134927" duration="4172000" />
+      <workItem from="1711356825099" duration="67495000" />
+      <workItem from="1711605511344" duration="17347000" />
+      <workItem from="1711860004054" duration="997000" />
+      <workItem from="1711868158815" duration="6887000" />
+      <workItem from="1712027534673" duration="1711000" />
+      <workItem from="1712133453395" duration="1025000" />
+      <workItem from="1712134509659" duration="9727000" />
+      <workItem from="1712470456078" duration="4603000" />
+      <workItem from="1712564498581" duration="8064000" />
+      <workItem from="1712745402240" duration="34982000" />
+      <workItem from="1713493067971" duration="15760000" />
+      <workItem from="1713686339696" duration="3762000" />
+      <workItem from="1713755474361" duration="6562000" />
+      <workItem from="1713836780895" duration="10801000" />
+      <workItem from="1714012209295" duration="2257000" />
+      <workItem from="1714114253525" duration="8468000" />
+      <workItem from="1714891643470" duration="6085000" />
+      <workItem from="1715143102465" duration="18223000" />
+      <workItem from="1715648857066" duration="607000" />
+      <workItem from="1715650417636" duration="77000" />
+      <workItem from="1715782676578" duration="2640000" />
+      <workItem from="1716195270914" duration="5296000" />
+      <workItem from="1719407459391" duration="2722000" />
+      <workItem from="1719727480517" duration="657000" />
+      <workItem from="1722395982652" duration="802000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/alg$getLackInfos.coverage" NAME="getLackInfos 覆盖结果" MODIFIED="1713517157629" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$KNN.coverage" NAME="KNN 覆盖结果" MODIFIED="1716206078355" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$dqn.coverage" NAME="dqn 覆盖结果" MODIFIED="1716204912871" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$dqn__1_.coverage" NAME="dqn (1) 覆盖结果" MODIFIED="1713508278226" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$RunQLearning__1_.coverage" NAME="RunQLearning (1) 覆盖结果" MODIFIED="1715177989565" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$use_model.coverage" NAME="use_model 覆盖结果" MODIFIED="1711796517538" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/alg$Runshap.coverage" NAME="Runshap 覆盖结果" MODIFIED="1711539556198" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/alg$SVM.coverage" NAME="SVM 覆盖结果" MODIFIED="1713756889305" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$Test.coverage" NAME="Test 覆盖结果" MODIFIED="1711794683454" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/alg$Q_learning.coverage" NAME="Q_learning 覆盖结果" MODIFIED="1715177943186" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$getLackInfos_1_.coverage" NAME="getLackInfos(1) 覆盖结果" MODIFIED="1711356487264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/alg$RunQLearning.coverage" NAME="RunQLearning 覆盖结果" MODIFIED="1715167197037" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/alg$xgb.coverage" NAME="xgb 覆盖结果" MODIFIED="1713515587519" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$test.coverage" NAME="test 覆盖结果" MODIFIED="1715145785737" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/alg$RunSVM.coverage" NAME="RunSVM 覆盖结果" MODIFIED="1713756922514" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$shaptest.coverage" NAME="shaptest 覆盖结果" MODIFIED="1711531416728" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/alg$RunKNN.coverage" NAME="RunKNN 覆盖结果" MODIFIED="1713969293109" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$RF.coverage" NAME="RF 覆盖结果" MODIFIED="1713515596696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$svm_classify.coverage" NAME="svm_classify 覆盖结果" MODIFIED="1713515362856" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$RunDQN.coverage" NAME="RunDQN 覆盖结果" MODIFIED="1716206062283" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/alg$dqn1.coverage" NAME="dqn1 覆盖结果" MODIFIED="1712907349581" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/alg$shaply.coverage" NAME="shaply 覆盖结果" MODIFIED="1711330610156" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
+</project>
